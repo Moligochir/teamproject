@@ -5,7 +5,7 @@ type CreateUserBody = {
   name: string;
   role: string;
   email: string;
-  phonenumber: string;
+  phonenumber: number;
   createdAt?: Date;
   updatedAt?: Date;
 };
