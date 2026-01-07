@@ -5,18 +5,16 @@ const ObjectId = Schema.ObjectId;
 
 const LostFoundSchema = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, require: true, ref: "User" },
     id: ObjectId,
-
+    userId: { type: Schema.Types.ObjectId, require: true, ref: "User" },
     role: { type: String, enum: ["Lost", "Found"] },
     petType: { type: String, enum: ["Dog", "Cat"] },
     name: String,
     gender: { type: String, enum: ["Male", "Female", "Unknown"] },
-    image: { type: String, require: true },
-    location: { type: String, require: true },
+    image: String,
+    location: String,
     description: String,
-    PostDate: { type: Date, default: Date.now },
-    bertelteiEsekh: String,
+    Date: Date,
     breed: { type: String },
   },
   { timestamps: true }

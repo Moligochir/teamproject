@@ -13,6 +13,8 @@ export const createLostFound = async (req: Request, res: Response) => {
     description: newLostFound.description,
     image: newLostFound.image,
     userId: newLostFound.userId,
+    gender: newLostFound.gender,
+    Date: newLostFound.Date,
   });
 
   res.status(200).json("success");

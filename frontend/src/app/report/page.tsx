@@ -61,6 +61,31 @@ export default function ReportPage() {
     }));
   };
 
+
+
+
+
+   const handleAddChange = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/food`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+        body: JSON.stringify({
+         role: formData.status === "lost" ? "Lost" : "Found",
+          petType: formData.type === "dog" ? "Dog" : "Cat",
+          name: formData.name,
+          breed: formData.breed,
+          description: formData.description,
+          userId: user?.id,
+        }),
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
   if (submitted) {
     return (
       <div className="min-h-screen py-12 flex items-center justify-center">
