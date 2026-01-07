@@ -2,12 +2,14 @@ import express from "express";
 import mongoose from "mongoose";
 import { User } from "./routes/users";
 import { Adopt } from "./routes/adopt";
+import { LostFound } from "./routes/lostFound";
 const app = express();
 const port = 8000;
 
 app.use(express.json());
 app.use("/adopt", Adopt);
 app.use("/users", User);
+app.use("/lostFound", LostFound);
 
 mongoose
   .connect(
