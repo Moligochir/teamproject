@@ -7,9 +7,10 @@ import { DeleteIcon, EditIcon } from "../components/icons";
 import { useUser } from "@clerk/nextjs";
 
 
+
 export default function ReportPage() {
   const { user } = useUser();
-  console.log(user);
+  
   const [formData, setFormData] = useState({
     status: "lost",
     type: "dog",
@@ -266,19 +267,32 @@ export default function ReportPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Өнгө/Тэмдэг
-                </label>
-                <input
-                  type="text"
-                  name="color"
-                  value={formData.color}
-                  onChange={handleChange}
-                  placeholder="Жишээ нь: Алтлаг, Хар цагаан толботой"
-                  required
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                />
-              </div>
+  <label
+    htmlFor="gender"
+    className="block text-sm font-medium mb-2"
+  >
+    Хүйс
+  </label>
+
+  <select
+    id="gender"
+    name="gender"
+    value={formData.gender}
+    onChange={handleChange}
+    required
+    className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+  >
+    <option value="" >
+      Сонгоно уу
+    </option>
+    <option value="male">Эрэгтэй</option>
+    <option value="female">Эмэгтэй</option>
+    <option value="other">Бусад</option>
+    
+  </select>
+</div>
+
+              
               <div>
                 <label className="block text-sm font-medium mb-2">
                   {formData.status === "lost"
