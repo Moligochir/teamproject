@@ -85,7 +85,7 @@ export default function AdminDashboard() {
             Зарлалууд
           </Link>
           <Link
-            href="#"
+            href="/users"
             className="block px-4 py-3 rounded-xl hover:bg-card-border"
           >
             Хэрэглэгчид
