@@ -35,8 +35,10 @@ export function People() {
       [e.target.name]: e.target.value,
     }));
   };
+
   return (
-    <div>
+    <div className="space-y-6">
+      {/* Animal Type */}
       <div className="bg-card-bg rounded-2xl border border-card-border p-6">
         <h2 className="text-xl font-bold mb-4">Амьтны төрөл</h2>
         <div className="grid grid-cols-2 gap-4">
@@ -52,6 +54,7 @@ export function People() {
             <div className="text-4xl mb-2">🐕</div>
             <div className="font-bold text-lg">Нохой</div>
           </button>
+
           <button
             type="button"
             onClick={() => setFormData((prev) => ({ ...prev, type: "cat" }))}
@@ -67,12 +70,13 @@ export function People() {
         </div>
       </div>
 
+      {/* Animal Info */}
       <div className="bg-card-bg rounded-2xl border border-card-border p-6">
         <h2 className="text-xl font-bold mb-4">Амьтны мэдээлэл</h2>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2">
-              Амьтны нэр{" "}
+              Амьтны нэр
             </label>
             <input
               type="text"
@@ -80,9 +84,10 @@ export function People() {
               value={formData.name}
               onChange={handleChange}
               placeholder="Жишээ нь: Макс, Луна"
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium mb-2">Үйлдвэр</label>
             <input
@@ -92,9 +97,10 @@ export function People() {
               onChange={handleChange}
               placeholder="Жишээ нь: Алтан ретривер, Сиам"
               required
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium mb-2">
               Өнгө/Тэмдэг
@@ -106,7 +112,7 @@ export function People() {
               onChange={handleChange}
               placeholder="Жишээ нь: Алтлаг, Хар цагаан толботой"
               required
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -116,10 +122,10 @@ export function People() {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Амьтныг таних нэмэлт мэдээллийг оруулна уу: хүзүүвч, тэмдэг, зан төлөв, онцлог шинж тэмдэг..."
               rows={4}
               required
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              placeholder="Амьтныг таних нэмэлт мэдээлэл..."
+              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary resize-none"
             />
           </div>
         </div>
@@ -137,9 +143,11 @@ export function People() {
         </div>
       </div>
 
-      {/* Contact Information */}
+      {/* Contact Info */}
       <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-        <h2 className="text-xl font-bold mb-4">Таны холбоо барих мэдээлэл</h2>
+        <h2 className="text-xl font-bold mb-4">
+          Таны холбоо барих мэдээлэл
+        </h2>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
             <label className="block text-sm font-medium mb-2">Таны нэр</label>
@@ -148,11 +156,11 @@ export function People() {
               name="contactName"
               value={formData.contactName}
               onChange={handleChange}
-              placeholder="Бат-Эрдэнэ"
               required
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium mb-2">Имэйл</label>
             <input
@@ -160,11 +168,11 @@ export function People() {
               name="contactEmail"
               value={formData.contactEmail}
               onChange={handleChange}
-              placeholder="example@email.com"
               required
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium mb-2">
               Утасны дугаар
@@ -174,24 +182,24 @@ export function People() {
               name="contactPhone"
               value={formData.contactPhone}
               onChange={handleChange}
-              placeholder="9911-2233"
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
         </div>
       </div>
 
-      {/* Submit */}
+      {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-4">
         <button
           type="submit"
-          className="flex-1 px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-full font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/30"
+          className="flex-1 px-8 py-4 bg-primary text-white rounded-full font-bold text-lg hover:bg-primary-dark transition cursor-pointer"
         >
           Мэдээлэл илгээх
         </button>
+
         <Link
           href="/"
-          className="px-8 py-4 bg-card-bg border border-card-border hover:border-primary text-foreground rounded-full font-bold text-lg transition-all text-center"
+          className="px-8 py-4 bg-card-bg border border-card-border rounded-full font-bold text-lg text-center hover:border-primary transition cursor-pointer"
         >
           Цуцлах
         </Link>
