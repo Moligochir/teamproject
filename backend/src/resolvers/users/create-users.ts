@@ -6,8 +6,6 @@ type CreateUserBody = {
   role: string;
   email: string;
   phonenumber: number;
-  createdAt?: Date;
-  updatedAt?: Date;
 };
 export const CreateUser = async (
   req: Request<{}, {}, CreateUserBody>,
