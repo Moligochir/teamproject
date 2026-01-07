@@ -40,12 +40,7 @@ export function Navbar() {
             >
               Амьтад үзэх
             </Link>
-            <Link
-              href="/about"
-              className="text-muted hover:text-primary font-medium"
-            >
-              Бидний тухай
-            </Link>
+            
             <Link
               href="/map"
               className="text-muted hover:text-primary font-medium"
@@ -58,11 +53,14 @@ export function Navbar() {
             >
               Dog
             </Link>
+            
           </div>
 
           {/* Right side */}
           <div className="flex items-center gap-3">
             <ThemeToggle />
+            
+            
 
             {/* Auth buttons */}
             <SignedOut>
@@ -76,16 +74,16 @@ export function Navbar() {
             <SignedIn>
               <UserButton afterSignOutUrl="/" />
             </SignedIn>
-
             <Link
               href="/report"
               className="hidden sm:block px-5 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all hover:shadow-lg hover:shadow-primary/30"
             >
               Мэдээлэх
             </Link>
-            <div className="py-2 px-3.5 bg-[#e47a3d] cursor-pointer rounded-2xl shadow-lg">
+            
+            {/* <div className="py-2 px-3.5 bg-[#e47a3d] cursor-pointer rounded-2xl shadow-lg">
               EN
-            </div>
+            </div> */}
 
             {/* Mobile menu button */}
             <button

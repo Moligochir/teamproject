@@ -4,19 +4,24 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import MapLocationPicker from "../components/mapLocationPicker";
 import { DeleteIcon, EditIcon } from "../components/icons";
+import { useUser } from "@clerk/nextjs";
+import { log } from "console";
+
 
 export default function ReportPage() {
+  const { user } = useUser();
+  console.log(user);
   const [formData, setFormData] = useState({
     status: "lost",
     type: "dog",
-    name: "",
-    breed: "",
+    name:"",
+    breed:"",
     color: "",
     location: "",
     date: "",
     description: "",
-    contactName: "",
-    contactEmail: "",
+    contactName: user?.fullName || "",
+    contactEmail: user?.primaryEmailAddress?.emailAddress || "",
     contactPhone: "",
   });
   const [submitted, setSubmitted] = useState(false);
