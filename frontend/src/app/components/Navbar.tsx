@@ -9,7 +9,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[9999] bg-card-bg/80 backdrop-blur-md border-b border-card-border">
+    <nav className="fixed top-0 left-0 right-0 z-9999 bg-card-bg/80 backdrop-blur-md border-b border-card-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -38,7 +38,7 @@ export function Navbar() {
               href="/browse"
               className="text-muted hover:text-primary font-medium"
             >
-              Амьтад үзэх
+              Амьтад харах
             </Link>
             <Link
               href="/about"
@@ -61,7 +61,7 @@ export function Navbar() {
           </div>
 
           {/* Right side */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 cursor-pointer">
             <ThemeToggle />
 
             {/* Auth buttons */}
@@ -81,10 +81,11 @@ export function Navbar() {
               href="/report"
               className="hidden sm:block px-5 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all hover:shadow-lg hover:shadow-primary/30"
             >
-              Мэдээлэх
+              Зар оруулах
             </Link>
-
-            {/* Mobile menu button */}
+            <div className="py-2 px-3.5 bg-[#e47a3d] cursor-pointer rounded-2xl shadow-lg">
+              EN
+            </div>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden w-10 h-10 rounded-full bg-card-bg border border-card-border flex items-center justify-center"
@@ -115,7 +116,6 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile menu */}
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-card-border">
             <div className="flex flex-col gap-4">
@@ -146,7 +146,7 @@ export function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-5 py-2.5 bg-primary text-white rounded-full font-semibold text-center"
               >
-                Мэдээлэх
+                Зар оруулах
               </Link>
             </div>
           </div>

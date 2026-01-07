@@ -28,7 +28,7 @@ export default function ReportPage() {
             <button
               type="button"
               onClick={() => setShowPeople(true)}
-              className="p-4 border rounded-xl hover:bg-gray-100"
+              className="p-4 border rounded-xl "
             >
               <div className="text-4xl mb-2">🔍</div>
               <div className="font-bold text-lg">Амьтан үрчлүүлэх</div>
@@ -37,7 +37,7 @@ export default function ReportPage() {
             <button
               type="button"
               onClick={() => setShowAnimal(true)}
-              className="p-4 border rounded-xl hover:bg-gray-100"
+              className="p-4 border rounded-xl "
             >
               <div className="text-4xl mb-2">🏠</div>
               <div className="font-bold text-lg">Амьтан үрчилж авах</div>
