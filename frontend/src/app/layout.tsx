@@ -50,19 +50,33 @@ function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Түргэн холбоосууд</h3>
             <ul className="space-y-2 text-muted">
-              <li><Link href="/browse">Амьтад үзэх</Link></li>
-              <li><Link href="/report">Мэдээлэл оруулах</Link></li>
-              <li><Link href="/about">Бидний тухай</Link></li>
+              <li>
+                <Link href="/browse">Амьтад үзэх</Link>
+              </li>
+              <li>
+                <Link href="/report">Мэдээлэл оруулах</Link>
+              </li>
+              <li>
+                <Link href="/about">Бидний тухай</Link>
+              </li>
             </ul>
           </div>
 
           <div>
             <h3 className="font-semibold mb-4">Ангилал</h3>
             <ul className="space-y-2 text-muted">
-              <li><Link href="/browse?type=dog">Нохой</Link></li>
-              <li><Link href="/browse?type=cat">Муур</Link></li>
-              <li><Link href="/browse?status=lost">Төөрсөн</Link></li>
-              <li><Link href="/browse?status=found">Олдсон</Link></li>
+              <li>
+                <Link href="/browse?type=dog">Нохой</Link>
+              </li>
+              <li>
+                <Link href="/browse?type=cat">Муур</Link>
+              </li>
+              <li>
+                <Link href="/browse?status=lost">Төөрсөн</Link>
+              </li>
+              <li>
+                <Link href="/browse?status=found">Олдсон</Link>
+              </li>
             </ul>
           </div>
         </div>
@@ -106,7 +120,9 @@ export default function RootLayout({
           />
         </head>
 
-        <body className={`${nunito.variable} ${nunitoSans.variable} antialiased`}>
+        <body
+          className={`${nunito.variable} ${nunitoSans.variable} antialiased `}
+        >
           <ThemeProvider>
             <Navbar />
             <main className="pt-16">{children}</main>

@@ -202,7 +202,7 @@ export default function Home() {
         <div className="absolute top-10 right-1/4 w-48 h-48 bg-primary/10 rounded-full blur-2xl" />
         <div className="absolute bottom-1/3 left-20 w-32 h-32 bg-secondary/15 rounded-full blur-2xl" />
 
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/70" />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-background/70" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-up opacity-0 stagger-1">
@@ -237,8 +237,8 @@ export default function Home() {
 
             <div className="relative animate-fade-up opacity-0 stagger-2">
               <div className="relative w-full aspect-square max-w-md mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full animate-pulse" />
-                <div className="absolute inset-4 bg-gradient-to-br from-primary/30 to-secondary/30 rounded-full" />
+                <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-secondary/20 rounded-full animate-pulse" />
+                <div className="absolute inset-4 bg-linear-to-br from-primary/30 to-secondary/30 rounded-full" />
                 <div className="absolute inset-8 rounded-full overflow-hidden border-4 border-white shadow-2xl">
                   <Image
                     src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=600&fit=crop"
@@ -504,7 +504,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-primary to-primary-dark text-white">
+      <section className="py-20 bg-linear-to-br from-primary to-primary-dark text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Туслахад бэлэн үү?
