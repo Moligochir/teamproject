@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ContactIcon, NotificationIcon, SearchIcon } from "./components/icons";
 
 // Жишээ өгөгдөл - бодит апп-д энэ нь өгөгдлийн сангаас ирнэ
 const recentPets = [
@@ -470,7 +471,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center animate-fade-up opacity-0 stagger-1">
               <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-4xl">📝</span>
+                <NotificationIcon />
               </div>
               <h3 className="text-xl font-bold mb-3">1. Мэдээлэх</h3>
               <p className="text-muted">
@@ -480,7 +481,7 @@ export default function Home() {
             </div>
             <div className="text-center animate-fade-up opacity-0 stagger-2">
               <div className="w-20 h-20 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-4xl">🔍</span>
+                <SearchIcon />
               </div>
               <h3 className="text-xl font-bold mb-3">2. Хайх</h3>
               <p className="text-muted">
@@ -490,7 +491,7 @@ export default function Home() {
             </div>
             <div className="text-center animate-fade-up opacity-0 stagger-3">
               <div className="w-20 h-20 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-4xl">❤️</span>
+                <ContactIcon />
               </div>
               <h3 className="text-xl font-bold mb-3">3. Холбогдох</h3>
               <p className="text-muted">

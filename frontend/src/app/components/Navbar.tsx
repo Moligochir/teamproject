@@ -83,6 +83,9 @@ export function Navbar() {
             >
               Мэдээлэх
             </Link>
+            <div className="py-2 px-3.5 bg-[#e47a3d] cursor-pointer rounded-2xl shadow-lg">
+              EN
+            </div>
 
             {/* Mobile menu button */}
             <button
