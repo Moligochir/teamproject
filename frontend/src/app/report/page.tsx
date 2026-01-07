@@ -139,7 +139,7 @@ export default function ReportPage() {
                 onClick={() =>
                   setFormData((prev) => ({ ...prev, status: "lost" }))
                 }
-                className={`p-6 rounded-xl border-2 transition-all ${
+                className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
                   formData.status === "lost"
                     ? "border-lost bg-lost/10"
                     : "border-card-border hover:border-lost/50"
@@ -154,7 +154,7 @@ export default function ReportPage() {
                 onClick={() =>
                   setFormData((prev) => ({ ...prev, status: "found" }))
                 }
-                className={`p-6 rounded-xl border-2 transition-all ${
+                className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
                   formData.status === "found"
                     ? "border-found bg-found/10"
                     : "border-card-border hover:border-found/50"
@@ -178,7 +178,7 @@ export default function ReportPage() {
                 onClick={() =>
                   setFormData((prev) => ({ ...prev, type: "dog" }))
                 }
-                className={`p-6 rounded-xl border-2 transition-all ${
+                className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
                   formData.type === "dog"
                     ? "border-primary bg-primary/10"
                     : "border-card-border hover:border-primary/50"
@@ -192,7 +192,7 @@ export default function ReportPage() {
                 onClick={() =>
                   setFormData((prev) => ({ ...prev, type: "cat" }))
                 }
-                className={`p-6 rounded-xl border-2 transition-all ${
+                className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
                   formData.type === "cat"
                     ? "border-primary bg-primary/10"
                     : "border-card-border hover:border-primary/50"
@@ -210,7 +210,7 @@ export default function ReportPage() {
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Амьтны нэр{" "}
+                  Амьтны нэр
                   {formData.status === "found" && (
                     <span className="text-muted">(хэрэв мэдвэл)</span>
                   )}

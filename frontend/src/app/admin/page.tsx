@@ -67,7 +67,7 @@ export default function AdminDashboard() {
   const [filter, setFilter] = useState("all");
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="min-h-screen flex bg-background ">
       {/* Sidebar */}
       <aside className="w-64 bg-card-bg border-r border-card-border hidden md:flex flex-col">
         <div className="p-6 font-extrabold text-2xl text-primary">🐾 Admin</div>

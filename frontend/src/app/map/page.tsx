@@ -16,7 +16,6 @@ interface AnimalMarker {
   type: "Нохой" | "Муур";
   status: "Төөрсөн" | "Олдсон";
   description: string;
-
   image: string;
   icon: string;
 }
@@ -99,7 +98,17 @@ export default function UBMap() {
                       <strong>Төрөл:</strong> {marker.type}
                     </p>
                     <p>
-                      <strong>Төлөв:</strong> {marker.status}
+                      <strong>Төлөв:</strong>{" "}
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded-full font-medium
+          ${
+            marker.status === "Төөрсөн"
+              ? "bg-red-100 text-red-600"
+              : "bg-green-100 text-green-600"
+          }`}
+                      >
+                        {marker.status}
+                      </span>
                     </p>
                     <p>{marker.description}</p>
                   </div>
