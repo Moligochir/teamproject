@@ -3,19 +3,23 @@ import { LostFoundModel } from "../../models/LostFoundModel";
 
 export const createLostFound = async (req: Request, res: Response) => {
   const newLostFound = req.body;
+  try {
+    await LostFoundModel.create({
+      role: newLostFound.role,
+      petType: newLostFound.petType,
+      name: newLostFound.name,
+      breed: newLostFound.breed,
+      location: newLostFound.location,
+      description: newLostFound.description,
+      image: newLostFound.image,
+      userId: newLostFound.userId,
+      gender: newLostFound.gender,
+      Date: newLostFound.Date,
+    });
 
-  await LostFoundModel.create({
-    role: newLostFound.role,
-    petType: newLostFound.petType,
-    name: newLostFound.name,
-    breed: newLostFound.breed,
-    location: newLostFound.location,
-    description: newLostFound.description,
-    image: newLostFound.image,
-    userId: newLostFound.userId,
-    gender: newLostFound.gender,
-    Date: newLostFound.Date,
-  });
-
-  res.status(200).json("success");
+    res.status(200).json("success");
+  } catch (e: unknown) {
+    res.status(500).json({ message: (e as Error).message });
+    console.log(e);
+  }
 };

@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 
-const Schema = mongoose.Schema;
-const ObjectId = Schema.ObjectId;
-
-const LostFoundSchema = new Schema(
+const LostFoundSchema = new mongoose.Schema(
   {
-    id: ObjectId,
-    userId: { type: Schema.Types.ObjectId, require: true, ref: "User" },
+    id: mongoose.Schema.Types.ObjectId,
+    userId: {
+      type: mongoose.Schema.Types.String,
+      require: true,
+      ref: "User",
+    },
     role: { type: String, enum: ["Lost", "Found"] },
     petType: { type: String, enum: ["Dog", "Cat"] },
     name: String,
