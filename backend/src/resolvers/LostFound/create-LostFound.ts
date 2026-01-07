@@ -1,0 +1,19 @@
+import { Request, Response } from "express";
+import { LostFoundModel } from "../../models/LostFoundModel";
+
+export const createLostFound = async (req: Request, res: Response) => {
+  const newLostFound = req.body;
+
+  await LostFoundModel.create({
+    role: newLostFound.role,
+    petType: newLostFound.petType,
+    name: newLostFound.name,
+    breed: newLostFound.breed,
+    location: newLostFound.location,
+    description: newLostFound.description,
+    image: newLostFound.image,
+    userId: newLostFound.userId,
+  });
+
+  res.status(200).json("success");
+};

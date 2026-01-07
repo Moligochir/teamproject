@@ -17,6 +17,7 @@ const LostFoundSchema = new Schema(
     description: String,
     PostDate: { type: Date, default: Date.now },
     bertelteiEsekh: String,
+    breed: { type: String },
   },
   { timestamps: true }
 );
