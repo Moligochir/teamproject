@@ -9,7 +9,7 @@ app.use("/users", User);
 
 mongoose
   .connect(
-    "mongodb+srv://welovepetspawpew_db_user:PewPaw1234!@cluster0.gdp0zjv.mongodb.net/"
+    "mongodb+srv://welovepetspawpew_db_user:Pawpew1234@cluster0.gdp0zjv.mongodb.net/"
   )
   .then(() => console.log("connected"));
 app.listen(port, () => {
