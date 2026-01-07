@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
+import MapLocationPicker from "../components/mapLocationPicker";
+import { DeleteIcon, EditIcon } from "../components/icons";
 
 export default function ReportPage() {
   const [formData, setFormData] = useState({
@@ -18,6 +20,24 @@ export default function ReportPage() {
     contactPhone: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [quit, setQuit] = useState(false);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setPreview(URL.createObjectURL(file));
+  };
+
+  const handleEdit = () => {
+    inputRef.current?.click();
+  };
+
+  const handleDelete = () => {
+    setPreview(null);
+    if (inputRef.current) inputRef.current.value = "";
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,10 +119,12 @@ export default function ReportPage() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Мэдээлэл оруулах</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            Мэдээлэл оруулах
+          </h1>
           <p className="text-muted text-lg max-w-2xl mx-auto">
-            Төөрсөн амьтныг гэр бүлтэй нь холбоход туслахын тулд доорх мэдээллийг
-            бөглөнө үү
+            Төөрсөн амьтныг гэр бүлтэй нь холбоход туслахын тулд доорх
+            мэдээллийг бөглөнө үү
           </p>
         </div>
 
@@ -125,9 +147,7 @@ export default function ReportPage() {
               >
                 <div className="text-4xl mb-2">🔍</div>
                 <div className="font-bold text-lg">Төөрсөн амьтан</div>
-                <p className="text-sm text-muted mt-1">
-                  Би амьтнаа хайж байна
-                </p>
+                <p className="text-sm text-muted mt-1">Би амьтнаа хайж байна</p>
               </button>
               <button
                 type="button"
@@ -142,7 +162,9 @@ export default function ReportPage() {
               >
                 <div className="text-4xl mb-2">✓</div>
                 <div className="font-bold text-lg">Олдсон амьтан</div>
-                <p className="text-sm text-muted mt-1">Би төөрсөн амьтан олсон</p>
+                <p className="text-sm text-muted mt-1">
+                  Би төөрсөн амьтан олсон
+                </p>
               </button>
             </div>
           </div>
@@ -230,7 +252,9 @@ export default function ReportPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  {formData.status === "lost" ? "Сүүлд харсан огноо" : "Олсон огноо"}
+                  {formData.status === "lost"
+                    ? "Сүүлд харсан огноо"
+                    : "Олсон огноо"}
                 </label>
                 <input
                   type="date"
@@ -247,14 +271,15 @@ export default function ReportPage() {
                     ? "Сүүлд харсан байршил"
                     : "Олсон байршил"}
                 </label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  placeholder="Жишээ нь: Төв цэцэрлэгт хүрээлэн, Номын сангийн ойролцоо"
-                  required
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                <MapLocationPicker
+                  onSelect={(loc) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      lat: loc.lat,
+                      lng: loc.lng,
+                      location: loc.address,
+                    }))
+                  }
                 />
               </div>
               <div className="md:col-span-2">
@@ -277,18 +302,77 @@ export default function ReportPage() {
           {/* Photo Upload */}
           <div className="bg-card-bg rounded-2xl border border-card-border p-6">
             <h2 className="text-xl font-bold mb-4">Зураг</h2>
-            <div className="border-2 border-dashed border-card-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
-              <div className="text-4xl mb-3">📷</div>
-              <p className="font-medium mb-1">Зураг оруулахын тулд дарна уу</p>
-              <p className="text-sm text-muted">эсвэл чирж оруулна уу</p>
-              <p className="text-xs text-muted mt-2">PNG, JPG 10MB хүртэл</p>
-              <input type="file" accept="image/*" className="hidden" />
+
+            <div className="relative">
+              {!preview ? (
+                <label
+                  htmlFor="image-upload"
+                  className="border-2 border-dashed border-card-border rounded-xl p-8
+                       text-center hover:border-primary/50 transition-colors
+                       cursor-pointer block"
+                >
+                  <div className="text-4xl mb-3">📷</div>
+                  <p className="font-medium mb-1">
+                    Зураг оруулахын тулд дарна уу
+                  </p>
+                  <p className="text-xs text-muted mt-2">PNG, JPG</p>
+
+                  <input
+                    id="image-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageChange}
+                    ref={inputRef}
+                  />
+                </label>
+              ) : (
+                <div className="relative group">
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="w-full max-h-72 object-contain rounded-xl"
+                  />
+
+                  {/* Overlay buttons */}
+                  <div
+                    className="absolute inset-0 bg-black/40 rounded-xl
+                         opacity-0 group-hover:opacity-100
+                         transition-opacity flex items-center justify-center gap-4"
+                  >
+                    <button
+                      type="button"
+                      onClick={handleEdit}
+                      className="bg-white p-2 rounded-full hover:bg-gray-100 transition"
+                    >
+                      <EditIcon />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
+                    >
+                      <DeleteIcon />
+                    </button>
+                  </div>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    ref={inputRef}
+                    onChange={handleImageChange}
+                  />
+                </div>
+              )}
             </div>
           </div>
-
           {/* Contact Information */}
           <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-            <h2 className="text-xl font-bold mb-4">Таны холбоо барих мэдээлэл</h2>
+            <h2 className="text-xl font-bold mb-4">
+              Таны холбоо барих мэдээлэл
+            </h2>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-2">
@@ -340,12 +424,36 @@ export default function ReportPage() {
             >
               Мэдээлэл илгээх
             </button>
-            <Link
-              href="/"
+            <button
+              onClick={() => setQuit(true)}
               className="px-8 py-4 bg-card-bg border border-card-border hover:border-primary text-foreground rounded-full font-bold text-lg transition-all text-center"
             >
               Цуцлах
-            </Link>
+            </button>
+            {quit && (
+              <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-9999 flex justify-center items-center">
+                <div className="bg-black rounded-lg shadow-lg w-90 h-40">
+                  <div className="p-5 flex flex-col justify-center gap-10">
+                    <p className="text-white text-[20px] font-semibold">
+                      Та гарахдаа итгэлтэй байна уу?
+                    </p>
+                    <div className="flex gap-8 justify-center">
+                      <button
+                        onClick={() => setQuit(false)}
+                        className="px-6 py-3 rounded-lg shadow-lg cursor-pointer bg-[#e47a3d]"
+                      >
+                        Зар оруулах
+                      </button>
+                      <Link href={"/"}>
+                        <button className="px-6 py-3 rounded-lg shadow-lg cursor-pointer bg-red-500">
+                          Гарах
+                        </button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </form>
       </div>
