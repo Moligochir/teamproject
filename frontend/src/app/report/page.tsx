@@ -5,17 +5,16 @@ import Link from "next/link";
 import MapLocationPicker from "../components/mapLocationPicker";
 import { DeleteIcon, EditIcon } from "../components/icons";
 import { useUser } from "@clerk/nextjs";
-
-
+import * as React from "react";
 
 export default function ReportPage() {
   const { user } = useUser();
-  
+
   const [formData, setFormData] = useState({
     status: "lost",
     type: "dog",
-    name:"",
-    breed:"",
+    name: "",
+    breed: "",
     color: "",
     location: "",
     date: "",
@@ -61,11 +60,7 @@ export default function ReportPage() {
     }));
   };
 
-
-
-
-
-   const handleAddChange = async () => {
+  const handleAddChange = async () => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/food`, {
         method: "POST",
@@ -74,7 +69,7 @@ export default function ReportPage() {
           accept: "application/json",
         },
         body: JSON.stringify({
-         role: formData.status === "lost" ? "Lost" : "Found",
+          role: formData.status === "lost" ? "Lost" : "Found",
           petType: formData.type === "dog" ? "Dog" : "Cat",
           name: formData.name,
           breed: formData.breed,
@@ -267,32 +262,58 @@ export default function ReportPage() {
                 />
               </div>
               <div>
-  <label
-    htmlFor="gender"
-    className="block text-sm font-medium mb-2"
-  >
-    Хүйс
-  </label>
+                <label
+                  htmlFor="gender"
+                  className="block text-sm font-medium mb-2"
+                >
+                  Хүйс
+                </label>
 
-  <select
-    id="gender"
-    name="gender"
-    value={formData.gender}
-    onChange={handleChange}
-    required
-    className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-  >
-    <option value="" >
-      Сонгоно уу
-    </option>
-    <option value="male">Эрэгтэй</option>
-    <option value="female">Эмэгтэй</option>
-    <option value="other">Бусад</option>
-    
-  </select>
-</div>
+                <div className="relative w-full">
+                  <select
+                    id="gender"
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    required
+                    className="
+      w-full
+      h-12
+      px-4
+      pr-10
+      bg-background
+      border
+      border-card-border
+      rounded-xl
+      appearance-none
+      focus:outline-none
+      focus:ring-2
+      focus:ring-primary
+      focus:border-transparent
+    "
+                  >
+                    <option value="">Сонгоно уу</option>
+                    <option value="male">Эрэгтэй</option>
+                    <option value="female">Эмэгтэй</option>
+                    <option value="other">Бусад</option>
+                  </select>
 
-              
+                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
+                    <svg
+                      className="h-4 w-4 text-muted-foreground"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium mb-2">
                   {formData.status === "lost"

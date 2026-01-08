@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
 
 export function People() {
+  const { user } = useUser();
   const [formData, setFormData] = useState({
     status: "lost",
     type: "dog",
@@ -13,8 +15,8 @@ export function People() {
     location: "",
     date: "",
     description: "",
-    contactName: "",
-    contactEmail: "",
+    contactName: user?.fullName || "",
+    contactEmail: user?.primaryEmailAddress?.emailAddress || "",
     contactPhone: "",
   });
   const [submitted, setSubmitted] = useState(false);
@@ -75,9 +77,7 @@ export function People() {
         <h2 className="text-xl font-bold mb-4">Амьтны мэдээлэл</h2>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Амьтны нэр
-            </label>
+            <label className="block text-sm font-medium mb-2">Амьтны нэр</label>
             <input
               type="text"
               name="name"
@@ -145,9 +145,7 @@ export function People() {
 
       {/* Contact Info */}
       <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-        <h2 className="text-xl font-bold mb-4">
-          Таны холбоо барих мэдээлэл
-        </h2>
+        <h2 className="text-xl font-bold mb-4">Таны холбоо барих мэдээлэл</h2>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
             <label className="block text-sm font-medium mb-2">Таны нэр</label>

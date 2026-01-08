@@ -6,7 +6,7 @@ import { Adopt } from "../components/adopt";
 
 export default function ReportPage() {
   const [showPeople, setShowPeople] = useState(false);
-  const [showAnimal, setShowAnimal] = useState(false);
+
   const [showAdopt, setShowAdopt] = useState(false);
 
   return (
@@ -27,7 +27,7 @@ export default function ReportPage() {
               type="button"
               onClick={() => {
                 setShowPeople(true);
-                setShowAnimal(false);
+                setShowAdopt(false);
               }}
               className={`p-6 rounded-xl border-2 transition-all ${
                 showPeople
@@ -43,12 +43,11 @@ export default function ReportPage() {
             <button
               type="button"
               onClick={() => {
-                setShowAnimal(true);
-                setShowPeople(false);
                 setShowAdopt(true);
+                setShowPeople(false);
               }}
               className={`p-6 rounded-xl border-2 transition-all ${
-                showAnimal
+                showAdopt
                   ? "border-primary bg-primary/10"
                   : "border-card-border hover:border-primary/50"
               }`}
