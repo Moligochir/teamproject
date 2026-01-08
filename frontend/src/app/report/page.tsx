@@ -62,7 +62,7 @@ export default function ReportPage() {
 
   const handleAddChange = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/food`, {
+      const res = await fetch(`http://localhost:8000/lostFound`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -112,27 +112,12 @@ export default function ReportPage() {
             >
               Зарлалууд үзэх
             </Link>
-            <button
-              onClick={() => {
-                setSubmitted(false);
-                setFormData({
-                  status: "lost",
-                  type: "dog",
-                  name: "",
-                  breed: "",
-                  color: "",
-                  location: "",
-                  date: "",
-                  description: "",
-                  contactName: "",
-                  contactEmail: "",
-                  contactPhone: "",
-                });
-              }}
+            <Link
+              href="/probability"
               className="px-6 py-3 bg-card-bg border border-card-border hover:border-primary rounded-full font-semibold transition-all"
             >
-              Өөр мэдээлэл оруулах
-            </button>
+              Магадлалтай тохирол үзэх
+            </Link>
           </div>
         </div>
       </div>
@@ -483,7 +468,8 @@ export default function ReportPage() {
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               type="submit"
-              className="flex-1 px-8 py-4 cursor-pointer bg-primary hover:bg-primary-dark text-white rounded-full font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/30"
+              className="flex-1 px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-full font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/30"
+              onClick={handleAddChange}
             >
               Мэдээлэл илгээх
             </button>

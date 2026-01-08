@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { People } from "../components/people";
+import { AdoptPage } from "../components/people";
 import { Adopt } from "../components/adopt";
 
 export default function ReportPage() {
@@ -16,6 +16,9 @@ export default function ReportPage() {
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Мэдээлэл оруулах
           </h1>
+          <p className="text-muted text-lg max-w-2xl mx-auto">
+            Шинэ гэр бүлтэй нь холбохын тулд доорх мэдээллийг бөглөнө үү
+          </p>
         </div>
 
         {/* Status Selection */}
@@ -63,7 +66,7 @@ export default function ReportPage() {
 
         {showPeople && (
           <div className="mt-8">
-            <People />
+            <AdoptPage />
           </div>
         )}
 
