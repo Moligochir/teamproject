@@ -62,7 +62,7 @@ export default function ReportPage() {
 
   const handleAddChange = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/food`, {
+      const res = await fetch(`http://localhost:8000/lostFound`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -485,6 +485,7 @@ export default function ReportPage() {
             <button
               type="submit"
               className="flex-1 px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-full font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/30"
+              onClick={handleAddChange}
             >
               Мэдээлэл илгээх
             </button>
