@@ -4,16 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 
-export function People() {
+export function AdoptPage() {
   const { user } = useUser();
   const [formData, setFormData] = useState({
-    status: "lost",
-    type: "dog",
+    petType: "dog",
     name: "",
+    age: "",
+    gender: "",
+    image: "",
     breed: "",
-    color: "",
-    location: "",
-    date: "",
     description: "",
     contactName: user?.fullName || "",
     contactEmail: user?.primaryEmailAddress?.emailAddress || "",
@@ -26,7 +25,27 @@ export function People() {
     console.log("Form submitted:", formData);
     setSubmitted(true);
   };
-
+  const handleAddChange = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/adopt`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+        body: JSON.stringify({
+          petType: formData.petType === "dog" ? "Dog" : "Cat",
+          name: formData.name,
+          age: formData.age,
+          breed: formData.breed,
+          description: formData.description,
+          userId: user?.id,
+        }),
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -46,9 +65,9 @@ export function People() {
         <div className="grid grid-cols-2 gap-4">
           <button
             type="button"
-            onClick={() => setFormData((prev) => ({ ...prev, type: "dog" }))}
+            onClick={() => setFormData((prev) => ({ ...prev, petType: "dog" }))}
             className={`p-6 rounded-xl border-2 transition-all ${
-              formData.type === "dog"
+              formData.petType === "dog"
                 ? "border-primary bg-primary/10"
                 : "border-card-border hover:border-primary/50"
             }`}
@@ -59,9 +78,9 @@ export function People() {
 
           <button
             type="button"
-            onClick={() => setFormData((prev) => ({ ...prev, type: "cat" }))}
+            onClick={() => setFormData((prev) => ({ ...prev, petType: "cat" }))}
             className={`p-6 rounded-xl border-2 transition-all ${
-              formData.type === "cat"
+              formData.petType === "cat"
                 ? "border-primary bg-primary/10"
                 : "border-card-border hover:border-primary/50"
             }`}
@@ -102,13 +121,10 @@ export function People() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Өнгө/Тэмдэг
-            </label>
+            <label className="block text-sm font-medium mb-2">нас</label>
             <input
-              type="text"
-              name="color"
-              value={formData.color}
+              name="age"
+              value={formData.age}
               onChange={handleChange}
               placeholder="Жишээ нь: Алтлаг, Хар цагаан толботой"
               required
@@ -189,6 +205,7 @@ export function People() {
       {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-4">
         <button
+          onClick={handleAddChange}
           type="submit"
           className="flex-1 px-8 py-4 bg-primary text-white rounded-full font-bold text-lg hover:bg-primary-dark transition cursor-pointer"
         >
