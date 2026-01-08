@@ -25,6 +25,7 @@ export const CreateAdopt = async (
       description,
       adoptType,
     });
+    res.status(200).json("success");
   } catch (e: unknown) {
     res.status(500).json({ message: (e as Error).message });
     console.log(e);
