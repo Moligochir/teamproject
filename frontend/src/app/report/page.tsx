@@ -62,7 +62,7 @@ export default function ReportPage() {
 
   const handleAddChange = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/lostFound`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/food`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -112,12 +112,27 @@ export default function ReportPage() {
             >
               Зарлалууд үзэх
             </Link>
-            <Link
-              href="/probability"
+            <button
+              onClick={() => {
+                setSubmitted(false);
+                setFormData({
+                  status: "lost",
+                  type: "dog",
+                  name: "",
+                  breed: "",
+                  color: "",
+                  location: "",
+                  date: "",
+                  description: "",
+                  contactName: "",
+                  contactEmail: "",
+                  contactPhone: "",
+                });
+              }}
               className="px-6 py-3 bg-card-bg border border-card-border hover:border-primary rounded-full font-semibold transition-all"
             >
-              Магадлалтай тохирол үзэх
-            </Link>
+              Өөр мэдээлэл оруулах
+            </button>
           </div>
         </div>
       </div>
@@ -229,7 +244,7 @@ export default function ReportPage() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Банхар, Шаариг"
+                  placeholder="Банхарь Шаариг"
                   className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
@@ -240,7 +255,7 @@ export default function ReportPage() {
                   name="breed"
                   value={formData.breed}
                   onChange={handleChange}
-                  placeholder=" Алтан ретривер, Сиам"
+                  placeholder="Жишээ нь: Алтан ретривер, Сиам"
                   required
                   className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
@@ -468,8 +483,7 @@ export default function ReportPage() {
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               type="submit"
-              className="flex-1 px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-full font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/30"
-              onClick={handleAddChange}
+              className="flex-1 px-8 py-4 cursor-pointer bg-primary hover:bg-primary-dark text-white rounded-full font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/30"
             >
               Мэдээлэл илгээх
             </button>
