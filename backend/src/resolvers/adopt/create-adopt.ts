@@ -15,15 +15,18 @@ export const CreateAdopt = async (
   res: Response
 ) => {
   const { name, age, gender, image, breed, description, adoptType } = req.body;
-  const dbAdopt = await AdoptSchemaModel.create({
-    name,
-    age,
-    gender,
-    image,
-    breed,
-    description,
-    adoptType,
-  });
-
-  res.status(200).json(dbAdopt);
+  try {
+    const dbAdopt = await AdoptSchemaModel.create({
+      name,
+      age,
+      gender,
+      image,
+      breed,
+      description,
+      adoptType,
+    });
+  } catch (e: unknown) {
+    res.status(500).json({ message: (e as Error).message });
+    console.log(e);
+  }
 };
