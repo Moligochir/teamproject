@@ -9,7 +9,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[9999] bg-card-bg/80 backdrop-blur-md border-b border-card-border">
+    <nav className="fixed top-0 left-0 right-0 z-9999 bg-card-bg/80 backdrop-blur-md border-b border-card-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -40,7 +40,7 @@ export function Navbar() {
             >
               Амьтад үзэх
             </Link>
-            
+
             <Link
               href="/map"
               className="text-muted hover:text-primary font-medium"
@@ -53,14 +53,11 @@ export function Navbar() {
             >
               Dog
             </Link>
-            
           </div>
 
           {/* Right side */}
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            
-            
 
             {/* Auth buttons */}
             <SignedOut>
@@ -80,7 +77,10 @@ export function Navbar() {
             >
               Мэдээлэх
             </Link>
-            
+            <button className="px-4 py-2  bg-[#e47a3d] rounded-lg shadow-lg cursor-pointer">
+              EN
+            </button>
+
             {/* <div className="py-2 px-3.5 bg-[#e47a3d] cursor-pointer rounded-2xl shadow-lg">
               EN
             </div> */}

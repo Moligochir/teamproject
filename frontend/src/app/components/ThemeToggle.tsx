@@ -15,7 +15,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="relative w-12 h-12 rounded-full bg-card-bg border border-card-border flex items-center justify-center hover:border-primary transition-all group"
+      className="relative w-12 h-12 cursor-pointer rounded-full bg-card-bg border border-card-border flex items-center justify-center hover:border-primary transition-all group"
       aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
     >
       {/* Sun icon */}

@@ -179,7 +179,6 @@ export default function ReportPage() {
             </div>
           </div>
 
-          {/* Pet Type */}
           <div className="bg-card-bg rounded-2xl border border-card-border p-6">
             <h2 className="text-xl font-bold mb-4">Амьтны төрөл</h2>
             <div className="grid grid-cols-2 gap-4">
@@ -230,7 +229,7 @@ export default function ReportPage() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Жишээ нь: Макс, Луна"
+                  placeholder="Банхар, Шаариг"
                   className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
@@ -241,7 +240,7 @@ export default function ReportPage() {
                   name="breed"
                   value={formData.breed}
                   onChange={handleChange}
-                  placeholder="Жишээ нь: Алтан ретривер, Сиам"
+                  placeholder=" Алтан ретривер, Сиам"
                   required
                   className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
@@ -432,7 +431,7 @@ export default function ReportPage() {
                   name="contactName"
                   value={formData.contactName}
                   onChange={handleChange}
-                  placeholder="Бат-Эрдэнэ"
+                  placeholder="Sunduibazrr"
                   required
                   className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
@@ -476,7 +475,7 @@ export default function ReportPage() {
             </button>
             <button
               onClick={() => setQuit(true)}
-              className="px-8 py-4 bg-card-bg border border-card-border hover:border-primary text-foreground rounded-full font-bold text-lg transition-all text-center"
+              className="px-8 py-4 bg-card-bg cursor-pointer border border-card-border hover:border-primary text-foreground rounded-full font-bold text-lg transition-all text-center"
             >
               Цуцлах
             </button>

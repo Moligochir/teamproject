@@ -244,3 +244,38 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary-dark);
 }
+/* GeoSearch input text color */
+.leaflet-control-geosearch input {
+  color: black;
+}
+
+/* placeholder текст */
+.leaflet-control-geosearch input::placeholder {
+  color: black;
+}
+/* Result dropdown container */
+.leaflet-control-geosearch .results {
+  background: #fff;
+
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Нэг нэг result */
+.leaflet-control-geosearch .results > div {
+  padding: 10px 12px;
+  color: #1f2937;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* Hover үед */
+.leaflet-control-geosearch .results > div:hover {
+  background: rgba(224, 122, 61, 0.15);
+}
+
+/* Active (arrow / hover) */
+.leaflet-control-geosearch .results > div.active {
+  background: #e07a3d;
+  color: #fff;
+}
