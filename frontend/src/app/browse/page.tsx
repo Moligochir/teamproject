@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { MapIcon } from "../components/icons";
 
 // Жишээ өгөгдөл
 const allPets = [
@@ -183,25 +184,7 @@ function PetCard({ pet }: { pet: (typeof allPets)[0] }) {
         </div>
         <p className="text-muted text-sm mb-2">{pet.breed}</p>
         <div className="flex items-center gap-1 text-sm text-muted">
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-          </svg>
+          <MapIcon />
           {pet.location}
         </div>
       </div>
@@ -272,7 +255,9 @@ export default function BrowsePage() {
 
             {/* Pet Type */}
             <div>
-              <label className="block text-sm font-medium mb-2">Амьтны төрөл</label>
+              <label className="block text-sm font-medium mb-2">
+                Амьтны төрөл
+              </label>
               <select
                 value={typeFilter}
                 onChange={(e) =>
@@ -298,7 +283,7 @@ export default function BrowsePage() {
               >
                 <option value="all">Бүх төлөв</option>
                 <option value="lost">🔍 Төөрсөн</option>
-                <option value="found">✓ Олдсон</option>
+                <option value="found">☑️ Олдсон</option>
               </select>
             </div>
           </div>
@@ -369,7 +354,7 @@ export default function BrowsePage() {
                 : "bg-card-bg border border-card-border hover:border-found"
             }`}
           >
-            ✓ Олдсон
+            ☑️ Олдсон
           </button>
         </div>
 
@@ -417,8 +402,8 @@ export default function BrowsePage() {
             Хайж буй зүйлээ олсонгүй юу?
           </h2>
           <p className="text-muted mb-6">
-            Төөрсөн эсвэл олдсон амьтны мэдээлэл оруулж, тэдгээрийг гэр бүлтэй нь
-            холбоход туслаарай
+            Төөрсөн эсвэл олдсон амьтны мэдээлэл оруулж, тэдгээрийг гэр бүлтэй
+            нь холбоход туслаарай
           </p>
           <Link
             href="/report"

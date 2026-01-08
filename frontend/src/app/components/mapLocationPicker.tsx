@@ -1,92 +1,103 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import { useState } from "react";
+import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
+import { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet-geosearch/dist/geosearch.css";
 
-/* ===============================
-   Fix default Leaflet icon (Next.js)
-================================ */
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-
-/* ===============================
-   Custom single marker icon
-================================ */
-const locationIcon = new L.Icon({
+import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
+const customMarkerIcon = new L.Icon({
   iconUrl:
     "https://images.vexels.com/media/users/3/131625/isolated/preview/35942a8a6bb75dc1842582deb7168bf8-orange-location-marker-infographic.png",
-  iconSize: [48, 48],
-  iconAnchor: [24, 46],
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+  popupAnchor: [0, -40],
+});
+interface Type {
+  position: string;
+  icon: string;
+}
+
+// Marker icon fix
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-/* ===============================
-   Constants
-================================ */
-const UB_CENTER: [number, number] = [47.918, 106.917];
+type Location = {
+  lat: number;
+  lng: number;
+  address: string;
+};
 
-/* ===============================
-   Props
-================================ */
-interface Props {
-  onSelect: (data: { lat: number; lng: number; address: string }) => void;
-}
+function SearchControl({ onSelect }: { onSelect: (loc: Location) => void }) {
+  const map = useMap();
 
-/* ===============================
-   Click marker logic
-================================ */
-function ClickMarker({ onSelect }: Props) {
-  const [position, setPosition] = useState<[number, number] | null>(null);
+  useEffect(() => {
+    const provider = new OpenStreetMapProvider();
 
-  useMapEvents({
-    click(e) {
-      const lat = e.latlng.lat;
-      const lng = e.latlng.lng;
+    const searchControl = new (GeoSearchControl as any)({
+      provider,
+      style: "bar",
+      showMarker: false,
+      autoClose: true,
+      retainZoomLevel: false,
+      searchLabel: "Байршил хайх...",
+    });
 
-      setPosition([lat, lng]);
+    map.addControl(searchControl);
+
+    map.on("geosearch/showlocation", (result: any) => {
+      const { x, y, label } = result.location;
 
       onSelect({
-        lat,
-        lng,
-        address: `Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`,
+        lat: y,
+        lng: x,
+        address: label,
       });
-    },
-  });
 
-  return position ? <Marker position={position} icon={locationIcon} /> : null;
+      map.setView([y, x], 16);
+    });
+
+    return () => {
+      map.removeControl(searchControl);
+    };
+  }, [map, onSelect]);
+
+  return null;
 }
 
-/* ===============================
-   Component
-================================ */
-export default function MapLocationPicker({ onSelect }: Props) {
-  return (
-    <div className="md:col-span-2 space-y-2">
-      <label className="block text-sm font-medium">
-        Байршлыг map дээр дарж сонгоно уу
-      </label>
+export default function MapLocationPicker({
+  onSelect,
+}: {
+  onSelect: (loc: Location) => void;
+}) {
+  const [position, setPosition] = useState<[number, number] | null>(null);
 
-      <div className="rounded-xl overflow-hidden border border-card-border">
-        <MapContainer
-          center={UB_CENTER}
-          zoom={15}
-          minZoom={13}
-          maxZoom={18}
-          scrollWheelZoom
-          style={{ height: "350px", width: "100%" }}
-        >
-         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+  return (
+    <div className="w-full h-87.5 rounded-xl overflow-hidden border">
+      <MapContainer
+        center={[47.918, 106.917]} // УБ
+        zoom={13}
+        className="w-full h-full"
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution="© OpenStreetMap"
         />
 
-          <ClickMarker onSelect={onSelect} />
-        </MapContainer>
-      </div>
-
-      <p className="text-xs text-muted">
-        📍 Map дээр дарвал байршил автоматаар хадгалагдана
-      </p>
+        <SearchControl
+          onSelect={(loc) => {
+            setPosition([loc.lat, loc.lng]);
+            onSelect(loc);
+          }}
+        />
+        {position && <Marker position={position} icon={customMarkerIcon} />}
+      </MapContainer>
     </div>
   );
 }
