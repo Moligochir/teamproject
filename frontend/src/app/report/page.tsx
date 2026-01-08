@@ -112,27 +112,12 @@ export default function ReportPage() {
             >
               Зарлалууд үзэх
             </Link>
-            <button
-              onClick={() => {
-                setSubmitted(false);
-                setFormData({
-                  status: "lost",
-                  type: "dog",
-                  name: "",
-                  breed: "",
-                  color: "",
-                  location: "",
-                  date: "",
-                  description: "",
-                  contactName: "",
-                  contactEmail: "",
-                  contactPhone: "",
-                });
-              }}
+            <Link
+              href="/probability"
               className="px-6 py-3 bg-card-bg border border-card-border hover:border-primary rounded-full font-semibold transition-all"
             >
-              Өөр мэдээлэл оруулах
-            </button>
+              Магадлалтай тохирол үзэх
+            </Link>
           </div>
         </div>
       </div>
