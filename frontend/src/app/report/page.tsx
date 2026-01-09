@@ -15,7 +15,7 @@ export default function ReportPage() {
     type: "dog",
     name: "",
     breed: "",
-    color: "",
+    gender: "",
     location: "",
     date: "",
     description: "",
@@ -73,6 +73,7 @@ export default function ReportPage() {
           petType: formData.type === "dog" ? "Dog" : "Cat",
           name: formData.name,
           breed: formData.breed,
+          gender: formData.gender,
           description: formData.description,
           userId: user?.id,
         }),
@@ -120,7 +121,7 @@ export default function ReportPage() {
                   type: "dog",
                   name: "",
                   breed: "",
-                  color: "",
+                  gender: "",
                   location: "",
                   date: "",
                   description: "",
@@ -292,9 +293,9 @@ export default function ReportPage() {
     "
                   >
                     <option value="">Сонгоно уу</option>
-                    <option value="male">Эрэгтэй</option>
-                    <option value="female">Эмэгтэй</option>
-                    <option value="other">Бусад</option>
+                    <option value="Male">Эрэгтэй</option>
+                    <option value="Female">Эмэгтэй</option>
+                    <option value="Unknown">Бусад</option>
                   </select>
 
                   <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
