@@ -4,7 +4,7 @@ import Link from "next/link";
 const dog1 = {
   id: "dog1",
   name: "Buddy",
-  status: "lost",
+  
   type: "dog",
   breed: "Golden Retriever",
   date: "2026-01-05",
@@ -16,7 +16,7 @@ const dog1 = {
 const dog2 = {
   id: "dog2",
   name: "Max",
-  status: "found",
+  
   type: "dog",
   breed: "Labrador Retriever",
   date: "2026-01-06",
@@ -54,14 +54,7 @@ export default function ProbilityPage() {
                 className="object-cover"
               />
 
-              {/* Status */}
-              <div
-                className={`absolute top-3 left-3 px-3 py-1 rounded-full text-sm font-semibold ${
-                  dog.status === "lost" ? "status-lost" : "status-found"
-                }`}
-              >
-                {dog.status === "lost" ? "🔍 Төөрсөн" : "✓ Олдсон"}
-              </div>
+             
 
               {/* Type */}
               <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/50 text-white text-sm font-medium backdrop-blur-sm">
