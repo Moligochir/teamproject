@@ -1,24 +1,19 @@
 import { Request, Response } from "express";
 import { UserModel } from "../../models/model-user";
-type CreateUserBody = {
-  clerkId: string;
-  name: string;
-  role: string;
-  email: string;
-  phonenumber: number;
-};
-export const CreateUser = async (
-  req: Request<{}, {}, CreateUserBody>,
-  res: Response
-) => {
-  const { email, phonenumber, clerkId, name, role } = req.body;
-  const dbUsers = await UserModel.create({
-    clerkId,
-    name,
-    role,
-    email,
-    phonenumber,
-  });
 
-  res.status(200).json(dbUsers);
+export const CreateUser = async (req: Request, res: Response) => {
+  const newUser = req.body;
+  try {
+    await UserModel.create({
+      clerkId: newUser.clerkId,
+      name: newUser.name,
+      role: newUser.role,
+      email: newUser.email,
+      phonenumber: newUser.phonenumber,
+    });
+    res.status(200).json({ message: "User created successfully" });
+  } catch (e: unknown) {
+    res.status(500).json({ message: (e as Error).message });
+    console.log(e);
+  }
 };

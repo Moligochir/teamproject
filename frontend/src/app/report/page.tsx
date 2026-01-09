@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import MapLocationPicker from "../components/mapLocationPicker";
 import { DeleteIcon, EditIcon } from "../components/icons";
@@ -9,7 +9,26 @@ import * as React from "react";
 
 export default function ReportPage() {
   const { user } = useUser();
-
+  const createUser = async () => {
+    try {
+      await fetch(`http://localhost:8000/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clerkId: user?.id,
+          email: user?.primaryEmailAddress?.emailAddress,
+          name: user?.fullName,
+          role: "user",
+          phonenumber: user?.phoneNumbers[0]?.phoneNumber || "",
+        }),
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    if (user) createUser();
+  }, [user]);
   const [formData, setFormData] = useState({
     status: "lost",
     type: "dog",
@@ -25,6 +44,7 @@ export default function ReportPage() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [quit, setQuit] = useState(false);
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +79,9 @@ export default function ReportPage() {
       [e.target.name]: e.target.value,
     }));
   };
-
+  if (!user?.id) {
+    return console.log("aldaashuuu");
+  }
   const handleAddChange = async () => {
     try {
       const res = await fetch(`http://localhost:8000/lostFound`, {
@@ -74,6 +96,8 @@ export default function ReportPage() {
           name: formData.name,
           breed: formData.breed,
           gender: formData.gender,
+          Date: formData.date,
+          image: preview,
           description: formData.description,
           userId: user?.id,
         }),
