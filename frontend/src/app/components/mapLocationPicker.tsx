@@ -5,8 +5,9 @@ import { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-geosearch/dist/geosearch.css";
-
 import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
+
+
 const customMarkerIcon = new L.Icon({
   iconUrl:
     "https://images.vexels.com/media/users/3/131625/isolated/preview/35942a8a6bb75dc1842582deb7168bf8-orange-location-marker-infographic.png",

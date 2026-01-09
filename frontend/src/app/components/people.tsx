@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
+import { DeleteIcon, EditIcon } from "./icons";
 
 export function AdoptPage() {
   const { user } = useUser();
@@ -19,11 +20,27 @@ export function AdoptPage() {
     contactPhone: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setPreview(URL.createObjectURL(file));
+  };
+  const handleEdit = () => {
+    inputRef.current?.click();
+  };
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
     setSubmitted(true);
+  };
+  const handleDelete = () => {
+    setPreview(null);
+    if (inputRef.current) inputRef.current.value = "";
   };
   const handleAddChange = async () => {
     try {
@@ -102,35 +119,87 @@ export function AdoptPage() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="Жишээ нь: Макс, Луна"
+              placeholder="Макс, Луна"
               className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Үйлдвэр</label>
+            <label className="block text-sm font-medium mb-2">Үүлдэр</label>
             <input
               type="text"
               name="breed"
               value={formData.breed}
               onChange={handleChange}
-              placeholder="Жишээ нь: Алтан ретривер, Сиам"
+              placeholder="Алтан ретривер, Сиам"
               required
               className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">нас</label>
+            <label className="block text-sm font-medium mb-2">Нас</label>
             <input
               name="age"
               value={formData.age}
               onChange={handleChange}
-              placeholder="Жишээ нь: Алтлаг, Хар цагаан толботой"
+              placeholder="5"
               required
               className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
+          <div>
+                <label
+                  htmlFor="gender"
+                  className="block text-sm font-medium mb-2"
+                >
+                  Хүйс
+                </label>
+
+                <div className="relative w-full">
+                  <select
+                    id="gender"
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    required
+                    className="
+      w-full
+      h-12
+      px-4
+      pr-10
+      bg-background
+      border
+      border-card-border
+      rounded-xl
+      appearance-none
+      focus:outline-none
+      focus:ring-2
+      focus:ring-primary
+      focus:border-transparent
+    "
+                  >
+                    <option value="">Сонгоно уу</option>
+                    <option value="Male">Эр</option>
+                    <option value="Female">Эм</option>
+                    
+                  </select>
+
+                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
+                    <svg
+                      className="h-4 w-4 text-muted-foreground"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
 
           <div className="md:col-span-2">
             <label className="block text-sm font-medium mb-2">Тайлбар</label>
@@ -149,58 +218,123 @@ export function AdoptPage() {
 
       {/* Photo Upload */}
       <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-        <h2 className="text-xl font-bold mb-4">Зураг</h2>
-        <div className="border-2 border-dashed border-card-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
-          <div className="text-4xl mb-3">📷</div>
-          <p className="font-medium mb-1">Зураг оруулахын тулд дарна уу</p>
-          <p className="text-sm text-muted">эсвэл чирж оруулна уу</p>
-          <p className="text-xs text-muted mt-2">PNG, JPG 10MB хүртэл</p>
-          <input type="file" accept="image/*" className="hidden" />
-        </div>
-      </div>
+            <h2 className="text-xl font-bold mb-4">Зураг</h2>
 
-      {/* Contact Info */}
-      <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-        <h2 className="text-xl font-bold mb-4">Таны холбоо барих мэдээлэл</h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-2">Таны нэр</label>
-            <input
-              type="text"
-              name="contactName"
-              value={formData.contactName}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
-            />
+            <div className="relative">
+              {!preview ? (
+                <label
+                  htmlFor="image-upload"
+                  className="border-2 border-dashed border-card-border rounded-xl p-8
+                       text-center hover:border-primary/50 transition-colors
+                       cursor-pointer block"
+                >
+                  <div className="text-4xl mb-3">📷</div>
+                  <p className="font-medium mb-1">
+                    Зураг оруулахын тулд дарна уу
+                  </p>
+                  <p className="text-xs text-muted mt-2">PNG, JPG</p>
+
+                  <input
+                    id="image-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageChange}
+                    ref={inputRef}
+                  />
+                </label>
+              ) : (
+                <div className="relative group">
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="w-full max-h-72 object-contain rounded-xl"
+                  />
+
+                  {/* Overlay buttons */}
+                  <div
+                    className="absolute inset-0 bg-black/40 rounded-xl
+                         opacity-0 group-hover:opacity-100
+                         transition-opacity flex items-center justify-center gap-4"
+                  >
+                    <button
+                      type="button"
+                      onClick={handleEdit}
+                      className="bg-white p-2 rounded-full hover:bg-gray-100 transition"
+                    >
+                      <EditIcon />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
+                    >
+                      <DeleteIcon />
+                    </button>
+                  </div>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    ref={inputRef}
+                    onChange={handleImageChange}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Contact Information */}
+          <div className="bg-card-bg rounded-2xl border border-card-border p-6">
+            <h2 className="text-xl font-bold mb-4">
+              Таны холбоо барих мэдээлэл
+            </h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-2">
+                  Таны нэр
+                </label>
+                <input
+                  type="text"
+                  name="contactName"
+                  value={formData.contactName}
+                  onChange={handleChange}
+                  placeholder="Sunduibazrr"
+                  required
+                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Имэйл</label>
+                <input
+                  type="email"
+                  name="contactEmail"
+                  value={formData.contactEmail}
+                  onChange={handleChange}
+                  placeholder="example@email.com"
+                  required
+                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Утасны дугаар
+                </label>
+                <input
+                  type="tel"
+                  name="contactPhone"
+                  value={formData.contactPhone}
+                  onChange={handleChange}
+                  placeholder="9911-2233"
+                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">Имэйл</label>
-            <input
-              type="email"
-              name="contactEmail"
-              value={formData.contactEmail}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Утасны дугаар
-            </label>
-            <input
-              type="tel"
-              name="contactPhone"
-              value={formData.contactPhone}
-              onChange={handleChange}
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-        </div>
-      </div>
+      
 
       {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-4">
