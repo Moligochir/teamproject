@@ -62,7 +62,7 @@ export default function ReportPage() {
 
   const handleAddChange = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/food`, {
+      const res = await fetch(`http://localhost:8000/lostFound`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
