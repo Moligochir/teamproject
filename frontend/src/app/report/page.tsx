@@ -18,7 +18,7 @@ export default function ReportPage() {
           clerkId: user?.id,
           email: user?.primaryEmailAddress?.emailAddress,
           name: user?.fullName,
-          role: "user",
+          role: "USER",
           phonenumber: user?.phoneNumbers[0]?.phoneNumber || "",
         }),
       });
@@ -38,8 +38,8 @@ export default function ReportPage() {
     location: "",
     date: "",
     description: "",
-    contactName: user?.fullName || "",
-    contactEmail: user?.primaryEmailAddress?.emailAddress || "",
+    contactName: user?.fullName,
+    contactEmail: user?.primaryEmailAddress?.emailAddress,
     contactPhone: "",
   });
   const [submitted, setSubmitted] = useState(false);
@@ -63,10 +63,15 @@ export default function ReportPage() {
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    if (!user?.id || !preview) {
+      alert("Нэвтэрсэн байх шаардлагатай");
+      return;
+    }
+    await handleAddChange();
     setSubmitted(true);
+    console.log("Form submitted:", formData);
   };
 
   const handleChange = (
@@ -79,9 +84,7 @@ export default function ReportPage() {
       [e.target.name]: e.target.value,
     }));
   };
-  if (!user?.id) {
-    return console.log("aldaashuuu");
-  }
+
   const handleAddChange = async () => {
     try {
       const res = await fetch(`http://localhost:8000/lostFound`, {
@@ -106,6 +109,7 @@ export default function ReportPage() {
       console.log(err);
     }
   };
+
   if (submitted) {
     return (
       <div className="min-h-screen py-12 flex items-center justify-center">
@@ -469,7 +473,7 @@ export default function ReportPage() {
                 <input
                   type="text"
                   name="contactName"
-                  value={formData.contactName}
+                  value={formData.contactName!}
                   onChange={handleChange}
                   placeholder="Sunduibazrr"
                   required
@@ -481,7 +485,7 @@ export default function ReportPage() {
                 <input
                   type="email"
                   name="contactEmail"
-                  value={formData.contactEmail}
+                  value={formData.contactEmail!}
                   onChange={handleChange}
                   placeholder="example@email.com"
                   required
