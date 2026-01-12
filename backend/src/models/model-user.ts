@@ -5,8 +5,16 @@ const ObjectId = Schema.ObjectId;
 
 const UserSchema = new Schema({
   id: ObjectId,
-  clerkId: String,
-  email: String,
+  clerkId: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   name: String,
   phonenumber: Number,
   role: {
