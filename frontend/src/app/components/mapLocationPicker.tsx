@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-geosearch/dist/geosearch.css";
-
 import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
 const customMarkerIcon = new L.Icon({
   iconUrl:

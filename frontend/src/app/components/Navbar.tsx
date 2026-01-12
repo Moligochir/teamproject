@@ -3,10 +3,34 @@
 import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
 import { useState } from "react";
-import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/nextjs";
+import {
+  SignedIn,
+  SignedOut,
+  UserButton,
+  SignInButton,
+  useClerk,
+} from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { toast, Toaster } from "react-hot-toast";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+  const { openSignIn } = useClerk();
+
+  const handleClick = (e) => {
+    if (!isSignedIn) {
+      e.preventDefault();
+      toast("Та нэвтрэх шаардлагатай");
+
+      openSignIn({
+        redirectUrl: "/report",
+      });
+    }
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-9999 bg-card-bg/80 backdrop-blur-md border-b border-card-border">
@@ -73,6 +97,7 @@ export function Navbar() {
             </SignedIn>
             <Link
               href="/report"
+              onClick={handleClick}
               className="hidden sm:block px-5 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all hover:shadow-lg hover:shadow-primary/30"
             >
               Мэдээлэх
