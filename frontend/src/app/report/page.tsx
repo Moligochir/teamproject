@@ -1,11 +1,11 @@
 "use client";
-
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import MapLocationPicker from "../components/mapLocationPicker";
 import { DeleteIcon, EditIcon } from "../components/icons";
 import { useUser } from "@clerk/nextjs";
 import * as React from "react";
+import { User } from "@clerk/nextjs/server";
 
 export default function ReportPage() {
   const { user } = useUser();
@@ -102,7 +102,7 @@ export default function ReportPage() {
           Date: formData.date,
           image: preview,
           description: formData.description,
-          userId: user?.id,
+          UserId: user?.id,
         }),
       });
     } catch (err) {
@@ -144,7 +144,6 @@ export default function ReportPage() {
             <Link
               href="/probability"
               className="px-6 py-3 bg-card-bg border border-card-border hover:border-primary rounded-full font-semibold transition-all"
-             
             >
               Магадлалтай тохирол үзэх
             </Link>
