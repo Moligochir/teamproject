@@ -17,6 +17,7 @@ const LostFoundSchema = new mongoose.Schema(
     description: String,
     Date: Date,
     breed: { type: String },
+    phonenumber: Number,
   },
   { timestamps: true }
 );

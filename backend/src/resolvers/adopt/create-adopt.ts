@@ -12,6 +12,7 @@ export const CreateAdopt = async (req: Request, res: Response) => {
       image: newAdopt.image,
       breed: newAdopt.breed,
       description: newAdopt.description,
+      phonenumber: newAdopt.phonenumber,
     });
     res.status(200).json("success");
   } catch (e: unknown) {

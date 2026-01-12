@@ -11,7 +11,7 @@ export default function ReportPage() {
   const { user } = useUser();
   const createUser = async () => {
     try {
-      await fetch(`http://localhost:8000/users`, {
+      const userInfo = await fetch(`http://localhost:8000/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -22,6 +22,8 @@ export default function ReportPage() {
           phonenumber: user?.phoneNumbers[0]?.phoneNumber || "",
         }),
       });
+      const data = await userInfo.json();
+      console.log("Medkueeee", data.user);
     } catch (err) {
       console.log(err);
     }
@@ -46,6 +48,26 @@ export default function ReportPage() {
     contactEmail: user?.primaryEmailAddress?.emailAddress,
     contactPhone: "",
   });
+  const GetUser = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/users`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+      const data = await res.json();
+      console.log("User data:", data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    if (user) {
+      GetUser();
+    }
+  }, [user]);
   const [submitted, setSubmitted] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
