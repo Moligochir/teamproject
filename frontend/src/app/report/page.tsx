@@ -26,8 +26,12 @@ export default function ReportPage() {
       console.log(err);
     }
   };
+  const createRef = useRef(false);
   useEffect(() => {
-    if (user) createUser();
+    if (user && !createRef.current) {
+      createUser();
+      createRef.current = true;
+    }
   }, [user]);
   const [formData, setFormData] = useState({
     status: "lost",
