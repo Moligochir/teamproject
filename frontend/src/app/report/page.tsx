@@ -26,8 +26,12 @@ export default function ReportPage() {
       console.log(err);
     }
   };
+  const createRef = useRef(false);
   useEffect(() => {
-    if (user) createUser();
+    if (user && !createRef.current) {
+      createUser();
+      createRef.current = true;
+    }
   }, [user]);
   const [formData, setFormData] = useState({
     status: "lost",
@@ -65,11 +69,7 @@ export default function ReportPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.id || !preview) {
-      alert("Нэвтэрсэн байх шаардлагатай");
-      return;
-    }
-    await handleAddChange();
+    handleAddChange();
     setSubmitted(true);
     console.log("Form submitted:", formData);
   };
