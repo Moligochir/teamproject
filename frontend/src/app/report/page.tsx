@@ -65,11 +65,7 @@ export default function ReportPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.id || !preview) {
-      alert("Нэвтэрсэн байх шаардлагатай");
-      return;
-    }
-    await handleAddChange();
+    handleAddChange();
     setSubmitted(true);
     console.log("Form submitted:", formData);
   };
