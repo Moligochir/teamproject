@@ -26,9 +26,16 @@ export default function ReportPage() {
       console.log(err);
     }
   };
+  const createdRef = useRef(false);
   useEffect(() => {
-    if (user) createUser();
+    if (user && !createdRef.current) {
+      createUser();
+      createdRef.current = true;
+    }
   }, [user]);
+  // useEffect(() => {
+  //   if (user) createUser();
+  // }, [user]);
   const [formData, setFormData] = useState({
     status: "lost",
     type: "dog",
@@ -498,7 +505,6 @@ export default function ReportPage() {
             <button
               type="submit"
               className="flex-1 px-8 py-4 cursor-pointer bg-primary hover:bg-primary-dark text-white rounded-full font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/30"
-              onClick={handleAddChange}
             >
               Мэдээлэл илгээх
             </button>

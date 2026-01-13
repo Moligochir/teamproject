@@ -7,16 +7,13 @@ export const CreateUser = async (req: Request, res: Response) => {
   try {
     const newUser = req.body;
     if (!newUser.clerkId || !newUser.email) {
-      return res.status(409).json({
+      return res.status(400).json({
         message: "clerkId and email are required",
       });
     }
-    const checkuser = await UserModel.findOne(
-      { clerkId: newUser.clerkId },
-      { email: newUser.email }
-    );
+    const checkuser = await UserModel.findOne({ clerkId: newUser.clerkId });
     if (checkuser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(200).json({ message: "User already exists" });
     }
     const user = await UserModel.create({
       clerkId: newUser.clerkId,
