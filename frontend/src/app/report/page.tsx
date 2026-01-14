@@ -5,9 +5,19 @@ import MapLocationPicker from "../components/mapLocationPicker";
 import { DeleteIcon, EditIcon } from "../components/icons";
 import { useUser } from "@clerk/nextjs";
 import * as React from "react";
-import { User } from "@clerk/nextjs/server";
+
+type User = {
+  _id: string;
+  clerkId: string;
+  email: string;
+  name?: string; // ? → optional
+  role?: "ADMIN" | "USER";
+  createdAt?: string;
+  updatedAt?: string;
+};
 
 export default function ReportPage() {
+  const [usersdata, setUsersData] = useState<User[]>([]);
   const { user } = useUser();
   const createUser = async () => {
     try {
@@ -23,7 +33,7 @@ export default function ReportPage() {
         }),
       });
       const data = await userInfo.json();
-      console.log("Medkueeee", data.user);
+      console.log("CreateUseryn hariu", data);
     } catch (err) {
       console.log(err);
     }
@@ -44,8 +54,8 @@ export default function ReportPage() {
     location: "",
     date: "",
     description: "",
-    contactName: user?.fullName,
-    contactEmail: user?.primaryEmailAddress?.emailAddress,
+    contactName: user?.fullName || "",
+    contactEmail: user?.primaryEmailAddress?.emailAddress || "",
     contactPhone: "",
   });
   const GetUser = async () => {
@@ -59,6 +69,7 @@ export default function ReportPage() {
       });
       const data = await res.json();
       console.log("User data:", data);
+      setUsersData(data);
     } catch (err) {
       console.log(err);
     }
@@ -68,9 +79,20 @@ export default function ReportPage() {
       GetUser();
     }
   }, [user]);
+
+  const FilterUser = usersdata.find((u) => u.clerkId === user?.id);
+  useEffect(() => {
+    if (FilterUser) {
+      setFormData((prev) => ({
+        ...prev,
+        contactName: FilterUser.name || "",
+        contactEmail: FilterUser.email || "",
+      }));
+    }
+  }, [FilterUser]);
+
   const [submitted, setSubmitted] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
-
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [quit, setQuit] = useState(false);
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,7 +146,7 @@ export default function ReportPage() {
           Date: formData.date,
           image: preview,
           description: formData.description,
-          UserId: user?.id,
+          UserId: FilterUser?._id,
         }),
       });
     } catch (err) {
