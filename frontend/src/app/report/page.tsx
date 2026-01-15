@@ -16,6 +16,9 @@ type User = {
   updatedAt?: string;
 };
 
+const UPLOAD_PRESET = "Pawpew";
+const CLOUD_NAME = "dyduodw7q";
+
 export default function ReportPage() {
   const [usersdata, setUsersData] = useState<User[]>([]);
   const { user } = useUser();
@@ -45,19 +48,7 @@ export default function ReportPage() {
       createRef.current = true;
     }
   }, [user]);
-  const [formData, setFormData] = useState({
-    status: "lost",
-    type: "dog",
-    name: "",
-    breed: "",
-    gender: "",
-    location: "",
-    date: "",
-    description: "",
-    contactName: user?.fullName || "",
-    contactEmail: user?.primaryEmailAddress?.emailAddress || "",
-    contactPhone: "",
-  });
+
   const GetUser = async () => {
     try {
       const res = await fetch(`http://localhost:8000/users`, {
@@ -91,31 +82,79 @@ export default function ReportPage() {
     }
   }, [FilterUser]);
 
+  const [formData, setFormData] = useState({
+    status: "lost",
+    type: "dog",
+    name: "",
+    breed: "",
+    gender: "",
+    location: "",
+    date: "",
+    description: "",
+    contactName: user?.fullName || "",
+    contactEmail: user?.primaryEmailAddress?.emailAddress || "",
+    contactPhone: "",
+  });
   const [submitted, setSubmitted] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-
-  const inputRef = useRef<HTMLInputElement | null>(null);
   const [quit, setQuit] = useState(false);
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImageFile(file);
-    setPreview(URL.createObjectURL(file));
+
+  const uploadToCloudinary = async (file: File) => {
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    formData.append("upload_preset", UPLOAD_PRESET);
+
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      return data.secure_url;
+    } catch (error) {
+      console.error("Cloudinary upload failed:", error);
+    }
   };
 
+  const handleLogoUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+    setUploading(true);
+
+    try {
+      const url = await uploadToCloudinary(file);
+      setPreview(url);
+      console.log(url);
+    } catch (err: unknown) {
+      console.log("Failed to upload logo: " + (err as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  };
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const handleEdit = () => {
     inputRef.current?.click();
   };
-
   const handleDelete = () => {
     setPreview(null);
     if (inputRef.current) inputRef.current.value = "";
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!imageFile) {
+    if (!preview) {
       alert("Зураг оруулна уу");
       return;
     }
@@ -150,9 +189,9 @@ export default function ReportPage() {
           breed: formData.breed,
           gender: formData.gender,
           Date: formData.date,
-          image: imageFile,
+          image: preview,
           description: formData.description,
-          UserId: FilterUser?._id,
+          userId: FilterUser?._id,
         }),
       });
     } catch (err) {
@@ -438,20 +477,26 @@ export default function ReportPage() {
                        text-center hover:border-primary/50 transition-colors
                        cursor-pointer block"
                 >
-                  <div className="text-4xl mb-3">📷</div>
-                  <p className="font-medium mb-1">
-                    Зураг оруулахын тулд дарна уу
-                  </p>
-                  <p className="text-xs text-muted mt-2">PNG, JPG</p>
-
-                  <input
-                    id="image-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageChange}
-                    ref={inputRef}
-                  />
+                  {!uploading ? (
+                    <div>
+                      {" "}
+                      <div className="text-4xl mb-3">📷</div>
+                      <p className="font-medium mb-1">
+                        Зураг оруулахын тулд дарна уу
+                      </p>
+                      <p className="text-xs text-muted mt-2">PNG, JPG</p>
+                      <input
+                        id="image-upload"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleLogoUpload}
+                        ref={inputRef}
+                      />
+                    </div>
+                  ) : (
+                    <p className="font-medium">Зураг ачааллаж байна...</p>
+                  )}
                 </label>
               ) : (
                 <div className="relative group">
@@ -489,7 +534,7 @@ export default function ReportPage() {
                     accept="image/*"
                     className="hidden"
                     ref={inputRef}
-                    onChange={handleImageChange}
+                    onChange={handleLogoUpload}
                   />
                 </div>
               )}
