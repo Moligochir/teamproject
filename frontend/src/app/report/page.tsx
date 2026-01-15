@@ -93,12 +93,14 @@ export default function ReportPage() {
 
   const [submitted, setSubmitted] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [quit, setQuit] = useState(false);
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
+    setImageFile(file);
     setPreview(URL.createObjectURL(file));
   };
 
@@ -113,6 +115,10 @@ export default function ReportPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!imageFile) {
+      alert("Зураг оруулна уу");
+      return;
+    }
     handleAddChange();
     setSubmitted(true);
     console.log("Form submitted:", formData);
@@ -144,7 +150,7 @@ export default function ReportPage() {
           breed: formData.breed,
           gender: formData.gender,
           Date: formData.date,
-          image: preview,
+          image: imageFile,
           description: formData.description,
           UserId: FilterUser?._id,
         }),
@@ -542,7 +548,6 @@ export default function ReportPage() {
             <button
               type="submit"
               className="flex-1 px-8 py-4 cursor-pointer bg-primary hover:bg-primary-dark text-white rounded-full font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/30"
-              onClick={handleAddChange}
             >
               Мэдээлэл илгээх
             </button>
