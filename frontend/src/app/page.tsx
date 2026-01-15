@@ -10,6 +10,7 @@ import PetCard, { Pet } from "./components/petcard";
 import StatCard from "./components/statcard";
 import CategoryCard from "./components/categorycard";
 import { ContactIcon, NotificationIcon, SearchIcon } from "./components/icons";
+import { useEffect, useState } from "react";
 
 // Example data
 const recentPets: Pet[] = [
@@ -36,10 +37,24 @@ const recentPets: Pet[] = [
       "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=400&fit=crop",
   },
 ];
+type lostFound = {
+  role: string;
+  name: string;
+  gender: string;
+  location: string;
+  description: string;
+  Date: Date;
+  petType: string;
+  image: string;
+  breed: string;
+  _id: string;
+  phonenumber: number;
+};
 
 export default function Home() {
   const { isSignedIn } = useAuth();
   const { openSignIn } = useClerk();
+  const [animalData, setAnimalData] = useState<lostFound[]>([]);
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!isSignedIn) {
@@ -49,7 +64,25 @@ export default function Home() {
       openSignIn({ redirectUrl: "/report" });
     }
   };
-
+  const GetLostFound = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/lostFound`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+      const data = await res.json();
+      console.log("User data:", data);
+      setAnimalData(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    GetLostFound();
+  }, []);
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -221,7 +254,7 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recentPets.map((pet) => (
+            {animalData.map((pet) => (
               <PetCard key={pet.id} pet={pet} />
             ))}
           </div>
