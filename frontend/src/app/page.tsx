@@ -255,7 +255,20 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {animalData.map((pet) => (
-              <PetCard key={pet.id} pet={pet} />
+              <PetCard
+                key={pet._id}
+                petType={pet.petType}
+                role={pet.role}
+                name={pet.name}
+                gender={pet.gender}
+                location={pet.location}
+                description={pet.description}
+                Date={pet.Date}
+                image={pet.image}
+                breed={pet.breed}
+                _id={pet._id}
+                phonenumber={pet.phonenumber}
+              />
             ))}
           </div>
         </div>
