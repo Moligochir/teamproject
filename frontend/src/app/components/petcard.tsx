@@ -46,10 +46,10 @@ export default function PetCard({
     >
       <div className="relative h-48 overflow-hidden">
         <Image
-          src={image}
+          src={image || "/default-pet.jpg"}
           alt={name}
           fill
-          className="object-cover transition-transform duration-300 hover:scale-110"
+          className="object-fit transition-transform duration-300 hover:scale-110"
         />
         <div
           className={`absolute top-3 left-3 px-3 py-1 rounded-full text-sm font-semibold ${

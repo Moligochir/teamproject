@@ -6,37 +6,12 @@ import { toast } from "react-hot-toast";
 
 import { useAuth, useClerk } from "@clerk/nextjs";
 
-import PetCard, { Pet } from "./components/petcard";
+import PetCard from "./components/petcard";
 import StatCard from "./components/statcard";
 import CategoryCard from "./components/categorycard";
 import { ContactIcon, NotificationIcon, SearchIcon } from "./components/icons";
 import { useEffect, useState } from "react";
 
-// Example data
-const recentPets: Pet[] = [
-  {
-    id: 1,
-    name: "Макс",
-    type: "dog",
-    breed: "Алтан ретривер",
-    status: "lost",
-    location: "Төв цэцэрлэгт хүрээлэн",
-    date: "2026.01.03",
-    image:
-      "https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=400&fit=crop",
-  },
-  {
-    id: 2,
-    name: "Луна",
-    type: "cat",
-    breed: "Сиам",
-    status: "found",
-    location: "Царс гудамж",
-    date: "2026.01.04",
-    image:
-      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=400&fit=crop",
-  },
-];
 type lostFound = {
   role: string;
   name: string;
