@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MapIcon } from "../components/icons";
+import PetCard from "../components/petcard";
 
 // Жишээ өгөгдөл
 const allPets = [
@@ -153,45 +153,19 @@ const allPets = [
   },
 ];
 
-function PetCard({ pet }: { pet: (typeof allPets)[0] }) {
-  return (
-    <Link
-      href={`/pet/${pet.id}`}
-      className="pet-card block bg-card-bg rounded-2xl overflow-hidden border border-card-border"
-    >
-      <div className="relative h-48 overflow-hidden">
-        <Image
-          src={pet.image}
-          alt={pet.name}
-          fill
-          className="object-cover transition-transform duration-300 hover:scale-110"
-        />
-        <div
-          className={`absolute top-3 left-3 px-3 py-1 rounded-full text-sm font-semibold ${
-            pet.status === "lost" ? "status-lost" : "status-found"
-          }`}
-        >
-          {pet.status === "lost" ? "🔍 Төөрсөн" : "✓ Олдсон"}
-        </div>
-        <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/50 text-white text-sm font-medium backdrop-blur-sm">
-          {pet.type === "dog" ? "🐕 Нохой" : "🐱 Муур"}
-        </div>
-      </div>
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-bold text-lg">{pet.name}</h3>
-          <span className="text-sm text-muted">{pet.date}</span>
-        </div>
-        <p className="text-muted text-sm mb-2">{pet.breed}</p>
-        <div className="flex items-center gap-1 text-sm text-muted">
-          <MapIcon />
-          {pet.location}
-        </div>
-      </div>
-    </Link>
-  );
-}
-
+type lostFound = {
+  role: string;
+  name: string;
+  gender: string;
+  location: string;
+  description: string;
+  Date: Date;
+  petType: string;
+  image: string;
+  breed: string;
+  _id: string;
+  phonenumber: number;
+};
 export default function BrowsePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "dog" | "cat">("all");
@@ -208,7 +182,26 @@ export default function BrowsePage() {
     const matchesStatus = statusFilter === "all" || pet.status === statusFilter;
     return matchesSearch && matchesType && matchesStatus;
   });
-
+  const [lostFoundData, setLostFoundData] = useState<lostFound[]>([]);
+  const GetLostFound = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/lostFound`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+      const data = await res.json();
+      console.log("User data:", data);
+      setLostFoundData(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    GetLostFound();
+  }, []);
   return (
     <div className="min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -372,8 +365,21 @@ export default function BrowsePage() {
         {/* Pet Grid */}
         {filteredPets.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredPets.map((pet) => (
-              <PetCard key={pet.id} pet={pet} />
+            {lostFoundData.map((pet) => (
+              <PetCard
+                key={pet._id}
+                petType={pet.petType}
+                role={pet.role}
+                name={pet.name}
+                gender={pet.gender}
+                location={pet.location}
+                description={pet.description}
+                Date={pet.Date}
+                image={pet.image}
+                breed={pet.breed}
+                _id={pet._id}
+                phonenumber={pet.phonenumber}
+              />
             ))}
           </div>
         ) : (

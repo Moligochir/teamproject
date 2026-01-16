@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { toast } from "react-hot-toast";
 
 import { useAuth, useClerk } from "@clerk/nextjs";
@@ -108,12 +107,10 @@ export default function Home() {
                 <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-secondary/20 rounded-full animate-pulse" />
                 <div className="absolute inset-4 bg-linear-to-br from-primary/30 to-secondary/30 rounded-full" />
                 <div className="absolute inset-8 rounded-full overflow-hidden border-4 border-white shadow-2xl">
-                  <Image
+                  <img
                     src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=600&fit=crop"
                     alt="Нохой муур хоёр"
-                    fill
                     className="object-cover"
-                    priority
                   />
                 </div>
                 {/* Floating icons */}
