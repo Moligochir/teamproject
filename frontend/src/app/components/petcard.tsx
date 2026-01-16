@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 
 // export type Pet = {
 //   id: number;
@@ -45,11 +44,10 @@ export default function PetCard({
       className="pet-card block bg-card-bg rounded-2xl overflow-hidden border border-card-border"
     >
       <div className="relative h-48 overflow-hidden">
-        <Image
+        <img
           src={image || "/default-pet.jpg"}
           alt={name}
-          fill
-          className="object-fit transition-transform duration-300 hover:scale-110"
+          className="object-contain transition-transform duration-300 hover:scale-110"
         />
         <div
           className={`absolute top-3 left-3 px-3 py-1 rounded-full text-sm font-semibold ${

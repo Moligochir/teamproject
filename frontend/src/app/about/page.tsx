@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 
 export default function AboutPage() {
   return (
@@ -70,10 +69,9 @@ export default function AboutPage() {
           </div>
           <div className="relative">
             <div className="aspect-square rounded-2xl overflow-hidden border border-card-border">
-              <Image
+              <img
                 src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=600&h=600&fit=crop"
                 alt="Аз жаргалтай амьтад"
-                fill
                 className="object-cover"
               />
             </div>
@@ -172,10 +170,9 @@ export default function AboutPage() {
             ].map((member) => (
               <div key={member.name} className="text-center">
                 <div className="relative w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-primary/20">
-                  <Image
+                  <img
                     src={member.image}
                     alt={member.name}
-                    fill
                     className="object-cover"
                   />
                 </div>
