@@ -6,11 +6,24 @@ import { toast } from "react-hot-toast";
 
 import { useAuth, useClerk } from "@clerk/nextjs";
 
-import PetCard from "./components/petcard";
 import StatCard from "./components/statcard";
 import CategoryCard from "./components/categorycard";
-import { ContactIcon, NotificationIcon, SearchIcon } from "./components/icons";
+import {
+  CatIcon,
+  ContactIcon,
+  DogIcon,
+  FoundIcon,
+  FoundIcon2,
+  ListingIcon,
+  NotificationIcon,
+  ReUnited,
+  SearchIcon,
+  SearchIcon2,
+  SearchIconn,
+} from "./components/icons";
 import { useEffect, useState } from "react";
+import { useLanguage } from "./contexts/Languagecontext";
+import PetCard from "./components/petcard";
 
 type lostFound = {
   role: string;
@@ -30,15 +43,137 @@ export default function Home() {
   const { isSignedIn } = useAuth();
   const { openSignIn } = useClerk();
   const [animalData, setAnimalData] = useState<lostFound[]>([]);
+  const { language } = useLanguage();
+
+  // Translation object
+  const translations = {
+    mn: {
+      hero: {
+        badge: "Тэжээвэр амьтдыг гэртээ буцаахад туслана",
+        title1: "Төөрсөн Амьтдыг",
+        title2: "Гэр Бүлтэй нь Холбоно",
+        description:
+          "Төөрсөн амьтан олсон уу эсвэл өөрийн тэжээвэр амьтнаа алдсан уу? Манай платформ төөрсөн амьтдыг эзэдтэй нь холбоход туслана.",
+        reportButton: "Мэдээлэл оруулах",
+        browseButton: "Зарлалууд үзэх",
+      },
+      stats: {
+        total: "Нийт зарлал",
+        lost: "Төөрсөн",
+        found: "Олдсон",
+        reunited: "Эзэдтэй холбогдсон",
+      },
+      categories: {
+        title: "Ангилалаар хайх",
+        description: "Төрөл болон төлөвөөр ангилсан амьтдыг үзэх",
+        dog: "Нохой",
+        cat: "Муур",
+        lost: "Төөрсөн",
+        found: "Олдсон",
+      },
+      recent: {
+        title: "Сүүлийн зарлалууд",
+        description: "Эдгээр амьтдыг гэртээ буцаахад туслаарай",
+        viewAll: "Бүгдийг үзэх",
+      },
+      howItWorks: {
+        title: "Хэрхэн ажилладаг вэ?",
+        description: "Амьтдыг гэр бүлтэй нь холбох энгийн алхамууд",
+        step1: {
+          title: "1. Мэдээлэх",
+          description:
+            "Амьтан олсон уу эсвэл алдсан уу? Зураг болон байршлын дэлгэрэнгүй мэдээлэлтэй зарлал үүсгэнэ үү.",
+        },
+        step2: {
+          title: "2. Хайх",
+          description:
+            "Зарлалуудыг үзэж, байршил, амьтны төрөл, төлөвөөр шүүж тохирохыг олно уу.",
+        },
+        step3: {
+          title: "3. Холбогдох",
+          description:
+            "Амьтны эзэн эсвэл олсон хүнтэй холбогдож, амьтдыг гэртээ буцаахад туслаарай!",
+        },
+      },
+      cta: {
+        title: "Туслахад бэлэн үү?",
+        description:
+          "Зарлал бүр төөрсөн амьтныг гэртээ нэг алхам ойртуулна. Манай нийгэмлэгт нэгдээрэй!",
+        reportPet: "Олдсон амьтан мэдээлэх",
+        searchPet: "Төөрсөн амьтад хайх",
+      },
+      loginRequired: "Та нэвтрэх шаардлагатай",
+    },
+    en: {
+      hero: {
+        badge: "Helping pets find their way home",
+        title1: "Reuniting Lost Pets",
+        title2: "With Their Families",
+        description:
+          "Found a lost pet or lost your own? Our platform helps reconnect lost pets with their owners.",
+        reportButton: "Submit Report",
+        browseButton: "Browse Listings",
+      },
+      stats: {
+        total: "Total Listings",
+        lost: "Lost",
+        found: "Found",
+        reunited: "Reunited",
+      },
+      categories: {
+        title: "Browse by Category",
+        description: "View pets organized by type and status",
+        dog: "Dogs",
+        cat: "Cats",
+        lost: "Lost",
+        found: "Found",
+      },
+      recent: {
+        title: "Recent Listings",
+        description: "Help these pets find their way home",
+        viewAll: "View All",
+      },
+      howItWorks: {
+        title: "How It Works?",
+        description: "Simple steps to reunite pets with their families",
+        step1: {
+          title: "1. Report",
+          description:
+            "Found or lost a pet? Create a listing with photos and detailed location information.",
+        },
+        step2: {
+          title: "2. Search",
+          description:
+            "Browse listings and filter by location, pet type, and status to find matches.",
+        },
+        step3: {
+          title: "3. Connect",
+          description:
+            "Contact the owner or finder and help reunite pets with their homes!",
+        },
+      },
+      cta: {
+        title: "Ready to Help?",
+        description:
+          "Every listing brings a lost pet one step closer to home. Join our community!",
+        reportPet: "Report Found Pet",
+        searchPet: "Search Lost Pets",
+      },
+      loginRequired: "You need to sign in",
+    },
+  };
+
+  const t = translations[language];
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!isSignedIn) {
       e.preventDefault();
-      toast("Та нэвтрэх шаардлагатай");
+      toast(t.loginRequired);
 
       openSignIn({ redirectUrl: "/report" });
     }
   };
+
   const GetLostFound = async () => {
     try {
       const res = await fetch(`http://localhost:8000/lostFound`, {
@@ -55,9 +190,11 @@ export default function Home() {
       console.log(err);
     }
   };
+
   useEffect(() => {
     GetLostFound();
   }, []);
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -75,16 +212,15 @@ export default function Home() {
             <div className="animate-fade-up opacity-0 stagger-1">
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6">
                 <span className="animate-pulse">●</span>
-                Тэжээвэр амьтдыг гэртээ буцаахад туслана
+                {t.hero.badge}
               </div>
               <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
-                Төөрсөн Амьтдыг
+                {t.hero.title1}
                 <br />
-                <span className="text-primary">Гэр Бүлтэй нь Холбоно</span>
+                <span className="text-primary">{t.hero.title2}</span>
               </h1>
               <p className="text-xl text-muted mb-8 max-w-lg">
-                Төөрсөн амьтан олсон уу эсвэл өөрийн тэжээвэр амьтнаа алдсан уу?
-                Манай платформ төөрсөн амьтдыг эзэдтэй нь холбоход туслана.
+                {t.hero.description}
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link
@@ -92,13 +228,13 @@ export default function Home() {
                   onClick={handleClick}
                   className="px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-full font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-1"
                 >
-                  Мэдээлэл оруулах
+                  {t.hero.reportButton}
                 </Link>
                 <Link
                   href="/browse"
                   className="px-8 py-4 bg-card-bg border-2 border-card-border hover:border-primary text-foreground rounded-full font-bold text-lg transition-all hover:-translate-y-1"
                 >
-                  Зарлалууд үзэх
+                  {t.hero.browseButton}
                 </Link>
               </div>
             </div>
@@ -118,13 +254,17 @@ export default function Home() {
                 </div>
                 {/* Floating icons */}
                 <div className="absolute -top-4 -right-4 bg-white dark:bg-card-bg rounded-2xl shadow-xl p-4 animate-float">
-                  <span className="text-3xl">🐕</span>
+                  <span className="text-3xl">
+                    <DogIcon />
+                  </span>
                 </div>
                 <div
                   className="absolute -bottom-4 -left-4 bg-white dark:bg-card-bg rounded-2xl shadow-xl p-4 animate-float"
                   style={{ animationDelay: "1s" }}
                 >
-                  <span className="text-3xl">🐱</span>
+                  <span className="text-3xl">
+                    <CatIcon />
+                  </span>
                 </div>
               </div>
             </div>
@@ -137,27 +277,27 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard
-              icon={<svg>...</svg>}
+              icon={<ListingIcon />}
               value="248"
-              label="Нийт зарлал"
+              label={t.stats.total}
               color="bg-primary"
             />
             <StatCard
-              icon={<svg>...</svg>}
+              icon={<SearchIcon2 />}
               value="112"
-              label="Төөрсөн"
+              label={t.stats.lost}
               color="bg-lost"
             />
             <StatCard
-              icon={<svg>...</svg>}
+              icon={<FoundIcon2 />}
               value="136"
-              label="Олдсон"
+              label={t.stats.found}
               color="bg-found"
             />
             <StatCard
-              icon={<svg>...</svg>}
+              icon={<ReUnited />}
               value="89"
-              label="Эзэдтэй холбогдсон"
+              label={t.stats.reunited}
               color="bg-secondary"
             />
           </div>
@@ -168,37 +308,35 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Ангилалаар хайх
+              {t.categories.title}
             </h2>
-            <p className="text-muted text-lg">
-              Төрөл болон төлөвөөр ангилсан амьтдыг үзэх
-            </p>
+            <p className="text-muted text-lg">{t.categories.description}</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <CategoryCard
-              icon="🐕"
-              title="Нохой"
+              icon={<DogIcon />}
+              title={t.categories.dog}
               count={142}
               href="/browse?type=dog"
               delay="stagger-1"
             />
             <CategoryCard
-              icon="🐱"
-              title="Муур"
+              icon={<CatIcon />}
+              title={t.categories.cat}
               count={106}
               href="/browse?type=cat"
               delay="stagger-2"
             />
             <CategoryCard
-              icon="🔍"
-              title="Төөрсөн"
+              icon={<SearchIconn />}
+              title={t.categories.lost}
               count={112}
               href="/browse?status=lost"
               delay="stagger-3"
             />
             <CategoryCard
-              icon="✅"
-              title="Олдсон"
+              icon={<FoundIcon />}
+              title={t.categories.found}
               count={136}
               href="/browse?status=found"
               delay="stagger-4"
@@ -213,18 +351,15 @@ export default function Home() {
           <div className="flex items-center justify-between mb-12">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-2">
-                Сүүлийн зарлалууд
+                {t.recent.title}
               </h2>
-              <p className="text-muted text-lg">
-                Эдгээр амьтдыг гэртээ буцаахад туслаарай
-              </p>
+              <p className="text-muted text-lg">{t.recent.description}</p>
             </div>
             <Link
               href="/browse"
               className="hidden md:flex items-center gap-2 text-primary hover:text-primary-dark font-semibold transition-colors"
             >
-              Бүгдийг үзэх
-              <svg className="w-5 h-5">...</svg>
+              {t.recent.viewAll} <span>→</span>
             </Link>
           </div>
 
@@ -253,11 +388,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Хэрхэн ажилладаг вэ?
+              {t.howItWorks.title}
             </h2>
-            <p className="text-muted text-lg">
-              Амьтдыг гэр бүлтэй нь холбох энгийн алхамууд
-            </p>
+            <p className="text-muted text-lg">{t.howItWorks.description}</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {/* Step 1 */}
@@ -265,70 +398,55 @@ export default function Home() {
               <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <NotificationIcon />
               </div>
-              <h3 className="text-xl font-bold mb-3">1. Мэдээлэх</h3>
-              <p className="text-muted">
-                Амьтан олсон уу эсвэл алдсан уу? Зураг болон байршлын
-                дэлгэрэнгүй мэдээлэлтэй зарлал үүсгэнэ үү.
-              </p>
+              <h3 className="text-xl font-bold mb-3">
+                {t.howItWorks.step1.title}
+              </h3>
+              <p className="text-muted">{t.howItWorks.step1.description}</p>
             </div>
             {/* Step 2 */}
             <div className="text-center animate-fade-up opacity-0 stagger-2">
               <div className="w-20 h-20 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <SearchIcon />
               </div>
-              <h3 className="text-xl font-bold mb-3">2. Хайх</h3>
-              <p className="text-muted">
-                Зарлалуудыг үзэж, байршил, амьтны төрөл, төлөвөөр шүүж тохирохыг
-                олно уу.
-              </p>
+              <h3 className="text-xl font-bold mb-3">
+                {t.howItWorks.step2.title}
+              </h3>
+              <p className="text-muted">{t.howItWorks.step2.description}</p>
             </div>
             {/* Step 3 */}
             <div className="text-center animate-fade-up opacity-0 stagger-3">
               <div className="w-20 h-20 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <ContactIcon />
               </div>
-              <h3 className="text-xl font-bold mb-3">3. Холбогдох</h3>
-              <p className="text-muted">
-                Амьтны эзэн эсвэл олсон хүнтэй холбогдож, амьтдыг гэртээ
-                буцаахад туслаарай!
-              </p>
+              <h3 className="text-xl font-bold mb-3">
+                {t.howItWorks.step3.title}
+              </h3>
+              <p className="text-muted">{t.howItWorks.step3.description}</p>
             </div>
           </div>
         </div>
       </section>
 
       <section className="py-20 bg-linear-to-br from-primary to-primary-dark text-white">
-        {" "}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {" "}
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            {" "}
-            Туслахад бэлэн үү?{" "}
-          </h2>{" "}
-          <p className="text-xl opacity-90 mb-8">
-            {" "}
-            Зарлал бүр төөрсөн амьтныг гэртээ нэг алхам ойртуулна. Манай
-            нийгэмлэгт нэгдээрэй!{" "}
-          </p>{" "}
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">{t.cta.title}</h2>
+          <p className="text-xl opacity-90 mb-8">{t.cta.description}</p>
           <div className="flex flex-wrap justify-center gap-4">
-            {" "}
             <Link
               href="/report"
               onClick={handleClick}
               className="px-8 py-4 bg-white text-primary hover:bg-gray-100 rounded-full font-bold text-lg transition-all hover:shadow-xl hover:-translate-y-1"
             >
-              {" "}
-              Олдсон амьтан мэдээлэх{" "}
-            </Link>{" "}
+              {t.cta.reportPet}
+            </Link>
             <Link
               href="/browse"
               className="px-8 py-4 bg-transparent border-2 border-white hover:bg-white/10 rounded-full font-bold text-lg transition-all hover:-translate-y-1"
             >
-              {" "}
-              Төөрсөн амьтад хайх{" "}
-            </Link>{" "}
-          </div>{" "}
-        </div>{" "}
+              {t.cta.searchPet}
+            </Link>
+          </div>
+        </div>
       </section>
     </div>
   );

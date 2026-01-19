@@ -225,7 +225,9 @@ export default async function PetDetailPage({
               </div>
               <div className="bg-card-bg rounded-xl p-4 border border-card-border">
                 <div className="text-sm text-muted mb-1">Төрөл</div>
-                <div className="font-bold">{pet.type === "dog" ? "Нохой" : "Муур"}</div>
+                <div className="font-bold">
+                  {pet.type === "dog" ? "Нохой" : "Муур"}
+                </div>
               </div>
               <div className="bg-card-bg rounded-xl p-4 border border-card-border">
                 <div className="text-sm text-muted mb-1">Өнгө</div>
@@ -275,7 +277,7 @@ export default async function PetDetailPage({
             </div>
 
             {/* Contact Section */}
-            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-6 border border-primary/20">
+            <div className="bg-linear-to-br from-primary/10 to-secondary/10 rounded-xl p-6 border border-primary/20">
               <h3 className="font-bold text-lg mb-4">Холбоо барих мэдээлэл</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -377,7 +379,8 @@ export default async function PetDetailPage({
           <h3 className="font-bold text-lg mb-3">Түгээхэд туслаарай</h3>
           <p className="text-muted mb-4">
             Энэ зарлалыг хуваалцаж {pet.name}-д{" "}
-            {pet.status === "lost" ? "гэртээ буцахад" : "гэр бүлээ олоход"} туслаарай
+            {pet.status === "lost" ? "гэртээ буцахад" : "гэр бүлээ олоход"}{" "}
+            туслаарай
           </p>
           <div className="flex justify-center gap-4">
             <button className="w-12 h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors">
