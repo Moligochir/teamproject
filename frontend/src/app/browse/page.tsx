@@ -48,7 +48,6 @@ export default function BrowsePage() {
   useEffect(() => {
     GetLostFound();
   }, []);
-  const filteredPets = lostFoundData.filter((pet) => {
 
   const { isSignedIn } = useAuth();
   const { openSignIn } = useClerk();

@@ -6,6 +6,7 @@ import { DeleteIcon, EditIcon } from "../components/icons";
 import { useUser } from "@clerk/nextjs";
 import * as React from "react";
 import { useLanguage } from "../contexts/Languagecontext";
+import { PhoneNumber } from "@clerk/nextjs/server";
 
 type User = {
   _id: string;
@@ -244,6 +245,8 @@ export default function ReportPage() {
     breed: "",
     gender: "",
     location: "",
+    lat: null as number | null,
+    lng: null as number | null,
     date: "",
     description: "",
     contactName: user?.fullName || "",
@@ -344,6 +347,10 @@ export default function ReportPage() {
           Date: formData.date,
           image: preview,
           description: formData.description,
+          location: formData.location,
+        lat: formData.lat,
+        lng: formData.lng,
+          phonenumber: formData.contactPhone,
           userId: FilterUser?._id,
         }),
       });

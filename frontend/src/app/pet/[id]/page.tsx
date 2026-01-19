@@ -269,10 +269,10 @@ export default function PetDetailPage() {
                   <div>
                     <div className="text-sm text-muted">Утас</div>
                     <a
-                      href={`tel:${animalData[0]?.userId?.phonenumber}`}
+                      href={`tel:${animalData[0]?.phonenumber}`}
                       className="font-medium text-primary hover:text-primary-dark transition-colors"
                     >
-                      {animalData[0]?.userId?.phonenumber}
+                      {animalData[0]?.phonenumber}
                     </a>
                   </div>
                 </div>
@@ -288,7 +288,7 @@ export default function PetDetailPage() {
                 Имэйлээр холбогдох
               </a>
               <a
-                href={`tel:${animalData[0]?.userId?.phonenumber}`}
+                href={`tel:${animalData[0]?.phonenumber}`}
                 className="flex-1 px-6 py-4 bg-card-bg border-2 border-card-border hover:border-primary text-foreground rounded-full font-bold text-center transition-all"
               >
                 Утсаар залгах
