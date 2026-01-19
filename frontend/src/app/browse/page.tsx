@@ -2,156 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { MapIcon } from "../components/icons";
+import { useAuth, useClerk } from "@clerk/nextjs";
+import toast from "react-hot-toast";
+import { useLanguage } from "../contexts/Languagecontext";
 import PetCard from "../components/petcard";
-
-// Жишээ өгөгдөл
-const allPets = [
-  {
-    id: 1,
-    name: "Макс",
-    type: "dog",
-    breed: "Алтан ретривер",
-    status: "lost",
-    location: "Төв цэцэрлэгт хүрээлэн",
-    date: "2026.01.03",
-    image:
-      "https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=400&fit=crop",
-    description: "Найрсаг алтан ретривер, цэнхэр хүзүүвчтэй",
-  },
-  {
-    id: 2,
-    name: "Луна",
-    type: "cat",
-    breed: "Сиам",
-    status: "found",
-    location: "Царс гудамж",
-    date: "2026.01.04",
-    image:
-      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=400&fit=crop",
-    description: "Үзэсгэлэнтэй сиам муур, тайван найрсаг",
-  },
-  {
-    id: 3,
-    name: "Бадди",
-    type: "dog",
-    breed: "Лабрадор",
-    status: "lost",
-    location: "Голын эрэг",
-    date: "2026.01.02",
-    image:
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop",
-    description: "Хар лабрадор, цээжин дээр цагаан толботой",
-  },
-  {
-    id: 4,
-    name: "Мишка",
-    type: "cat",
-    breed: "Табби",
-    status: "found",
-    location: "Нарлаг гудамж",
-    date: "2026.01.05",
-    image:
-      "https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=400&h=400&fit=crop",
-    description: "Улбар шар табби муур, маш тоглоомч",
-  },
-  {
-    id: 5,
-    name: "Роки",
-    type: "dog",
-    breed: "Герман хоньч",
-    status: "lost",
-    location: "Хотын төв",
-    date: "2026.01.01",
-    image:
-      "https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?w=400&h=400&fit=crop",
-    description: "Том герман хоньч, Роки гэж дуудахад хариулдаг",
-  },
-  {
-    id: 6,
-    name: "Мими",
-    type: "cat",
-    breed: "Перс",
-    status: "found",
-    location: "Нарсны гудамж",
-    date: "2026.01.04",
-    image:
-      "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=400&h=400&fit=crop",
-    description: "Цагаан перс муур, хөх нүдтэй",
-  },
-  {
-    id: 7,
-    name: "Чарли",
-    type: "dog",
-    breed: "Бигль",
-    status: "lost",
-    location: "Хойд дүүрэг",
-    date: "2025.12.30",
-    image:
-      "https://images.unsplash.com/photo-1505628346881-b72b27e84530?w=400&h=400&fit=crop",
-    description: "Жижиг бигль, хүрэн цагаан толботой",
-  },
-  {
-    id: 8,
-    name: "Сүүдэр",
-    type: "cat",
-    breed: "Хар богино үст",
-    status: "lost",
-    location: "Баруун хэсэг",
-    date: "2026.01.02",
-    image:
-      "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=400&h=400&fit=crop",
-    description: "Бүхэлдээ хар муур, ногоон нүдтэй",
-  },
-  {
-    id: 9,
-    name: "Цэцэг",
-    type: "dog",
-    breed: "Пүүдл",
-    status: "found",
-    location: "Төв талбай",
-    date: "2026.01.05",
-    image:
-      "https://images.unsplash.com/photo-1516371535707-512a1e83bb9a?w=400&h=400&fit=crop",
-    description: "Цагаан пүүдл, маш найрсаг",
-  },
-  {
-    id: 10,
-    name: "Занга",
-    type: "cat",
-    breed: "Мэйн кун",
-    status: "lost",
-    location: "Далайн эрэг",
-    date: "2025.12.28",
-    image:
-      "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=400&h=400&fit=crop",
-    description: "Том ноосон улбар шар мэйн кун",
-  },
-  {
-    id: 11,
-    name: "Купер",
-    type: "dog",
-    breed: "Хаски",
-    status: "found",
-    location: "Уулын зам",
-    date: "2026.01.03",
-    image:
-      "https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=400&h=400&fit=crop",
-    description: "Хөх нүдтэй хаски, маш эрч хүчтэй",
-  },
-  {
-    id: 12,
-    name: "Клео",
-    type: "cat",
-    breed: "Рэгдолл",
-    status: "found",
-    location: "Нарлаг цэцэрлэг",
-    date: "2026.01.04",
-    image:
-      "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop",
-    description: "Ноосон рэгдолл муур, хөх нүдтэй",
-  },
-];
 
 type lostFound = {
   role: string;
@@ -166,7 +20,9 @@ type lostFound = {
   _id: string;
   phonenumber: number;
 };
+
 export default function BrowsePage() {
+  const [animalData, setAnimalData] = useState<lostFound[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "Dog" | "Cat">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "Lost" | "Found">(
@@ -193,6 +49,102 @@ export default function BrowsePage() {
     GetLostFound();
   }, []);
   const filteredPets = lostFoundData.filter((pet) => {
+
+  const { isSignedIn } = useAuth();
+  const { openSignIn } = useClerk();
+  const { language } = useLanguage();
+
+  // Translations
+  const translations = {
+    mn: {
+      title: "Бүх амьтдыг үзэх",
+      description:
+        "Төөрсөн амьтдыг олох эсвэл олдсон амьтдыг эзэдтэй нь холбоход туслах зарлалуудыг хайна уу",
+      search: "Хайх",
+      searchPlaceholder: "Нэр, үүлдэр, эсвэл байршлаар хайх...",
+      petType: "Амьтны төрөл",
+      status: "Төлөв",
+      allTypes: "Бүх төрөл",
+      dog: "🐕 Нохой",
+      cat: "🐱 Муур",
+      allStatuses: "Бүх төлөв",
+      lost: "🔍 Төөрсөн",
+      found: "☑️ Олдсон",
+      all: "Бүгд",
+      resultsCount: "амьтан олдлоо",
+      total: "Нийт",
+      noResults: "Амьтан олдсонгүй",
+      noResultsDescription: "Хайлт эсвэл шүүлтүүрийг өөрчилж үзнэ үү",
+      clearFilters: "Шүүлтүүр арилгах",
+      notFoundTitle: "Хайж буй зүйлээ олсонгүй юу?",
+      notFoundDescription:
+        "Төөрсөн эсвэл олдсон амьтны мэдээлэл оруулж, тэдгээрийг гэр бүлтэй нь холбоход туслаарай",
+      submitReport: "Мэдээлэл оруулах",
+      loginRequired: "Та нэвтрэх шаардлагатай",
+      fetchError: "Дата татахад алдаа гарлаа",
+    },
+    en: {
+      title: "Browse All Pets",
+      description:
+        "Search listings to help find lost pets or connect found pets with their owners",
+      search: "Search",
+      searchPlaceholder: "Search by name, breed, or location...",
+      petType: "Pet Type",
+      status: "Status",
+      allTypes: "All Types",
+      dog: "🐕 Dog",
+      cat: "🐱 Cat",
+      allStatuses: "All Statuses",
+      lost: "🔍 Lost",
+      found: "☑️ Found",
+      all: "All",
+      resultsCount: "pets found",
+      total: "Total",
+      noResults: "No Pets Found",
+      noResultsDescription: "Try adjusting your search or filters",
+      clearFilters: "Clear Filters",
+      notFoundTitle: "Didn't find what you're looking for?",
+      notFoundDescription:
+        "Submit a report about a lost or found pet and help reunite them with their family",
+      submitReport: "Submit Report",
+      loginRequired: "You need to sign in",
+      fetchError: "Error fetching data",
+    },
+  };
+
+  const t = translations[language];
+
+  /* ================= LOGIN GUARD ================= */
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!isSignedIn) {
+      e.preventDefault();
+      toast(t.loginRequired);
+      openSignIn({ redirectUrl: "/browse" });
+    }
+  };
+
+  /* ================= FETCH ================= */
+
+  useEffect(() => {
+    const GetLostFound = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/lostFound");
+        const data = await res.json();
+        console.log("User data:", data);
+        setAnimalData(data);
+      } catch (err) {
+        console.log(err);
+        toast(t.fetchError);
+      }
+    };
+
+    GetLostFound();
+  }, [t.fetchError]);
+
+  /* ================= FILTER ================= */
+
+  const filteredPets = animalData.filter((pet) => {
     const matchesSearch =
       pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       pet.breed.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -207,12 +159,9 @@ export default function BrowsePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Бүх амьтдыг үзэх
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">{t.title}</h1>
           <p className="text-muted text-lg max-w-2xl mx-auto">
-            Төөрсөн амьтдыг олох эсвэл олдсон амьтдыг эзэдтэй нь холбоход туслах
-            зарлалуудыг хайна уу
+            {t.description}
           </p>
         </div>
 
@@ -221,7 +170,9 @@ export default function BrowsePage() {
           <div className="grid md:grid-cols-4 gap-4">
             {/* Search */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-2">Хайх</label>
+              <label className="block text-sm font-medium mb-2">
+                {t.search}
+              </label>
               <div className="relative">
                 <svg
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted"
@@ -238,7 +189,7 @@ export default function BrowsePage() {
                 </svg>
                 <input
                   type="text"
-                  placeholder="Нэр, үүлдэр, эсвэл байршлаар хайх..."
+                  placeholder={t.searchPlaceholder}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -249,7 +200,7 @@ export default function BrowsePage() {
             {/* Pet Type */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                Амьтны төрөл
+                {t.petType}
               </label>
               <select
                 value={typeFilter}
@@ -266,7 +217,9 @@ export default function BrowsePage() {
 
             {/* Status */}
             <div>
-              <label className="block text-sm font-medium mb-2">Төлөв</label>
+              <label className="block text-sm font-medium mb-2">
+                {t.status}
+              </label>
               <select
                 value={statusFilter}
                 onChange={(e) =>
@@ -277,6 +230,9 @@ export default function BrowsePage() {
                 <option value="all">Бүх төлөв</option>
                 <option value="Lost">🔍 Төөрсөн</option>
                 <option value="Found">☑️ Олдсон</option>
+                <option value="all">{t.allStatuses}</option>
+                <option value="Lost">{t.lost}</option>
+                <option value="Found">{t.found}</option>
               </select>
             </div>
           </div>
@@ -295,7 +251,7 @@ export default function BrowsePage() {
                 : "bg-card-bg border border-card-border hover:border-primary"
             }`}
           >
-            Бүгд
+            {t.all}
           </button>
           <button
             onClick={() => {
@@ -308,7 +264,7 @@ export default function BrowsePage() {
                 : "bg-card-bg border border-card-border hover:border-primary"
             }`}
           >
-            🐕 Нохой
+            {t.dog}
           </button>
           <button
             onClick={() => {
@@ -321,7 +277,7 @@ export default function BrowsePage() {
                 : "bg-card-bg border border-card-border hover:border-primary"
             }`}
           >
-            🐱 Муур
+            {t.cat}
           </button>
           <button
             onClick={() => {
@@ -334,7 +290,7 @@ export default function BrowsePage() {
                 : "bg-card-bg border border-card-border hover:border-lost"
             }`}
           >
-            🔍 Төөрсөн
+            {t.lost}
           </button>
           <button
             onClick={() => {
@@ -347,18 +303,18 @@ export default function BrowsePage() {
                 : "bg-card-bg border border-card-border hover:border-found"
             }`}
           >
-            ☑️ Олдсон
+            {t.found}
           </button>
         </div>
 
         {/* Results Count */}
         <div className="mb-6">
           <p className="text-muted">
-            Нийт{" "}
+            {t.total}{" "}
             <span className="font-semibold text-foreground">
               {filteredPets.length}
             </span>{" "}
-            амьтан олдлоо
+            {t.resultsCount}
           </p>
         </div>
 
@@ -368,13 +324,13 @@ export default function BrowsePage() {
             {filteredPets.map((pet) => (
               <PetCard
                 key={pet._id}
-                petType={pet.petType}
                 role={pet.role}
                 name={pet.name}
                 gender={pet.gender}
                 location={pet.location}
                 description={pet.description}
                 Date={pet.Date}
+                petType={pet.petType}
                 image={pet.image}
                 breed={pet.breed}
                 _id={pet._id}
@@ -385,10 +341,8 @@ export default function BrowsePage() {
         ) : (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">🐾</div>
-            <h3 className="text-xl font-bold mb-2">Амьтан олдсонгүй</h3>
-            <p className="text-muted mb-6">
-              Хайлт эсвэл шүүлтүүрийг өөрчилж үзнэ үү
-            </p>
+            <h3 className="text-xl font-bold mb-2">{t.noResults}</h3>
+            <p className="text-muted mb-6">{t.noResultsDescription}</p>
             <button
               onClick={() => {
                 setSearchTerm("");
@@ -397,25 +351,20 @@ export default function BrowsePage() {
               }}
               className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all"
             >
-              Шүүлтүүр арилгах
+              {t.clearFilters}
             </button>
           </div>
         )}
 
         {/* CTA */}
         <div className="mt-16 text-center bg-card-bg rounded-2xl border border-card-border p-8">
-          <h2 className="text-2xl font-bold mb-3">
-            Хайж буй зүйлээ олсонгүй юу?
-          </h2>
-          <p className="text-muted mb-6">
-            Төөрсөн эсвэл олдсон амьтны мэдээлэл оруулж, тэдгээрийг гэр бүлтэй
-            нь холбоход туслаарай
-          </p>
+          <h2 className="text-2xl font-bold mb-3">{t.notFoundTitle}</h2>
+          <p className="text-muted mb-6">{t.notFoundDescription}</p>
           <Link
             href="/report"
             className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all"
           >
-            Мэдээлэл оруулах
+            {t.submitReport}
             <svg
               className="w-5 h-5"
               fill="none"

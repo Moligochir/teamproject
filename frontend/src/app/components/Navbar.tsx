@@ -13,18 +13,48 @@ import {
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { toast, Toaster } from "react-hot-toast";
+import { useLanguage } from "../contexts/Languagecontext";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { language, toggleLanguage } = useLanguage();
 
   const { isSignedIn } = useAuth();
   const router = useRouter();
   const { openSignIn } = useClerk();
 
+  // Translation object
+  const translations = {
+    mn: {
+      home: "Нүүр",
+      browse: "Амьтад үзэх",
+      map: "Map",
+      dog: "Dog",
+      about: "Бидний тухай",
+      login: "Нэвтрэх",
+      report: "Мэдээлэх",
+      loginRequired: "Та нэвтрэх шаардлагатай",
+      langButton: "EN",
+    },
+    en: {
+      home: "Home",
+      browse: "Browse Pets",
+      map: "Map",
+      dog: "Dog",
+      about: "About Us",
+      login: "Sign In",
+      report: "Report",
+      loginRequired: "You need to sign in",
+      langButton: "МON",
+    },
+  };
+
+  const t = translations[language];
+
   const handleClick = (e) => {
     if (!isSignedIn) {
       e.preventDefault();
-      toast("Та нэвтрэх шаардлагатай");
+      toast(t.loginRequired);
 
       openSignIn({
         redirectUrl: "/report",
@@ -56,26 +86,26 @@ export function Navbar() {
               href="/"
               className="text-muted hover:text-primary font-medium"
             >
-              Нүүр
+              {t.home}
             </Link>
             <Link
               href="/browse"
               className="text-muted hover:text-primary font-medium"
             >
-              Амьтад үзэх
+              {t.browse}
             </Link>
 
             <Link
               href="/map"
               className="text-muted hover:text-primary font-medium"
             >
-              Map
+              {t.map}
             </Link>
             <Link
               href="/dog"
               className="text-muted hover:text-primary font-medium"
             >
-              Dog
+              {t.dog}
             </Link>
           </div>
 
@@ -87,7 +117,7 @@ export function Navbar() {
             <SignedOut>
               <SignInButton mode="modal">
                 <button className="hidden sm:block px-4 py-2 rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-all cursor-pointer">
-                  Нэвтрэх
+                  {t.login}
                 </button>
               </SignInButton>
             </SignedOut>
@@ -95,20 +125,22 @@ export function Navbar() {
             <SignedIn>
               <UserButton afterSignOutUrl="/" />
             </SignedIn>
+
             <Link
               href="/report"
               onClick={handleClick}
               className="hidden sm:block px-5 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all hover:shadow-lg hover:shadow-primary/30"
             >
-              Мэдээлэх
+              {t.report}
             </Link>
-            <button className="px-4 py-2  bg-[#e47a3d] rounded-lg shadow-lg cursor-pointer">
-              EN
-            </button>
 
-            {/* <div className="py-2 px-3.5 bg-[#e47a3d] cursor-pointer rounded-2xl shadow-lg">
-              EN
-            </div> */}
+            {/* Language Toggle Button */}
+            <button
+              onClick={toggleLanguage}
+              className="w-14 h-10 bg-[#e47a3d] hover:bg-[#d66a2d] text-white font-semibold rounded-2xl shadow-lg cursor-pointer transition-all"
+            >
+              {t.langButton}
+            </button>
 
             {/* Mobile menu button */}
             <button
@@ -146,19 +178,19 @@ export function Navbar() {
           <div className="md:hidden py-4 border-t border-card-border">
             <div className="flex flex-col gap-4">
               <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                Нүүр
+                {t.home}
               </Link>
               <Link href="/browse" onClick={() => setMobileMenuOpen(false)}>
-                Амьтад үзэх
+                {t.browse}
               </Link>
               <Link href="/about" onClick={() => setMobileMenuOpen(false)}>
-                Бидний тухай
+                {t.about}
               </Link>
 
               <SignedOut>
                 <SignInButton mode="modal">
                   <button className="px-5 py-2.5 border border-primary text-primary rounded-full font-semibold">
-                    Нэвтрэх
+                    {t.login}
                   </button>
                 </SignInButton>
               </SignedOut>
@@ -172,7 +204,7 @@ export function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-5 py-2.5 bg-primary text-white rounded-full font-semibold text-center"
               >
-                Мэдээлэх
+                {t.report}
               </Link>
             </div>
           </div>
