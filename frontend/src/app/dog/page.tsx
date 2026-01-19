@@ -1,29 +1,55 @@
 "use client";
 
 import { useState } from "react";
-import { AdoptPage } from "../components/people";
-import { Adopt } from "../components/adopt";
+import { UrclehPage } from "../components/adopt";
+import { UrcluulehPage } from "../components/people";
+import { useLanguage } from "../contexts/Languagecontext";
 
 export default function ReportPage() {
   const [showPeople, setShowPeople] = useState(false);
 
   const [showAdopt, setShowAdopt] = useState(false);
 
+  const { language, toggleLanguage } = useLanguage();
+
+  const translations = {
+    mn: {
+      createPost: "Мэдээлэл оруулах",
+      subheading:
+        "Шинэ гэр бүлтэй нь холбохын тулд доорх мэдээллийг бөглөнө үү",
+      question: "Та юу мэдээлж байна вэ?",
+      posttype1: "Амьтан үрчлүүлэх",
+      posttype2: "Амьтан үрчилж авах",
+      dood1: "Амьтанд эзэн хайж байна",
+      dood2: "Амьтан үрчилж авмаар байна",
+    },
+    en: {
+      createPost: "Submit Report",
+      subheading:
+        "Please provide the details below to help them find a loving new home",
+      question: "What are you reporting?",
+      posttype1: "Pet breeding",
+      posttype2: "Adopt an Pet",
+      dood1: "Looking for an owner",
+      dood2: "Looking to adopt a pet",
+    },
+  };
+
+  const t = translations[language];
+
   return (
     <div className="min-h-screen py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Мэдээлэл оруулах
+            {t.createPost}
           </h1>
-          <p className="text-muted text-lg max-w-2xl mx-auto">
-            Шинэ гэр бүлтэй нь холбохын тулд доорх мэдээллийг бөглөнө үү
-          </p>
+          <p className="text-muted text-lg max-w-2xl mx-auto">{t.subheading}</p>
         </div>
 
         {/* Status Selection */}
         <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-          <h2 className="text-xl font-bold mb-4">Та юу мэдээлж байна вэ?</h2>
+          <h2 className="text-xl font-bold mb-4">{t.question}</h2>
 
           <div className="grid grid-cols-2 gap-4">
             <button
@@ -39,8 +65,8 @@ export default function ReportPage() {
               }`}
             >
               <div className="text-4xl mb-2">🔍</div>
-              <div className="font-bold text-lg">Амьтан үрчлүүлэх</div>
-              <p className="text-sm text-muted mt-1">Амьтанд эзэн хайж байна</p>
+              <div className="font-bold text-lg">{t.posttype1}</div>
+              <p className="text-sm text-muted mt-1">{t.dood1}</p>
             </button>
 
             <button
@@ -56,23 +82,21 @@ export default function ReportPage() {
               }`}
             >
               <div className="text-4xl mb-2">🏠</div>
-              <div className="font-bold text-lg">Амьтан үрчилж авах</div>
-              <p className="text-sm text-muted mt-1">
-                Амьтан үрчилж авмаар байна
-              </p>
+              <div className="font-bold text-lg">{t.posttype2}</div>
+              <p className="text-sm text-muted mt-1">{t.dood2}</p>
             </button>
           </div>
         </div>
 
         {showPeople && (
           <div className="mt-8">
-            <AdoptPage />
+            <UrcluulehPage />
           </div>
         )}
 
         {showAdopt && (
           <div className="mt-8">
-            <Adopt />
+            <UrclehPage />
           </div>
         )}
       </div>
