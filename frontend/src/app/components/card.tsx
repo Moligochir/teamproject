@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 type Dog = {
   id: string;
   name: string;
@@ -13,7 +11,7 @@ type Dog = {
 export default function DogCard({ dog }: { dog: Dog }) {
   return (
     <div className="relative w-120 h-120 bg-card-bg border border-card-border rounded-2xl overflow-hidden shadow-md">
-      <Image src={dog.image} alt={dog.name} fill className="object-cover" />
+      <img src={dog.image} alt={dog.name} className="object-cover" />
 
       <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/50 text-white text-sm font-medium backdrop-blur-sm">
         {dog.type === "dog" ? "🐕 Нохой" : "🐱 Муур"}

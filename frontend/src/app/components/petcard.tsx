@@ -4,6 +4,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "../contexts/Languagecontext";
 
+// export type Pet = {
+//   id: number;
+//   name: string;
+//   type: "dog" | "cat";
+//   breed: string;
+//   status: "lost" | "found";
+//   location: string;
+//   date: string;
+//   image: string;
+// };
+
 type lostFound = {
   role: string;
   name: string;

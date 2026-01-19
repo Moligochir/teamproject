@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 
 // Жишээ өгөгдөл - бодит апп-д энэ нь өгөгдлийн сангаас ирнэ
 const petsData: Record<
@@ -181,13 +180,7 @@ export default async function PetDetailPage({
           {/* Image Section */}
           <div className="space-y-4">
             <div className="relative aspect-square rounded-2xl overflow-hidden border border-card-border">
-              <Image
-                src={pet.image}
-                alt={pet.name}
-                fill
-                className="object-cover"
-                priority
-              />
+              <img src={pet.image} alt={pet.name} className="object-cover" />
               <div
                 className={`absolute top-4 left-4 px-4 py-2 rounded-full text-sm font-bold ${
                   pet.status === "lost" ? "status-lost" : "status-found"

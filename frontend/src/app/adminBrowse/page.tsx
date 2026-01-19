@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 
 const allPets = [
@@ -245,8 +244,8 @@ export default function AdminPetsPage() {
               {type === "all"
                 ? "Бүгд"
                 : type === "dog"
-                ? "🐕 Нохой"
-                : "🐱 Муур"}
+                  ? "🐕 Нохой"
+                  : "🐱 Муур"}
             </button>
           ))}
           {["all", "lost", "found"].map((status) => (
@@ -262,8 +261,8 @@ export default function AdminPetsPage() {
               {status === "all"
                 ? "Бүгд"
                 : status === "lost"
-                ? "🔍 Төөрсөн"
-                : "✓ Олдсон"}
+                  ? "🔍 Төөрсөн"
+                  : "✓ Олдсон"}
             </button>
           ))}
         </div>
@@ -286,10 +285,9 @@ export default function AdminPetsPage() {
                 <tr key={pet.id} className="border-t border-card-border">
                   <td className="px-4 py-3">
                     <div className="w-12 h-12 relative rounded-lg overflow-hidden">
-                      <Image
+                      <img
                         src={pet.image}
                         alt={pet.name}
-                        fill
                         className="object-cover"
                       />
                     </div>
