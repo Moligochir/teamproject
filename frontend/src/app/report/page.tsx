@@ -296,7 +296,6 @@ export default function ReportPage() {
 
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleEdit = () => {
@@ -310,7 +309,7 @@ export default function ReportPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!preview) {
+    if (!preview || !formData.location || !formData.date) {
       alert(t.uploadImageAlert);
       return;
     }
