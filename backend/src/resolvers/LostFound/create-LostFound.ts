@@ -15,6 +15,7 @@ export const createLostFound = async (req: Request, res: Response) => {
       userId: newLostFound.userId,
       gender: newLostFound.gender,
       Date: newLostFound.Date,
+      phonenumber: newLostFound.phonenumber,
     });
 
     res.status(200).json("success");
