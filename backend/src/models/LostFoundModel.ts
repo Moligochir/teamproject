@@ -13,6 +13,8 @@ const LostFoundSchema = new mongoose.Schema(
     name: String,
     gender: { type: String, enum: ["Male", "Female", "Unknown"] },
     image: String,
+    lat: Number,
+    lng: Number,
     location: String,
     description: String,
     Date: Date,
