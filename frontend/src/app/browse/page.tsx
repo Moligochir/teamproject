@@ -48,7 +48,6 @@ export default function BrowsePage() {
   useEffect(() => {
     GetLostFound();
   }, []);
-  const filteredPets = lostFoundData.filter((pet) => {
 
   const { isSignedIn } = useAuth();
   const { openSignIn } = useClerk();
@@ -230,9 +229,9 @@ export default function BrowsePage() {
                 <option value="all">Бүх төлөв</option>
                 <option value="Lost">🔍 Төөрсөн</option>
                 <option value="Found">☑️ Олдсон</option>
-                <option value="all">{t.allStatuses}</option>
+                {/* <option value="all">{t.allStatuses}</option>
                 <option value="Lost">{t.lost}</option>
-                <option value="Found">{t.found}</option>
+                <option value="Found">{t.found}</option> */}
               </select>
             </div>
           </div>

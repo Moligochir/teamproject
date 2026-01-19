@@ -1,137 +1,30 @@
+"use client";
 import Link from "next/link";
-
-// Жишээ өгөгдөл - бодит апп-д энэ нь өгөгдлийн сангаас ирнэ
-const petsData: Record<
-  string,
-  {
-    id: number;
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+type lostFound = {
+  role: string;
+  userId: {
     name: string;
-    type: string;
-    breed: string;
-    status: string;
-    location: string;
-    date: string;
-    image: string;
-    description: string;
-    color: string;
-    contactName: string;
-    contactEmail: string;
-    contactPhone: string;
-  }
-> = {
-  "1": {
-    id: 1,
-    name: "Макс",
-    type: "dog",
-    breed: "Алтан ретривер",
-    status: "lost",
-    location: "Төв цэцэрлэгт хүрээлэн",
-    date: "2026.01.03",
-    image:
-      "https://images.unsplash.com/photo-1552053831-71594a27632d?w=800&h=800&fit=crop",
-    description:
-      "Макс бол 3 настай найрсаг алтан ретривер бөгөөд Төв цэцэрлэгт хүрээлэнгийн ойролцоо алга болсон. Сүүлд яс хэлбэртэй тэмдэгтэй цэнхэр хүзүүвч зүүсэн харагдсан. Маш найрсаг, нэрээ дуудахад хариу өгдөг. Зүүн чих дээр жижиг сорви байдаг.",
-    color: "Алтлаг/Цайвар шар",
-    contactName: "Сараа",
-    contactEmail: "saraa@email.com",
-    contactPhone: "9911-1234",
-  },
-  "2": {
-    id: 2,
-    name: "Луна",
-    type: "cat",
-    breed: "Сиам",
-    status: "found",
-    location: "Царс гудамж",
-    date: "2026.01.04",
-    image:
-      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&h=800&fit=crop",
-    description:
-      "Царс гудамжийн ойролцоо тэнүүчилж явсан энэ үзэсгэлэнтэй сиам муурыг олсон. Маш тайван найрсаг, сайн тэжээгдсэн, арчилгаатай харагдаж байна. Хүзүүвчгүй боловч хэн нэгний тэжээвэр амьтан шиг харагдаж байна. Одоогоор миний гэрт аюулгүй байна.",
-    color: "Цайвар шар, бараан толбо",
-    contactName: "Батаа",
-    contactEmail: "bataa@email.com",
-    contactPhone: "9922-2345",
-  },
-  "3": {
-    id: 3,
-    name: "Бадди",
-    type: "dog",
-    breed: "Лабрадор",
-    status: "lost",
-    location: "Голын эрэг",
-    date: "2026.01.02",
-    image:
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&h=800&fit=crop",
-    description:
-      "Бадди бол 5 настай хар лабрадор бөгөөд цээжин дээр онцлог цагаан толботой. Хүмүүс болон бусад нохойтой маш найрсаг. Өглөөний алхалтын үеэр Голын эрэгт сүүлд харагдсан. Улаан хүзүүвч зүүсэн байсан.",
-    color: "Хар, цагаан толботой",
-    contactName: "Дорж",
-    contactEmail: "dorj@email.com",
-    contactPhone: "9933-3456",
-  },
-  "4": {
-    id: 4,
-    name: "Мишка",
-    type: "cat",
-    breed: "Табби",
-    status: "found",
-    location: "Нарлаг гудамж",
-    date: "2026.01.05",
-    image:
-      "https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=800&h=800&fit=crop",
-    description:
-      "Нарлаг гудамжинд энэ тоглоомч улбар шар табби муурыг олсон. Маш эрч хүчтэй, тоглох дуртай. Онцлог судалтай, тод ногоон нүдтэй. Малын эмчид микрочип олдсонгүй.",
-    color: "Улбар шар табби",
-    contactName: "Оюунаа",
-    contactEmail: "oyunaa@email.com",
-    contactPhone: "9944-4567",
-  },
-  "5": {
-    id: 5,
-    name: "Роки",
-    type: "dog",
-    breed: "Герман хоньч",
-    status: "lost",
-    location: "Хотын төв",
-    date: "2026.01.01",
-    image:
-      "https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?w=800&h=800&fit=crop",
-    description:
-      "Роки бол шинэ жилийн пуужин галаас айж зугтсан том Герман хоньч юм. Нэрээ дуудахад болон Германаар тушаал өгөхөд хариулдаг. Танилцсаны дараа маш үнэнч. Хар арьсан хүзүүвч зүүсэн.",
-    color: "Хар хүрэн",
-    contactName: "Ганболд",
-    contactEmail: "ganbold@email.com",
-    contactPhone: "9955-5678",
-  },
-  "6": {
-    id: 6,
-    name: "Мими",
-    type: "cat",
-    breed: "Перс",
-    status: "found",
-    location: "Нарсны гудамж",
-    date: "2026.01.04",
-    image:
-      "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=800&h=800&fit=crop",
-    description:
-      "Нарсны гудамжийн ойролцоо энэ үзэсгэлэнтэй цагаан Перс муурыг олсон. Маш гоё хөх нүдтэй. Сайн арчилгаатай, тодорхой хэн нэгний хайртай тэжээвэр амьтан. Маш эелдэг тайван.",
-    color: "Цэвэр цагаан",
-    contactName: "Цэцэг",
-    contactEmail: "tsetseg@email.com",
-    contactPhone: "9966-6789",
-  },
+    email: string;
+    phoneNumber: number;
+  };
+  name: string;
+  gender: string;
+  location: string;
+  description: string;
+  Date: string;
+  petType: string;
+  image: string;
+  breed: string;
+  _id: string;
+  phonenumber: number;
 };
+export default function PetDetailPage() {
+  const params = useParams();
+  const { id } = params;
 
-export default async function PetDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const pet = petsData[id];
-
-  if (!pet) {
+  if (!id) {
     return (
       <div className="min-h-screen py-12 flex items-center justify-center">
         <div className="text-center">
@@ -150,7 +43,27 @@ export default async function PetDetailPage({
       </div>
     );
   }
+  const [animalData, setAnimalData] = useState<lostFound[]>([]);
+  const GetLostFound = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/lostFound/findid/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+      const data = await res.json();
+      console.log("Userss:", data);
+      setAnimalData(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
+  useEffect(() => {
+    GetLostFound();
+  }, []);
   return (
     <div className="min-h-screen py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -172,7 +85,9 @@ export default async function PetDetailPage({
               </Link>
             </li>
             <li>/</li>
-            <li className="text-foreground font-medium">{pet.name}</li>
+            <li className="text-foreground font-medium">
+              {animalData[0]?.name}
+            </li>
           </ol>
         </nav>
 
@@ -180,13 +95,19 @@ export default async function PetDetailPage({
           {/* Image Section */}
           <div className="space-y-4">
             <div className="relative aspect-square rounded-2xl overflow-hidden border border-card-border">
-              <img src={pet.image} alt={pet.name} className="object-cover" />
+              <img
+                src={animalData[0]?.image}
+                alt={animalData[0]?.name}
+                className="object-cover"
+              />
               <div
                 className={`absolute top-4 left-4 px-4 py-2 rounded-full text-sm font-bold ${
-                  pet.status === "lost" ? "status-lost" : "status-found"
+                  animalData[0]?.role === "lost"
+                    ? "status-lost"
+                    : "status-found"
                 }`}
               >
-                {pet.status === "lost" ? "🔍 Төөрсөн" : "✓ Олдсон"}
+                {animalData[0]?.role === "lost" ? "🔍 Төөрсөн" : "✓ Олдсон"}
               </div>
             </div>
           </div>
@@ -197,11 +118,11 @@ export default async function PetDetailPage({
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-3xl">
-                  {pet.type === "dog" ? "🐕" : "🐱"}
+                  {animalData[0]?.petType === "dog" ? "🐕" : "🐱"}
                 </span>
-                <h1 className="text-4xl font-bold">{pet.name}</h1>
+                <h1 className="text-4xl font-bold">{animalData[0]?.name}</h1>
               </div>
-              <p className="text-xl text-muted">{pet.breed}</p>
+              <p className="text-xl text-muted">{animalData[0]?.breed}</p>
             </div>
 
             {/* Quick Info */}
@@ -210,25 +131,27 @@ export default async function PetDetailPage({
                 <div className="text-sm text-muted mb-1">Төлөв</div>
                 <div
                   className={`font-bold ${
-                    pet.status === "lost" ? "text-lost" : "text-found"
+                    animalData[0]?.role === "lost" ? "text-lost" : "text-found"
                   }`}
                 >
-                  {pet.status === "lost" ? "Төөрсөн" : "Олдсон"}
+                  {animalData[0]?.role === "lost" ? "Төөрсөн" : "Олдсон"}
                 </div>
               </div>
               <div className="bg-card-bg rounded-xl p-4 border border-card-border">
                 <div className="text-sm text-muted mb-1">Төрөл</div>
                 <div className="font-bold">
-                  {pet.type === "dog" ? "Нохой" : "Муур"}
+                  {animalData[0]?.petType === "dog" ? "Нохой" : "Муур"}
                 </div>
               </div>
               <div className="bg-card-bg rounded-xl p-4 border border-card-border">
-                <div className="text-sm text-muted mb-1">Өнгө</div>
-                <div className="font-bold">{pet.color}</div>
+                <div className="text-sm text-muted mb-1">Хүйс</div>
+                <div className="font-bold">{animalData[0]?.gender}</div>
               </div>
               <div className="bg-card-bg rounded-xl p-4 border border-card-border">
                 <div className="text-sm text-muted mb-1">Огноо</div>
-                <div className="font-bold">{pet.date}</div>
+                <div className="font-bold">
+                  {animalData[0]?.Date.slice(0, 10)}
+                </div>
               </div>
             </div>
 
@@ -255,18 +178,20 @@ export default async function PetDetailPage({
                   />
                 </svg>
                 <span className="text-sm text-muted">
-                  {pet.status === "lost"
+                  {animalData[0]?.role === "lost"
                     ? "Сүүлд харсан байршил"
                     : "Олсон байршил"}
                 </span>
               </div>
-              <div className="font-bold text-lg">{pet.location}</div>
+              <div className="font-bold text-lg">{animalData[0]?.location}</div>
             </div>
 
             {/* Description */}
             <div className="bg-card-bg rounded-xl p-4 border border-card-border">
               <h3 className="font-bold mb-2">Тайлбар</h3>
-              <p className="text-muted leading-relaxed">{pet.description}</p>
+              <p className="text-muted leading-relaxed">
+                {animalData[0]?.description}
+              </p>
             </div>
 
             {/* Contact Section */}
@@ -291,7 +216,9 @@ export default async function PetDetailPage({
                   </div>
                   <div>
                     <div className="text-sm text-muted">Оруулсан</div>
-                    <div className="font-medium">{pet.contactName}</div>
+                    <div className="font-medium">
+                      {animalData[0]?.userId?.name}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -313,10 +240,10 @@ export default async function PetDetailPage({
                   <div>
                     <div className="text-sm text-muted">Имэйл</div>
                     <a
-                      href={`mailto:${pet.contactEmail}`}
+                      href={`mailto:${animalData[0]?.userId?.email}`}
                       className="font-medium text-primary hover:text-primary-dark transition-colors"
                     >
-                      {pet.contactEmail}
+                      {animalData[0]?.userId?.email}
                     </a>
                   </div>
                 </div>
@@ -339,10 +266,10 @@ export default async function PetDetailPage({
                   <div>
                     <div className="text-sm text-muted">Утас</div>
                     <a
-                      href={`tel:${pet.contactPhone}`}
+                      href={`tel:${animalData[0]?.phonenumber}`}
                       className="font-medium text-primary hover:text-primary-dark transition-colors"
                     >
-                      {pet.contactPhone}
+                      {animalData[0]?.phonenumber}
                     </a>
                   </div>
                 </div>
@@ -352,13 +279,13 @@ export default async function PetDetailPage({
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
               <a
-                href={`mailto:${pet.contactEmail}?subject=${pet.status === "lost" ? "Төөрсөн" : "Олдсон"} ${pet.type === "dog" ? "нохой" : "муур"}: ${pet.name}`}
+                href={`mailto:${animalData[0]?.userId?.email}?subject=${animalData[0]?.role === "lost" ? "Төөрсөн" : "Олдсон"} ${animalData[0]?.petType === "dog" ? "нохой" : "муур"}: ${animalData[0]?.name}&body=Сайн байна уу,%0D%0A%0D%0AБи таны ${animalData[0]?.role === "lost" ? "төөрсөн" : "олдсон"} ${animalData[0]?.petType === "dog" ? "нохой" : "муур"} болох ${animalData[0]?.name} тухай мэдээллийг хараад танд хандаж байна.%0D%0A%0D%0A[Энд таны мессежийг бичнэ үү]%0D%0A%0D%0AХүндэтгэсэн,%0D%0A[Таны нэр]`}
                 className="flex-1 px-6 py-4 bg-primary hover:bg-primary-dark text-white rounded-full font-bold text-center transition-all hover:shadow-xl hover:shadow-primary/30"
               >
                 Имэйлээр холбогдох
               </a>
               <a
-                href={`tel:${pet.contactPhone}`}
+                href={`tel:${animalData[0]?.userId?.phoneNumber}`}
                 className="flex-1 px-6 py-4 bg-card-bg border-2 border-card-border hover:border-primary text-foreground rounded-full font-bold text-center transition-all"
               >
                 Утсаар залгах
@@ -371,8 +298,10 @@ export default async function PetDetailPage({
         <div className="mt-12 bg-card-bg rounded-2xl border border-card-border p-6 text-center">
           <h3 className="font-bold text-lg mb-3">Түгээхэд туслаарай</h3>
           <p className="text-muted mb-4">
-            Энэ зарлалыг хуваалцаж {pet.name}-д{" "}
-            {pet.status === "lost" ? "гэртээ буцахад" : "гэр бүлээ олоход"}{" "}
+            Энэ зарлалыг хуваалцаж {animalData[0]?.userId?.name}-д{" "}
+            {animalData[0]?.role === "lost"
+              ? "гэртээ буцахад"
+              : "гэр бүлээ олоход"}{" "}
             туслаарай
           </p>
           <div className="flex justify-center gap-4">
