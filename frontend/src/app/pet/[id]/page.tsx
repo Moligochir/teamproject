@@ -270,7 +270,7 @@ export default async function PetDetailPage({
             </div>
 
             {/* Contact Section */}
-            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-6 border border-primary/20">
+            <div className="bg-linear-to-br from-primary/10 to-secondary/10 rounded-xl p-6 border border-primary/20">
               <h3 className="font-bold text-lg mb-4">Холбоо барих мэдээлэл</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">

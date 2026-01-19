@@ -7,7 +7,7 @@ interface StatCardProps {
 
 export default function StatCard({ icon, value, label, color }: StatCardProps) {
   return (
-    <div className="bg-card-bg rounded-2xl p-6 border border-card-border animate-fade-up opacity-0">
+    <div className="bg-card-bg rounded-2xl p-6 border border-card-border animate-fade-up opacity-0 stagger-2 ">
       <div
         className={`w-14 h-14 rounded-xl ${color} flex items-center justify-center mb-4`}
       >

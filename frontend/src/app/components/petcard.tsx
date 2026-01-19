@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import Image from "next/image";
+import { useLanguage } from "../contexts/Languagecontext";
 
 // export type Pet = {
 //   id: number;
@@ -38,6 +42,25 @@ export default function PetCard({
   _id,
   phonenumber,
 }: lostFound) {
+  const { language } = useLanguage();
+
+  const translations = {
+    mn: {
+      lost: "🔍 Төөрсөн",
+      found: "✓ Олдсон",
+      dog: "🐕 Нохой",
+      cat: "🐱 Муур",
+    },
+    en: {
+      lost: "🔍 Lost",
+      found: "✓ Found",
+      dog: "🐕 Dog",
+      cat: "🐱 Cat",
+    },
+  };
+
+  const t = translations[language];
+
   return (
     <Link
       href={`/pet/${_id}`}
@@ -47,17 +70,17 @@ export default function PetCard({
         <img
           src={image || "/default-pet.jpg"}
           alt={name}
-          className="object-contain transition-transform duration-300 hover:scale-110"
+          className="object-fit transition-transform duration-300 hover:scale-110"
         />
         <div
           className={`absolute top-3 left-3 px-3 py-1 rounded-full text-sm font-semibold ${
             role === "Lost" ? "status-lost" : "status-found"
           }`}
         >
-          {role === "Lost" ? "🔍 Төөрсөн" : "✓ Олдсон"}
+          {role === "Lost" ? t.lost : t.found}
         </div>
         <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/50 text-white text-sm font-medium backdrop-blur-sm">
-          {petType === "Dog" ? "🐕 Нохой" : "🐱 Муур"}
+          {petType === "Dog" ? t.dog : t.cat}
         </div>
       </div>
 

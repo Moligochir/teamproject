@@ -5,12 +5,13 @@ import MapLocationPicker from "../components/mapLocationPicker";
 import { DeleteIcon, EditIcon } from "../components/icons";
 import { useUser } from "@clerk/nextjs";
 import * as React from "react";
+import { useLanguage } from "../contexts/Languagecontext";
 
 type User = {
   _id: string;
   clerkId: string;
   email: string;
-  name?: string; // ? → optional
+  name?: string;
   role?: "ADMIN" | "USER";
   createdAt?: string;
   updatedAt?: string;
@@ -22,6 +23,158 @@ const CLOUD_NAME = "dyduodw7q";
 export default function ReportPage() {
   const [usersdata, setUsersData] = useState<User[]>([]);
   const { user } = useUser();
+  const { language } = useLanguage();
+
+  // Translations
+  const translations = {
+    mn: {
+      // Success page
+      successTitle: "Мэдээлэл илгээгдлээ!",
+      successDescription:
+        "Тэжээвэр амьтдыг гэр бүлтэй нь холбоход туслаж байгаад баярлалаа. Таны зарлал удахгүй харагдах болно.",
+      viewListings: "Зарлалууд үзэх",
+      viewProbability: "Магадлалтай тохирол үзэх",
+
+      // Header
+      pageTitle: "Мэдээлэл оруулах",
+      pageDescription:
+        "Төөрсөн амьтныг гэр бүлтэй нь холбоход туслахын тулд доорх мэдээллийг бөглөнө үү",
+
+      // Status selection
+      statusTitle: "Та юу мэдээлж байна вэ?",
+      lostPet: "Төөрсөн амьтан",
+      lostPetDesc: "Би амьтнаа хайж байна",
+      foundPet: "Олдсон амьтан",
+      foundPetDesc: "Би төөрсөн амьтан олсон",
+
+      // Pet type
+      petTypeTitle: "Амьтны төрөл",
+      dog: "Нохой",
+      cat: "Муур",
+
+      // Pet details
+      petDetailsTitle: "Амьтны мэдээлэл",
+      petName: "Амьтны нэр",
+      ifKnown: "(хэрэв мэдвэл)",
+      petNamePlaceholder: "Банхарь Шаариг",
+      breed: "Үүлдэр",
+      breedPlaceholder: "Жишээ нь: Алтан ретривер, Сиам",
+      gender: "Хүйс",
+      selectGender: "Сонгоно уу",
+      male: "Эрэгтэй",
+      female: "Эмэгтэй",
+      unknown: "Бусад",
+      lastSeenDate: "Сүүлд харсан огноо",
+      foundDate: "Олсон огноо",
+      lastSeenLocation: "Сүүлд харсан байршил",
+      foundLocation: "Олсон байршил",
+      description: "Тайлбар",
+      descriptionPlaceholder:
+        "Амьтныг таних нэмэлт мэдээллийг оруулна уу: хүзүүвч, тэмдэг, зан төлөв, онцлог шинж тэмдэг...",
+
+      // Photo
+      photoTitle: "Зураг",
+      uploadPhoto: "Зураг оруулахын тулд дарна уу",
+      uploadingPhoto: "Зураг ачааллаж байна...",
+      imageFormats: "PNG, JPG",
+
+      // Contact info
+      contactTitle: "Таны холбоо барих мэдээлэл",
+      yourName: "Таны нэр",
+      namePlaceholder: "Sunduibazrr",
+      email: "Имэйл",
+      emailPlaceholder: "example@email.com",
+      phone: "Утасны дугаар",
+      phonePlaceholder: "9911-2233",
+
+      // Buttons
+      submit: "Мэдээлэл илгээх",
+      cancel: "Цуцлах",
+
+      // Quit modal
+      quitTitle: "Та гарахдаа итгэлтэй байна уу?",
+      continueReport: "Зар оруулах",
+      quit: "Гарах",
+
+      // Alerts
+      uploadImageAlert: "Зураг оруулна уу",
+    },
+    en: {
+      // Success page
+      successTitle: "Report Submitted!",
+      successDescription:
+        "Thank you for helping reunite pets with their families. Your listing will be visible shortly.",
+      viewListings: "View Listings",
+      viewProbability: "View Probability Matches",
+
+      // Header
+      pageTitle: "Submit Report",
+      pageDescription:
+        "Please fill out the information below to help reunite lost pets with their families",
+
+      // Status selection
+      statusTitle: "What are you reporting?",
+      lostPet: "Lost Pet",
+      lostPetDesc: "I'm looking for my pet",
+      foundPet: "Found Pet",
+      foundPetDesc: "I found a lost pet",
+
+      // Pet type
+      petTypeTitle: "Pet Type",
+      dog: "Dog",
+      cat: "Cat",
+
+      // Pet details
+      petDetailsTitle: "Pet Information",
+      petName: "Pet Name",
+      ifKnown: "(if known)",
+      petNamePlaceholder: "Max, Bella",
+      breed: "Breed",
+      breedPlaceholder: "e.g., Golden Retriever, Siamese",
+      gender: "Gender",
+      selectGender: "Select",
+      male: "Male",
+      female: "Female",
+      unknown: "Other",
+      lastSeenDate: "Last Seen Date",
+      foundDate: "Found Date",
+      lastSeenLocation: "Last Seen Location",
+      foundLocation: "Found Location",
+      description: "Description",
+      descriptionPlaceholder:
+        "Provide additional information to identify the pet: collar, markings, behavior, distinctive features...",
+
+      // Photo
+      photoTitle: "Photo",
+      uploadPhoto: "Click to upload photo",
+      uploadingPhoto: "Uploading photo...",
+      imageFormats: "PNG, JPG",
+
+      // Contact info
+      contactTitle: "Your Contact Information",
+      yourName: "Your Name",
+      namePlaceholder: "John Doe",
+      email: "Email",
+      emailPlaceholder: "example@email.com",
+      phone: "Phone Number",
+      phonePlaceholder: "555-1234",
+
+      // Buttons
+      submit: "Submit Report",
+      cancel: "Cancel",
+
+      // Quit modal
+      quitTitle: "Are you sure you want to leave?",
+      continueReport: "Continue Report",
+      quit: "Leave",
+
+      // Alerts
+      uploadImageAlert: "Please upload an image",
+    },
+  };
+
+  const t = translations[language];
+
   const createUser = async () => {
     try {
       const userInfo = await fetch(`http://localhost:8000/users`, {
@@ -41,6 +194,7 @@ export default function ReportPage() {
       console.log(err);
     }
   };
+
   const createRef = useRef(false);
   useEffect(() => {
     if (user && !createRef.current) {
@@ -65,6 +219,7 @@ export default function ReportPage() {
       console.log(err);
     }
   };
+
   useEffect(() => {
     if (user) {
       GetUser();
@@ -100,23 +255,18 @@ export default function ReportPage() {
 
   const uploadToCloudinary = async (file: File) => {
     const formData = new FormData();
-
     formData.append("file", file);
-
     formData.append("upload_preset", UPLOAD_PRESET);
 
     try {
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-
         {
           method: "POST",
           body: formData,
         }
       );
-
       const data = await response.json();
-
       return data.secure_url;
     } catch (error) {
       console.error("Cloudinary upload failed:", error);
@@ -127,7 +277,6 @@ export default function ReportPage() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-
     if (!file) return;
     setUploading(true);
 
@@ -141,21 +290,25 @@ export default function ReportPage() {
       setUploading(false);
     }
   };
+
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
   const handleEdit = () => {
     inputRef.current?.click();
   };
+
   const handleDelete = () => {
     setPreview(null);
     if (inputRef.current) inputRef.current.value = "";
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!preview) {
-      alert("Зураг оруулна уу");
+      alert(t.uploadImageAlert);
       return;
     }
     handleAddChange();
@@ -218,23 +371,20 @@ export default function ReportPage() {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold mb-4">Мэдээлэл илгээгдлээ!</h1>
-          <p className="text-muted mb-8">
-            Тэжээвэр амьтдыг гэр бүлтэй нь холбоход туслаж байгаад баярлалаа.
-            Таны зарлал удахгүй харагдах болно.
-          </p>
+          <h1 className="text-3xl font-bold mb-4">{t.successTitle}</h1>
+          <p className="text-muted mb-8">{t.successDescription}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/browse"
               className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all"
             >
-              Зарлалууд үзэх
+              {t.viewListings}
             </Link>
             <Link
               href="/probability"
               className="px-6 py-3 bg-card-bg border border-card-border hover:border-primary rounded-full font-semibold transition-all"
             >
-              Магадлалтай тохирол үзэх
+              {t.viewProbability}
             </Link>
           </div>
         </div>
@@ -247,12 +397,9 @@ export default function ReportPage() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Мэдээлэл оруулах
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">{t.pageTitle}</h1>
           <p className="text-muted text-lg max-w-2xl mx-auto">
-            Төөрсөн амьтныг гэр бүлтэй нь холбоход туслахын тулд доорх
-            мэдээллийг бөглөнө үү
+            {t.pageDescription}
           </p>
         </div>
 
@@ -260,7 +407,7 @@ export default function ReportPage() {
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Status Selection */}
           <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-            <h2 className="text-xl font-bold mb-4">Та юу мэдээлж байна вэ?</h2>
+            <h2 className="text-xl font-bold mb-4">{t.statusTitle}</h2>
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
@@ -274,8 +421,8 @@ export default function ReportPage() {
                 }`}
               >
                 <div className="text-4xl mb-2">🔍</div>
-                <div className="font-bold text-lg">Төөрсөн амьтан</div>
-                <p className="text-sm text-muted mt-1">Би амьтнаа хайж байна</p>
+                <div className="font-bold text-lg">{t.lostPet}</div>
+                <p className="text-sm text-muted mt-1">{t.lostPetDesc}</p>
               </button>
               <button
                 type="button"
@@ -289,16 +436,15 @@ export default function ReportPage() {
                 }`}
               >
                 <div className="text-4xl mb-2">✓</div>
-                <div className="font-bold text-lg">Олдсон амьтан</div>
-                <p className="text-sm text-muted mt-1">
-                  Би төөрсөн амьтан олсон
-                </p>
+                <div className="font-bold text-lg">{t.foundPet}</div>
+                <p className="text-sm text-muted mt-1">{t.foundPetDesc}</p>
               </button>
             </div>
           </div>
 
+          {/* Pet Type */}
           <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-            <h2 className="text-xl font-bold mb-4">Амьтны төрөл</h2>
+            <h2 className="text-xl font-bold mb-4">{t.petTypeTitle}</h2>
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
@@ -312,7 +458,7 @@ export default function ReportPage() {
                 }`}
               >
                 <div className="text-4xl mb-2">🐕</div>
-                <div className="font-bold text-lg">Нохой</div>
+                <div className="font-bold text-lg">{t.dog}</div>
               </button>
               <button
                 type="button"
@@ -326,20 +472,20 @@ export default function ReportPage() {
                 }`}
               >
                 <div className="text-4xl mb-2">🐱</div>
-                <div className="font-bold text-lg">Муур</div>
+                <div className="font-bold text-lg">{t.cat}</div>
               </button>
             </div>
           </div>
 
           {/* Pet Details */}
           <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-            <h2 className="text-xl font-bold mb-4">Амьтны мэдээлэл</h2>
+            <h2 className="text-xl font-bold mb-4">{t.petDetailsTitle}</h2>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Амьтны нэр
+                  {t.petName}
                   {formData.status === "found" && (
-                    <span className="text-muted">(хэрэв мэдвэл)</span>
+                    <span className="text-muted"> {t.ifKnown}</span>
                   )}
                 </label>
                 <input
@@ -347,18 +493,20 @@ export default function ReportPage() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Банхарь Шаариг"
+                  placeholder={t.petNamePlaceholder}
                   className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Үүлдэр</label>
+                <label className="block text-sm font-medium mb-2">
+                  {t.breed}
+                </label>
                 <input
                   type="text"
                   name="breed"
                   value={formData.breed}
                   onChange={handleChange}
-                  placeholder="Жишээ нь: Алтан ретривер, Сиам"
+                  placeholder={t.breedPlaceholder}
                   required
                   className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
@@ -368,9 +516,8 @@ export default function ReportPage() {
                   htmlFor="gender"
                   className="block text-sm font-medium mb-2"
                 >
-                  Хүйс
+                  {t.gender}
                 </label>
-
                 <div className="relative w-full">
                   <select
                     id="gender"
@@ -378,28 +525,13 @@ export default function ReportPage() {
                     value={formData.gender}
                     onChange={handleChange}
                     required
-                    className="
-      w-full
-      h-12
-      px-4
-      pr-10
-      bg-background
-      border
-      border-card-border
-      rounded-xl
-      appearance-none
-      focus:outline-none
-      focus:ring-2
-      focus:ring-primary
-      focus:border-transparent
-    "
+                    className="w-full h-12 px-4 pr-10 bg-background border border-card-border rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   >
-                    <option value="">Сонгоно уу</option>
-                    <option value="Male">Эрэгтэй</option>
-                    <option value="Female">Эмэгтэй</option>
-                    <option value="Unknown">Бусад</option>
+                    <option value="">{t.selectGender}</option>
+                    <option value="Male">{t.male}</option>
+                    <option value="Female">{t.female}</option>
+                    <option value="Unknown">{t.unknown}</option>
                   </select>
-
                   <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
                     <svg
                       className="h-4 w-4 text-muted-foreground"
@@ -415,12 +547,9 @@ export default function ReportPage() {
                   </div>
                 </div>
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  {formData.status === "lost"
-                    ? "Сүүлд харсан огноо"
-                    : "Олсон огноо"}
+                  {formData.status === "lost" ? t.lastSeenDate : t.foundDate}
                 </label>
                 <input
                   type="date"
@@ -434,8 +563,8 @@ export default function ReportPage() {
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-2">
                   {formData.status === "lost"
-                    ? "Сүүлд харсан байршил"
-                    : "Олсон байршил"}
+                    ? t.lastSeenLocation
+                    : t.foundLocation}
                 </label>
                 <MapLocationPicker
                   onSelect={(loc) =>
@@ -450,13 +579,13 @@ export default function ReportPage() {
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-2">
-                  Тайлбар
+                  {t.description}
                 </label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  placeholder="Амьтныг таних нэмэлт мэдээллийг оруулна уу: хүзүүвч, тэмдэг, зан төлөв, онцлог шинж тэмдэг..."
+                  placeholder={t.descriptionPlaceholder}
                   rows={4}
                   required
                   className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
@@ -467,24 +596,20 @@ export default function ReportPage() {
 
           {/* Photo Upload */}
           <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-            <h2 className="text-xl font-bold mb-4">Зураг</h2>
-
+            <h2 className="text-xl font-bold mb-4">{t.photoTitle}</h2>
             <div className="relative">
               {!preview ? (
                 <label
                   htmlFor="image-upload"
-                  className="border-2 border-dashed border-card-border rounded-xl p-8
-                       text-center hover:border-primary/50 transition-colors
-                       cursor-pointer block"
+                  className="border-2 border-dashed border-card-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer block"
                 >
                   {!uploading ? (
                     <div>
-                      {" "}
                       <div className="text-4xl mb-3">📷</div>
-                      <p className="font-medium mb-1">
-                        Зураг оруулахын тулд дарна уу
+                      <p className="font-medium mb-1">{t.uploadPhoto}</p>
+                      <p className="text-xs text-muted mt-2">
+                        {t.imageFormats}
                       </p>
-                      <p className="text-xs text-muted mt-2">PNG, JPG</p>
                       <input
                         id="image-upload"
                         type="file"
@@ -495,7 +620,7 @@ export default function ReportPage() {
                       />
                     </div>
                   ) : (
-                    <p className="font-medium">Зураг ачааллаж байна...</p>
+                    <p className="font-medium">{t.uploadingPhoto}</p>
                   )}
                 </label>
               ) : (
@@ -505,13 +630,7 @@ export default function ReportPage() {
                     alt="Preview"
                     className="w-full max-h-72 object-contain rounded-xl"
                   />
-
-                  {/* Overlay buttons */}
-                  <div
-                    className="absolute inset-0 bg-black/40 rounded-xl
-                         opacity-0 group-hover:opacity-100
-                         transition-opacity flex items-center justify-center gap-4"
-                  >
+                  <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                     <button
                       type="button"
                       onClick={handleEdit}
@@ -519,7 +638,6 @@ export default function ReportPage() {
                     >
                       <EditIcon />
                     </button>
-
                     <button
                       type="button"
                       onClick={handleDelete}
@@ -528,7 +646,6 @@ export default function ReportPage() {
                       <DeleteIcon />
                     </button>
                   </div>
-
                   <input
                     type="file"
                     accept="image/*"
@@ -540,48 +657,49 @@ export default function ReportPage() {
               )}
             </div>
           </div>
+
           {/* Contact Information */}
           <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-            <h2 className="text-xl font-bold mb-4">
-              Таны холбоо барих мэдээлэл
-            </h2>
+            <h2 className="text-xl font-bold mb-4">{t.contactTitle}</h2>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-2">
-                  Таны нэр
+                  {t.yourName}
                 </label>
                 <input
                   type="text"
                   name="contactName"
                   value={formData.contactName!}
                   onChange={handleChange}
-                  placeholder="Sunduibazrr"
-                  required
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Имэйл</label>
-                <input
-                  type="email"
-                  name="contactEmail"
-                  value={formData.contactEmail!}
-                  onChange={handleChange}
-                  placeholder="example@email.com"
+                  placeholder={t.namePlaceholder}
                   required
                   className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Утасны дугаар
+                  {t.email}
+                </label>
+                <input
+                  type="email"
+                  name="contactEmail"
+                  value={formData.contactEmail!}
+                  onChange={handleChange}
+                  placeholder={t.emailPlaceholder}
+                  required
+                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t.phone}
                 </label>
                 <input
                   type="tel"
                   name="contactPhone"
                   value={formData.contactPhone}
                   onChange={handleChange}
-                  placeholder="9911-2233"
+                  placeholder={t.phonePlaceholder}
                   className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
@@ -594,31 +712,32 @@ export default function ReportPage() {
               type="submit"
               className="flex-1 px-8 py-4 cursor-pointer bg-primary hover:bg-primary-dark text-white rounded-full font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/30"
             >
-              Мэдээлэл илгээх
+              {t.submit}
             </button>
             <button
+              type="button"
               onClick={() => setQuit(true)}
               className="px-8 py-4 bg-card-bg cursor-pointer border border-card-border hover:border-primary text-foreground rounded-full font-bold text-lg transition-all text-center"
             >
-              Цуцлах
+              {t.cancel}
             </button>
             {quit && (
               <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-9999 flex justify-center items-center">
                 <div className="bg-black rounded-lg shadow-lg w-90 h-40">
                   <div className="p-5 flex flex-col justify-center gap-10">
                     <p className="text-white text-[20px] font-semibold">
-                      Та гарахдаа итгэлтэй байна уу?
+                      {t.quitTitle}
                     </p>
                     <div className="flex gap-8 justify-center">
                       <button
                         onClick={() => setQuit(false)}
                         className="px-6 py-3 rounded-lg shadow-lg cursor-pointer bg-[#e47a3d]"
                       >
-                        Зар оруулах
+                        {t.continueReport}
                       </button>
                       <Link href={"/"}>
                         <button className="px-6 py-3 rounded-lg shadow-lg cursor-pointer bg-red-500">
-                          Гарах
+                          {t.quit}
                         </button>
                       </Link>
                     </div>
