@@ -28,6 +28,27 @@ export default function BrowsePage() {
   const [statusFilter, setStatusFilter] = useState<"all" | "Lost" | "Found">(
     "all"
   );
+  const [lostFoundData, setLostFoundData] = useState<lostFound[]>([]);
+  const GetLostFound = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/lostFound`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+      const data = await res.json();
+      console.log("User data:", data);
+      setLostFoundData(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    GetLostFound();
+  }, []);
+  const filteredPets = lostFoundData.filter((pet) => {
 
   const { isSignedIn } = useAuth();
   const { openSignIn } = useClerk();
@@ -128,10 +149,8 @@ export default function BrowsePage() {
       pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       pet.breed.toLowerCase().includes(searchTerm.toLowerCase()) ||
       pet.location.toLowerCase().includes(searchTerm.toLowerCase());
-
     const matchesType = typeFilter === "all" || pet.petType === typeFilter;
     const matchesStatus = statusFilter === "all" || pet.role === statusFilter;
-
     return matchesSearch && matchesType && matchesStatus;
   });
 
@@ -190,9 +209,9 @@ export default function BrowsePage() {
                 }
                 className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none cursor-pointer"
               >
-                <option value="all">{t.allTypes}</option>
-                <option value="Dog">{t.dog}</option>
-                <option value="Cat">{t.cat}</option>
+                <option value="all">Бүх төрөл</option>
+                <option value="Dog">🐕 Нохой</option>
+                <option value="Cat">🐱 Муур</option>
               </select>
             </div>
 
@@ -208,6 +227,9 @@ export default function BrowsePage() {
                 }
                 className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none cursor-pointer"
               >
+                <option value="all">Бүх төлөв</option>
+                <option value="Lost">🔍 Төөрсөн</option>
+                <option value="Found">☑️ Олдсон</option>
                 <option value="all">{t.allStatuses}</option>
                 <option value="Lost">{t.lost}</option>
                 <option value="Found">{t.found}</option>

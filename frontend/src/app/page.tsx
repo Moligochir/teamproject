@@ -417,7 +417,7 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {animalData.map((pet) => (
+            {animalData.slice(0, 6).map((pet) => (
               <PetCard
                 key={pet._id}
                 petType={pet.petType}
