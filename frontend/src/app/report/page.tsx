@@ -391,7 +391,7 @@ export default function ReportPage() {
               href="/probability"
               className="px-6 py-3 bg-card-bg border border-card-border hover:border-primary rounded-full font-semibold transition-all"
             >
-              {t.viewProbability}
+          dhfh
             </Link>
           </div>
         </div>
