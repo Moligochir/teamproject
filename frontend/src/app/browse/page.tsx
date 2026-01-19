@@ -168,20 +168,10 @@ type lostFound = {
 };
 export default function BrowsePage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [typeFilter, setTypeFilter] = useState<"all" | "dog" | "cat">("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | "lost" | "found">(
+  const [typeFilter, setTypeFilter] = useState<"all" | "Dog" | "Cat">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "Lost" | "Found">(
     "all"
   );
-
-  const filteredPets = allPets.filter((pet) => {
-    const matchesSearch =
-      pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pet.breed.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pet.location.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = typeFilter === "all" || pet.type === typeFilter;
-    const matchesStatus = statusFilter === "all" || pet.status === statusFilter;
-    return matchesSearch && matchesType && matchesStatus;
-  });
   const [lostFoundData, setLostFoundData] = useState<lostFound[]>([]);
   const GetLostFound = async () => {
     try {
@@ -202,6 +192,16 @@ export default function BrowsePage() {
   useEffect(() => {
     GetLostFound();
   }, []);
+  const filteredPets = lostFoundData.filter((pet) => {
+    const matchesSearch =
+      pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pet.breed.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pet.location.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = typeFilter === "all" || pet.petType === typeFilter;
+    const matchesStatus = statusFilter === "all" || pet.role === statusFilter;
+    return matchesSearch && matchesType && matchesStatus;
+  });
+
   return (
     <div className="min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -254,13 +254,13 @@ export default function BrowsePage() {
               <select
                 value={typeFilter}
                 onChange={(e) =>
-                  setTypeFilter(e.target.value as "all" | "dog" | "cat")
+                  setTypeFilter(e.target.value as "all" | "Dog" | "Cat")
                 }
                 className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none cursor-pointer"
               >
                 <option value="all">Бүх төрөл</option>
-                <option value="dog">🐕 Нохой</option>
-                <option value="cat">🐱 Муур</option>
+                <option value="Dog">🐕 Нохой</option>
+                <option value="Cat">🐱 Муур</option>
               </select>
             </div>
 
@@ -270,13 +270,13 @@ export default function BrowsePage() {
               <select
                 value={statusFilter}
                 onChange={(e) =>
-                  setStatusFilter(e.target.value as "all" | "lost" | "found")
+                  setStatusFilter(e.target.value as "all" | "Lost" | "Found")
                 }
                 className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none cursor-pointer"
               >
                 <option value="all">Бүх төлөв</option>
-                <option value="lost">🔍 Төөрсөн</option>
-                <option value="found">☑️ Олдсон</option>
+                <option value="Lost">🔍 Төөрсөн</option>
+                <option value="Found">☑️ Олдсон</option>
               </select>
             </div>
           </div>
@@ -299,11 +299,11 @@ export default function BrowsePage() {
           </button>
           <button
             onClick={() => {
-              setTypeFilter("dog");
+              setTypeFilter("Dog");
               setStatusFilter("all");
             }}
             className={`px-4 py-2 rounded-full font-medium transition-all ${
-              typeFilter === "dog" && statusFilter === "all"
+              typeFilter === "Dog" && statusFilter === "all"
                 ? "bg-primary text-white"
                 : "bg-card-bg border border-card-border hover:border-primary"
             }`}
@@ -312,11 +312,11 @@ export default function BrowsePage() {
           </button>
           <button
             onClick={() => {
-              setTypeFilter("cat");
+              setTypeFilter("Cat");
               setStatusFilter("all");
             }}
             className={`px-4 py-2 rounded-full font-medium transition-all ${
-              typeFilter === "cat" && statusFilter === "all"
+              typeFilter === "Cat" && statusFilter === "all"
                 ? "bg-primary text-white"
                 : "bg-card-bg border border-card-border hover:border-primary"
             }`}
@@ -326,10 +326,10 @@ export default function BrowsePage() {
           <button
             onClick={() => {
               setTypeFilter("all");
-              setStatusFilter("lost");
+              setStatusFilter("Lost");
             }}
             className={`px-4 py-2 rounded-full font-medium transition-all ${
-              statusFilter === "lost" && typeFilter === "all"
+              statusFilter === "Lost" && typeFilter === "all"
                 ? "bg-lost text-white"
                 : "bg-card-bg border border-card-border hover:border-lost"
             }`}
@@ -339,10 +339,10 @@ export default function BrowsePage() {
           <button
             onClick={() => {
               setTypeFilter("all");
-              setStatusFilter("found");
+              setStatusFilter("Found");
             }}
             className={`px-4 py-2 rounded-full font-medium transition-all ${
-              statusFilter === "found" && typeFilter === "all"
+              statusFilter === "Found" && typeFilter === "all"
                 ? "bg-found text-white"
                 : "bg-card-bg border border-card-border hover:border-found"
             }`}
@@ -365,7 +365,7 @@ export default function BrowsePage() {
         {/* Pet Grid */}
         {filteredPets.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {lostFoundData.map((pet) => (
+            {filteredPets.map((pet) => (
               <PetCard
                 key={pet._id}
                 petType={pet.petType}
