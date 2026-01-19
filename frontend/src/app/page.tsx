@@ -31,6 +31,8 @@ type lostFound = {
   location: string;
   description: string;
   Date: Date;
+  lat: number;
+  lng: number;
   petType: string;
   image: string;
   breed: string;

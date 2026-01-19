@@ -1,8 +1,12 @@
 "use client";
 
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+
+import dynamic from "next/dynamic";
+import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useEffect, useState } from "react";
 
 // Ulaanbaatar bounding box
 const UB_BOUNDS: [[number, number], [number, number]] = [
@@ -17,7 +21,7 @@ interface AnimalMarker {
   status: "Төөрсөн" | "Олдсон";
   description: string;
   image: string;
-  icon: string;
+  icon: L.Icon;
 }
 
 // Custom marker icons
@@ -37,35 +41,46 @@ const lunaIcon = new L.Icon({
   popupAnchor: [0, -40],
 });
 
-// Example markers
-const markers: AnimalMarker[] = [
-  {
-    id: 1,
-    position: [47.918, 106.917],
-    name: "Макс",
-    type: "Нохой",
-    status: "Төөрсөн",
-    description: "Найрсаг алтан ретривер, цэнхэр хүзүүвчтэй",
-    icon: maxIcon,
-
-    image:
-      "https://images.unsplash.com/photo-1552053831-71594a27632d?w=100&h=100&fit=crop",
-  },
-  {
-    id: 2,
-    position: [47.921, 106.923],
-    name: "Луна",
-    type: "Муур",
-    status: "Олдсон",
-    description: "Үзэсгэлэнтэй сиам муур, тайван найрсаг",
-    icon: lunaIcon,
-
-    image:
-      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=100&h=100&fit=crop",
-  },
-];
-
+type lostFound = {
+  role: string;
+  name: string;
+  gender: string;
+  location: string;
+  description: string;
+  Date: Date;
+  lat: number;
+  lng: number;
+  petType: string;
+  image: string;
+  breed: string;
+  _id: string;
+  phonenumber: number;
+};
 export default function UBMap() {
+  const [animalData, setAnimalData] = useState<lostFound[]>([]);
+  const GetLostFound = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/lostFound`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+      const data = await res.json();
+      console.log("User data:", data);
+      setAnimalData(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const lastItem = animalData
+    .filter((m) => m.lat != null && m.lng != null)
+    .at(-1);
+
+  useEffect(() => {
+    GetLostFound();
+  }, []);
   return (
     <div className="flex justify-center items-center my-8">
       <MapContainer
@@ -82,8 +97,12 @@ export default function UBMap() {
           attribution='&copy; <a href="https://carto.com/">CARTO</a>'
         />
 
-        {markers.map((marker) => (
-          <Marker key={marker.id} position={marker.position} icon={marker.icon}>
+        {animalData.map((marker) => (
+          <Marker
+            key={marker._id}
+            position={[marker.lat, marker.lng]}
+            icon={marker.petType === "Нохой" ? maxIcon : lunaIcon}
+          >
             <Popup>
               <div className="space-y-1">
                 <div className="flex justify-center gap-10">
@@ -95,19 +114,19 @@ export default function UBMap() {
                   <div>
                     <h3 className="font-bold text-lg">{marker.name}</h3>
                     <p>
-                      <strong>Төрөл:</strong> {marker.type}
+                      <strong>Төрөл:</strong> {marker.petType}
                     </p>
                     <p>
                       <strong>Төлөв:</strong>{" "}
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full font-medium
           ${
-            marker.status === "Төөрсөн"
+            marker.role === "Төөрсөн"
               ? "bg-red-100 text-red-600"
               : "bg-green-100 text-green-600"
           }`}
                       >
-                        {marker.status}
+                        {marker.role === "Төөрсөн" ? "Төөрсөн" : "Олдсон"}
                       </span>
                     </p>
                     <p>{marker.description}</p>
