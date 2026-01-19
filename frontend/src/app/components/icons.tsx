@@ -230,8 +230,8 @@ export const MapIcon = () => {
 
 export const DogIcon = () => (
   <svg
-    width="73px"
-    height="73px"
+    width="68px"
+    height="68px"
     viewBox="0 0 16 16"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -254,8 +254,8 @@ export const DogIcon = () => (
 export const CatIcon = () => {
   return (
     <svg
-      width="73px"
-      height="73px"
+      width="68px"
+      height="68px"
       viewBox="-1.6 -1.6 19.2 19.2"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -284,8 +284,8 @@ export const CatIcon = () => {
 export const SearchIconn = () => {
   return (
     <svg
-      width="73px"
-      height="73px"
+      width="68px"
+      height="68px"
       viewBox="-102.4 -102.4 1228.80 1228.80"
       fill="currentcolor"
       className="icon"
@@ -396,16 +396,16 @@ export const SearchIcon2 = () => {
 export const FoundIcon = () => {
   return (
     <svg
-      fill="currentcolor"
-      height="73px"
-      width="73px"
+      fill="#e47a3d"
+      height="68px"
+      width="68px"
       version="1.1"
       id="Icons"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       viewBox="-3.2 -3.2 38.40 38.40"
       xmlSpace="preserve"
-      stroke="currentcolor"
+      stroke="#e47a3d"
     >
       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
       <g
