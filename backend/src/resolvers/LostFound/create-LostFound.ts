@@ -10,6 +10,8 @@ export const createLostFound = async (req: Request, res: Response) => {
       name: newLostFound.name,
       breed: newLostFound.breed,
       location: newLostFound.location,
+      lat: newLostFound.lat,
+      lng: newLostFound.lng,
       description: newLostFound.description,
       image: newLostFound.image,
       userId: newLostFound.userId,
