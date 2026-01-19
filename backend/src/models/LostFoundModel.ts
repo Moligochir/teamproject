@@ -8,7 +8,7 @@ const LostFoundSchema = new mongoose.Schema(
       require: true,
       ref: "User",
     },
-    role: { type: String, enum: ["Lost", "Found"] },
+    role: { type: String, enum: ["Lost", "Found" , "Adopt"] },
     petType: { type: String, enum: ["Dog", "Cat"] },
     name: String,
     gender: { type: String, enum: ["Male", "Female", "Unknown"] },
