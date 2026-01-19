@@ -7,157 +7,6 @@ import toast from "react-hot-toast";
 import { useLanguage } from "../contexts/Languagecontext";
 import PetCard from "../components/petcard";
 
-import { MapIcon } from "../components/icons";
-import PetCard from "../components/petcard";
-
-// Жишээ өгөгдөл
-const allPets = [
-  {
-    id: 1,
-    name: "Макс",
-    type: "dog",
-    breed: "Алтан ретривер",
-    status: "lost",
-    location: "Төв цэцэрлэгт хүрээлэн",
-    date: "2026.01.03",
-    image:
-      "https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=400&fit=crop",
-    description: "Найрсаг алтан ретривер, цэнхэр хүзүүвчтэй",
-  },
-  {
-    id: 2,
-    name: "Луна",
-    type: "cat",
-    breed: "Сиам",
-    status: "found",
-    location: "Царс гудамж",
-    date: "2026.01.04",
-    image:
-      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=400&fit=crop",
-    description: "Үзэсгэлэнтэй сиам муур, тайван найрсаг",
-  },
-  {
-    id: 3,
-    name: "Бадди",
-    type: "dog",
-    breed: "Лабрадор",
-    status: "lost",
-    location: "Голын эрэг",
-    date: "2026.01.02",
-    image:
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop",
-    description: "Хар лабрадор, цээжин дээр цагаан толботой",
-  },
-  {
-    id: 4,
-    name: "Мишка",
-    type: "cat",
-    breed: "Табби",
-    status: "found",
-    location: "Нарлаг гудамж",
-    date: "2026.01.05",
-    image:
-      "https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=400&h=400&fit=crop",
-    description: "Улбар шар табби муур, маш тоглоомч",
-  },
-  {
-    id: 5,
-    name: "Роки",
-    type: "dog",
-    breed: "Герман хоньч",
-    status: "lost",
-    location: "Хотын төв",
-    date: "2026.01.01",
-    image:
-      "https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?w=400&h=400&fit=crop",
-    description: "Том герман хоньч, Роки гэж дуудахад хариулдаг",
-  },
-  {
-    id: 6,
-    name: "Мими",
-    type: "cat",
-    breed: "Перс",
-    status: "found",
-    location: "Нарсны гудамж",
-    date: "2026.01.04",
-    image:
-      "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=400&h=400&fit=crop",
-    description: "Цагаан перс муур, хөх нүдтэй",
-  },
-  {
-    id: 7,
-    name: "Чарли",
-    type: "dog",
-    breed: "Бигль",
-    status: "lost",
-    location: "Хойд дүүрэг",
-    date: "2025.12.30",
-    image:
-      "https://images.unsplash.com/photo-1505628346881-b72b27e84530?w=400&h=400&fit=crop",
-    description: "Жижиг бигль, хүрэн цагаан толботой",
-  },
-  {
-    id: 8,
-    name: "Сүүдэр",
-    type: "cat",
-    breed: "Хар богино үст",
-    status: "lost",
-    location: "Баруун хэсэг",
-    date: "2026.01.02",
-    image:
-      "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=400&h=400&fit=crop",
-    description: "Бүхэлдээ хар муур, ногоон нүдтэй",
-  },
-  {
-    id: 9,
-    name: "Цэцэг",
-    type: "dog",
-    breed: "Пүүдл",
-    status: "found",
-    location: "Төв талбай",
-    date: "2026.01.05",
-    image:
-      "https://images.unsplash.com/photo-1516371535707-512a1e83bb9a?w=400&h=400&fit=crop",
-    description: "Цагаан пүүдл, маш найрсаг",
-  },
-  {
-    id: 10,
-    name: "Занга",
-    type: "cat",
-    breed: "Мэйн кун",
-    status: "lost",
-    location: "Далайн эрэг",
-    date: "2025.12.28",
-    image:
-      "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=400&h=400&fit=crop",
-    description: "Том ноосон улбар шар мэйн кун",
-  },
-  {
-    id: 11,
-    name: "Купер",
-    type: "dog",
-    breed: "Хаски",
-    status: "found",
-    location: "Уулын зам",
-    date: "2026.01.03",
-    image:
-      "https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=400&h=400&fit=crop",
-    description: "Хөх нүдтэй хаски, маш эрч хүчтэй",
-  },
-  {
-    id: 12,
-    name: "Клео",
-    type: "cat",
-    breed: "Рэгдолл",
-    status: "found",
-    location: "Нарлаг цэцэрлэг",
-    date: "2026.01.04",
-    image:
-      "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop",
-    description: "Ноосон рэгдолл муур, хөх нүдтэй",
-  },
-];
-
 type lostFound = {
   role: string;
   name: string;
@@ -184,6 +33,7 @@ export default function BrowsePage() {
   const { openSignIn } = useClerk();
   const { language } = useLanguage();
 
+  // Translations
   const translations = {
     mn: {
       title: "Бүх амьтдыг үзэх",
@@ -284,26 +134,7 @@ export default function BrowsePage() {
 
     return matchesSearch && matchesType && matchesStatus;
   });
-  const [lostFoundData, setLostFoundData] = useState<lostFound[]>([]);
-  const GetLostFound = async () => {
-    try {
-      const res = await fetch(`http://localhost:8000/lostFound`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
-        },
-      });
-      const data = await res.json();
-      console.log("User data:", data);
-      setLostFoundData(data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  useEffect(() => {
-    GetLostFound();
-  }, []);
+
   return (
     <div className="min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -471,10 +302,6 @@ export default function BrowsePage() {
             {filteredPets.map((pet) => (
               <PetCard
                 key={pet._id}
-            {lostFoundData.map((pet) => (
-              <PetCard
-                key={pet._id}
-                petType={pet.petType}
                 role={pet.role}
                 name={pet.name}
                 gender={pet.gender}
