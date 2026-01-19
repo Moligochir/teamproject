@@ -12,6 +12,8 @@ const LostFoundSchema = new mongoose.Schema(
     petType: { type: String, enum: ["Dog", "Cat"] },
     name: String,
     gender: { type: String, enum: ["Male", "Female", "Unknown"] },
+    lat: Number,
+    lng: Number,
     image: String,
     location: String,
     description: String,
