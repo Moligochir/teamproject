@@ -61,22 +61,23 @@ export default function ProfilePage() {
     }
   };
 
-  // Get user's posts
+  // Get user's posts - userId-aar shalgah
   const GetUserPosts = async (userId: string) => {
     try {
-      const res = await fetch(
-        `http://localhost:8000/lostFound?userId=${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            accept: "application/json",
-          },
+      const res = await fetch(`http://localhost:8000/lostFound`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
         },
-      );
+      });
       const data = await res.json();
-      console.log("User posts:", data);
-      setMyPosts(data);
+      console.log("All posts:", data);
+
+      // Filter posts by userId
+      const userPosts = data.filter((post: PostType) => post.userId === userId);
+      console.log("User posts:", userPosts);
+      setMyPosts(userPosts);
     } catch (err) {
       console.log("Error fetching posts:", err);
     } finally {
@@ -351,7 +352,7 @@ export default function ProfilePage() {
                         className="w-[320px] bg-white dark:bg-card-bg rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
                       >
                         {/* Image Header - Fixed aspect ratio */}
-                        <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
+                        <div className="relative w-full aspect-4/3 overflow-hidden bg-gray-100">
                           <img
                             src={post.image}
                             alt={post.name}
@@ -397,7 +398,7 @@ export default function ProfilePage() {
                                   d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                                 />
                               </svg>
-                              <span className="text-sm text-gray-500 dark:text-muted min-w-[45px]">
+                              <span className="text-sm text-gray-500 dark:text-muted min-w-11.25">
                                 Төрөл:
                               </span>
                               <span className="text-sm font-semibold text-gray-900 dark:text-foreground">
@@ -434,7 +435,7 @@ export default function ProfilePage() {
                             {/* Description */}
                             <div className="flex gap-2">
                               <svg
-                                className="w-5 h-5 text-blue-600 dark:text-primary flex-shrink-0 mt-0.5"
+                                className="w-5 h-5 text-blue-600 dark:text-primary shrink-0 mt-0.5"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -569,7 +570,7 @@ export default function ProfilePage() {
                           className="sr-only peer"
                           defaultChecked
                         />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                       </label>
                     </div>
                     <div className="flex items-center justify-between p-4 bg-background border border-card-border rounded-xl">
@@ -581,7 +582,7 @@ export default function ProfilePage() {
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" className="sr-only peer" />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                       </label>
                     </div>
                   </div>
