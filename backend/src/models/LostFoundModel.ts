@@ -20,18 +20,7 @@ const LostFoundSchema = new mongoose.Schema(
     Date: Date,
     breed: { type: String },
     phonenumber: Number,
-    matchedPosts: [
-      {
-        postId: mongoose.Schema.Types.ObjectId,
-        score: Number,
-      },
-    ],
-    status: {
-      type: String,
-      enum: ["open", "matched", "closed"],
-      default: "open",
-    },
-    embedding: { type: [Number], default: [] },
+    imageHash: { type: String },
   },
   { timestamps: true },
 );
