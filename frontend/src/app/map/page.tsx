@@ -160,10 +160,9 @@ export default function UBMap() {
                     Дэлгэрэнгүй үзэх
                   </button>
                 </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+              </Popup>
+            </Marker>
+          ))}
       </MapContainer>
     </div>
   );
