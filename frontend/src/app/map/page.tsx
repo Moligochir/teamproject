@@ -7,6 +7,8 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useState } from "react";
+import { DetailIcon, TypeIcon } from "../components/icons";
+import { useParams, useRouter } from "next/navigation";
 
 // Ulaanbaatar bounding box
 const UB_BOUNDS: [[number, number], [number, number]] = [
@@ -24,7 +26,6 @@ interface AnimalMarker {
   icon: L.Icon;
 }
 
-// Custom marker icons
 const maxIcon = new L.Icon({
   iconUrl:
     "https://images.vexels.com/media/users/3/131625/isolated/preview/35942a8a6bb75dc1842582deb7168bf8-orange-location-marker-infographic.png",
@@ -58,6 +59,8 @@ type lostFound = {
 };
 export default function UBMap() {
   const [animalData, setAnimalData] = useState<lostFound[]>([]);
+  const router = useRouter();
+
   const GetLostFound = async () => {
     try {
       const res = await fetch(`http://localhost:8000/lostFound`, {
@@ -94,43 +97,68 @@ export default function UBMap() {
           attribution='&copy; <a href="https://carto.com/">CARTO</a>'
         />
 
-        {animalData
-          .filter((m) => m.lat != null && m.lng != null)
-          .map((marker) => (
-            <Marker
-              key={marker._id}
-              position={[marker.lat, marker.lng]}
-              icon={marker.petType === "Нохой" ? maxIcon : lunaIcon}
-            >
-              <Popup>
-                <div className="space-y-1">
-                  <div className="flex justify-center gap-10">
-                    <img
-                      src={`${marker.image}`}
-                      className="w-30 h-30 rounded-lg"
-                    />
+        {animalData.map((marker) => (
+          <Marker
+            key={marker._id}
+            position={[marker.lat, marker.lng]}
+            icon={marker.petType === "Нохой" ? maxIcon : lunaIcon}
+          >
+            <Popup>
+              <div className="min-w-70 max-w-[320px]">
+                <div className="relative h-32 rounded-t-lg overflow-hidden">
+                  <img
+                    src={marker.image}
+                    alt={marker.name}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Status Badge on Image */}
+                  <div className="absolute top-2 left-2">
+                    <span
+                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold shadow-lg ${
+                        marker.role === "Төөрсөн"
+                          ? "bg-lost text-white"
+                          : "bg-found text-white"
+                      }`}
+                    >
+                      {marker.role === "Төөрсөн" ? "🔍 Төөрсөн" : "✓ Олдсон"}
+                    </span>
+                  </div>
+                </div>
 
-                    <div>
-                      <h3 className="font-bold text-lg">{marker.name}</h3>
-                      <p>
-                        <strong>Төрөл:</strong> {marker.petType}
+                {/* Content */}
+                <div className="p-4 space-y-3">
+                  {/* Name */}
+                  <h3 className="font-bold text-lg text-black leading-tight">
+                    {marker.name}
+                  </h3>
+
+                  {/* Info Grid */}
+                  <div className="space-y-2">
+                    {/* Pet Type */}
+                    <div className="flex items-center gap-2">
+                      <TypeIcon />
+                      <span className="text-sm text-muted">Төрөл:</span>
+                      <span className="text-sm font-semibold">
+                        {marker.petType}
+                      </span>
+                    </div>
+
+                    {/* Description */}
+                    <div className="flex items-center gap-2">
+                      <DetailIcon />
+                      <p className="text-sm text-muted leading-relaxed line-clamp-2 flex-1">
+                        {marker.description}
                       </p>
-                      <p>
-                        <strong>Төлөв:</strong>{" "}
-                        <span
-                          className={`text-xs px-2 py-0.5 rounded-full font-medium
-          ${
-            marker.role === "Төөрсөн"
-              ? "bg-red-100 text-red-600"
-              : "bg-green-100 text-green-600"
-          }`}
-                        >
-                          {marker.role === "Төөрсөн" ? "Төөрсөн" : "Олдсон"}
-                        </span>
-                      </p>
-                      <p>{marker.description}</p>
                     </div>
                   </div>
+
+                  {/* View Details Button */}
+                  <button
+                    onClick={() => router.push(`/pet/${id}`)}
+                    className="w-full cursor-pointer mt-3 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold text-sm transition-all"
+                  >
+                    Дэлгэрэнгүй үзэх
+                  </button>
                 </div>
               </Popup>
             </Marker>

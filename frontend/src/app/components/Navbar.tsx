@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
+
 import {
   SignedIn,
   SignedOut,
@@ -17,7 +19,10 @@ import { useLanguage } from "../contexts/Languagecontext";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
+
   const { language, toggleLanguage } = useLanguage();
+  const { user } = useUser();
 
   const { isSignedIn } = useAuth();
   const router = useRouter();
@@ -35,10 +40,12 @@ export function Navbar() {
       report: "Мэдээлэх",
       loginRequired: "Та нэвтрэх шаардлагатай",
       langButton: "EN",
+      aboutUs: "Бидний тухай",
+      mapp: "Газарын зураг",
     },
     en: {
       home: "Home",
-      browse: "Browse Pets",
+      browse: " Pets",
       map: "Map",
       dog: "Dog",
       about: "About Us",
@@ -46,6 +53,8 @@ export function Navbar() {
       report: "Report",
       loginRequired: "You need to sign in",
       langButton: "МON",
+      aboutUs: "About Us",
+      mapp: "Map",
     },
   };
 
@@ -99,7 +108,7 @@ export function Navbar() {
               href="/map"
               className="text-muted hover:text-primary font-medium"
             >
-              {t.map}
+              {t.mapp}
             </Link>
             <Link
               href="/dog"
@@ -110,7 +119,7 @@ export function Navbar() {
           </div>
 
           {/* Right side */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <ThemeToggle />
 
             {/* Auth buttons */}
@@ -122,10 +131,6 @@ export function Navbar() {
               </SignInButton>
             </SignedOut>
 
-            <SignedIn>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
-
             <Link
               href="/report"
               onClick={handleClick}
@@ -135,12 +140,54 @@ export function Navbar() {
             </Link>
 
             {/* Language Toggle Button */}
-            <button
-              onClick={toggleLanguage}
-              className="w-14 h-10 bg-[#e47a3d] hover:bg-[#d66a2d] text-white font-semibold rounded-2xl shadow-lg cursor-pointer transition-all"
-            >
-              {t.langButton}
-            </button>
+
+            <div className="relative group">
+              {/* Trigger button */}
+              <button className="w-10 h-10 rounded-full cursor-pointer bg-card-bg border border-card-border flex items-center justify-center">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              </button>
+
+              {/* Dropdown */}
+              <div
+                className="absolute right-0 mt-3 w-48 rounded-xl bg-card-bg border border-card-border shadow-xl
+                  opacity-0 invisible group-hover:opacity-100 group-hover:visible
+                  transition-all duration-200 z-50"
+              >
+                <div className="flex flex-col p-3 gap-5 text-sm">
+                  <div className="h-px bg-card-border my-1" />
+
+                  <SignedIn>
+                    <div className="flex items-center gap-2">
+                      <UserButton afterSignOutUrl="/" />
+                      <span
+                        onClick={() => router.push(`/profile`)}
+                        className="px-3 py-1 rounded-full cursor-pointer bg-primary/10 text-primary text-xs font-semibold"
+                      >
+                        {user?.fullName || "User"}
+                      </span>
+                    </div>
+                  </SignedIn>
+                  <button
+                    onClick={toggleLanguage}
+                    className="w-full h-10 bg-primary cursor-pointer text-white rounded-lg font-semibold hover:bg-primary-dark"
+                  >
+                    {t.langButton}
+                  </button>
+                </div>
+              </div>
+            </div>
 
             {/* Mobile menu button */}
             <button
@@ -189,7 +236,7 @@ export function Navbar() {
 
               <SignedOut>
                 <SignInButton mode="modal">
-                  <button className="px-5 py-2.5 border border-primary text-primary rounded-full font-semibold">
+                  <button className="px-5 py-2.5 border border-primary max-sm:hidden text-primary rounded-full font-semibold">
                     {t.login}
                   </button>
                 </SignInButton>
