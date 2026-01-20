@@ -154,15 +154,16 @@ export default function UBMap() {
 
                   {/* View Details Button */}
                   <button
-                    onClick={() => router.push(`/pet/${id}`)}
+                    onClick={() => router.push(`/pet`)}
                     className="w-full cursor-pointer mt-3 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold text-sm transition-all"
                   >
                     Дэлгэрэнгүй үзэх
                   </button>
                 </div>
-              </Popup>
-            </Marker>
-          ))}
+              </div>
+            </Popup>
+          </Marker>
+        ))}
       </MapContainer>
     </div>
   );
