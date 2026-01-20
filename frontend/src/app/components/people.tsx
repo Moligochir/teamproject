@@ -157,7 +157,7 @@ export function UrcluulehPage() {
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -174,7 +174,7 @@ export function UrcluulehPage() {
           <button
             type="button"
             onClick={() => setFormData((prev) => ({ ...prev, petType: "dog" }))}
-            className={`p-6 rounded-xl border-2 transition-all ${
+            className={`p-6 rounded-xl border-2 transition-all cursor-pointer ${
               formData.petType === "dog"
                 ? "border-primary bg-primary/10"
                 : "border-card-border hover:border-primary/50"
@@ -187,7 +187,7 @@ export function UrcluulehPage() {
           <button
             type="button"
             onClick={() => setFormData((prev) => ({ ...prev, petType: "cat" }))}
-            className={`p-6 rounded-xl border-2 transition-all ${
+            className={`p-6 rounded-xl border-2 transition-all cursor-pointer ${
               formData.petType === "cat"
                 ? "border-primary bg-primary/10"
                 : "border-card-border hover:border-primary/50"
@@ -253,10 +253,12 @@ export function UrcluulehPage() {
                 value={formData.gender}
                 onChange={handleChange}
                 required
-                className="w-full h-12 px-4 pr-10 bg-background border border-card-border rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full h-12 cursor-pointer px-4 pr-10 bg-background border border-card-border rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="">{t.selectGender}</option>
-                <option value="Male">{t.male}</option>
+                <option value="Male" className="bg-[#e47a3d]">
+                  {t.male}
+                </option>
                 <option value="Female">{t.female}</option>
               </select>
 

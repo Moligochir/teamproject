@@ -6,7 +6,6 @@ import { DeleteIcon, EditIcon } from "../components/icons";
 import { useUser } from "@clerk/nextjs";
 import * as React from "react";
 import { useLanguage } from "../contexts/Languagecontext";
-import { PhoneNumber } from "@clerk/nextjs/server";
 
 type User = {
   _id: string;
@@ -25,6 +24,7 @@ export default function ReportPage() {
   const [usersdata, setUsersData] = useState<User[]>([]);
   const { user } = useUser();
   const { language } = useLanguage();
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   // Translations
   const translations = {
@@ -97,8 +97,17 @@ export default function ReportPage() {
       continueReport: "Зар оруулах",
       quit: "Гарах",
 
-      // Alerts
-      uploadImageAlert: "Зураг оруулна уу",
+      // Validation errors
+      breedRequired: "Үүлдэр оруулах шаардлагатай",
+      genderRequired: "Хүйс сонгох шаардлагатай",
+      dateRequired: "Огноо сонгох шаардлагатай",
+      locationRequired: "Байршил сонгох шаардлагатай",
+      descriptionRequired: "Тайлбар оруулах шаардлагатай",
+      imageRequired: "Зураг оруулах шаардлагатай",
+      nameRequired: "Нэр оруулах шаардлагатай",
+      emailRequired: "Имэйл оруулах шаардлагатай",
+      emailInvalid: "Зөв имэйл хаяг оруулна уу",
+      phoneInvalid: "Утасны дугаар 8 оронтой тоо байх ёстой",
     },
     en: {
       // Success page
@@ -169,8 +178,17 @@ export default function ReportPage() {
       continueReport: "Continue Report",
       quit: "Leave",
 
-      // Alerts
-      uploadImageAlert: "Please upload an image",
+      // Validation errors
+      breedRequired: "Breed is required",
+      genderRequired: "Gender is required",
+      dateRequired: "Date is required",
+      locationRequired: "Location is required",
+      descriptionRequired: "Description is required",
+      imageRequired: "Photo is required",
+      nameRequired: "Name is required",
+      emailRequired: "Email is required",
+      emailInvalid: "Please enter a valid email",
+      phoneInvalid: "Phone number must be exactly 8 digits",
     },
   };
 
@@ -267,7 +285,7 @@ export default function ReportPage() {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
       const data = await response.json();
       return data.secure_url;
@@ -277,7 +295,7 @@ export default function ReportPage() {
   };
 
   const handleLogoUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -286,6 +304,7 @@ export default function ReportPage() {
     try {
       const url = await uploadToCloudinary(file);
       setPreview(url);
+      setErrors((prev) => ({ ...prev, image: "" }));
       console.log(url);
     } catch (err: unknown) {
       console.log("Failed to upload logo: " + (err as Error).message);
@@ -307,12 +326,67 @@ export default function ReportPage() {
     if (inputRef.current) inputRef.current.value = "";
   };
 
+  // Validation function
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.breed.trim()) {
+      newErrors.breed = t.breedRequired;
+    }
+
+    if (!formData.gender) {
+      newErrors.gender = t.genderRequired;
+    }
+
+    if (!formData.date) {
+      newErrors.date = t.dateRequired;
+    }
+
+    if (!formData.location) {
+      newErrors.location = t.locationRequired;
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = t.descriptionRequired;
+    }
+
+    if (!preview) {
+      newErrors.image = t.imageRequired;
+    }
+
+    if (!formData.contactName.trim()) {
+      newErrors.contactName = t.nameRequired;
+    }
+
+    if (!formData.contactEmail.trim()) {
+      newErrors.contactEmail = t.emailRequired;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
+      newErrors.contactEmail = t.emailInvalid;
+    }
+
+    if (formData.contactPhone.trim()) {
+      const phoneDigits = formData.contactPhone.replace(/\D/g, "");
+      if (phoneDigits.length !== 8) {
+        newErrors.contactPhone = t.phoneInvalid;
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!preview || !formData.location || !formData.date) {
-      alert(t.uploadImageAlert);
+
+    if (!validateForm()) {
+      const firstError = Object.keys(errors)[0];
+      const element = document.getElementsByName(firstError)[0];
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
       return;
     }
+
     handleAddChange();
     setSubmitted(true);
     console.log("Form submitted:", formData);
@@ -321,12 +395,17 @@ export default function ReportPage() {
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleAddChange = async () => {
@@ -503,6 +582,7 @@ export default function ReportPage() {
                   className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-2">
                   {t.breed}
@@ -513,10 +593,15 @@ export default function ReportPage() {
                   value={formData.breed}
                   onChange={handleChange}
                   placeholder={t.breedPlaceholder}
-                  required
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={`w-full px-4 py-3 bg-background border ${
+                    errors.breed ? "border-red-500" : "border-card-border"
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
                 />
+                {errors.breed && (
+                  <p className="mt-1 text-sm text-red-500">{t.breedRequired}</p>
+                )}
               </div>
+
               <div>
                 <label
                   htmlFor="gender"
@@ -530,8 +615,9 @@ export default function ReportPage() {
                     name="gender"
                     value={formData.gender}
                     onChange={handleChange}
-                    required
-                    className="w-full h-12 px-4 pr-10 bg-background border border-card-border rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className={`w-full h-12 px-4 pr-10 bg-background border ${
+                      errors.gender ? "border-red-500" : "border-card-border"
+                    } rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
                   >
                     <option value="">{t.selectGender}</option>
                     <option value="Male">{t.male}</option>
@@ -552,7 +638,13 @@ export default function ReportPage() {
                     </svg>
                   </div>
                 </div>
+                {errors.gender && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {t.genderRequired}
+                  </p>
+                )}
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-2">
                   {formData.status === "lost" ? t.lastSeenDate : t.foundDate}
@@ -562,27 +654,45 @@ export default function ReportPage() {
                   name="date"
                   value={formData.date}
                   onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={`w-full px-4 py-3 bg-background border ${
+                    errors.date ? "border-red-500" : "border-card-border"
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
                 />
+                {errors.date && (
+                  <p className="mt-1 text-sm text-red-500">{t.dateRequired}</p>
+                )}
               </div>
+
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-2">
                   {formData.status === "lost"
                     ? t.lastSeenLocation
                     : t.foundLocation}
                 </label>
-                <MapLocationPicker
-                  onSelect={(loc) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      lat: loc.lat,
-                      lng: loc.lng,
-                      location: loc.address,
-                    }))
-                  }
-                />
+                <div
+                  className={`${
+                    errors.location ? "ring-2 ring-red-500 rounded-xl" : ""
+                  }`}
+                >
+                  <MapLocationPicker
+                    onSelect={(loc) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        lat: loc.lat,
+                        lng: loc.lng,
+                        location: loc.address,
+                      }));
+                      setErrors((prev) => ({ ...prev, location: "" }));
+                    }}
+                  />
+                </div>
+                {errors.location && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {t.locationRequired}
+                  </p>
+                )}
               </div>
+
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-2">
                   {t.description}
@@ -593,9 +703,15 @@ export default function ReportPage() {
                   onChange={handleChange}
                   placeholder={t.descriptionPlaceholder}
                   rows={4}
-                  required
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                  className={`w-full px-4 py-3 bg-background border ${
+                    errors.description ? "border-red-500" : "border-card-border"
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none`}
                 />
+                {errors.description && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {t.descriptionRequired}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -607,7 +723,9 @@ export default function ReportPage() {
               {!preview ? (
                 <label
                   htmlFor="image-upload"
-                  className="border-2 border-dashed border-card-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer block"
+                  className={`border-2 border-dashed ${
+                    errors.image ? "border-red-500" : "border-card-border"
+                  } rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer block`}
                 >
                   {!uploading ? (
                     <div>
@@ -661,6 +779,9 @@ export default function ReportPage() {
                   />
                 </div>
               )}
+              {errors.image && (
+                <p className="mt-2 text-sm text-red-500">{t.imageRequired}</p>
+              )}
             </div>
           </div>
 
@@ -678,9 +799,13 @@ export default function ReportPage() {
                   value={formData.contactName!}
                   onChange={handleChange}
                   placeholder={t.namePlaceholder}
-                  required
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={`w-full px-4 py-3 bg-background border ${
+                    errors.contactName ? "border-red-500" : "border-card-border"
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
                 />
+                {errors.contactName && (
+                  <p className="mt-1 text-sm text-red-500">{t.nameRequired}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">
@@ -692,9 +817,15 @@ export default function ReportPage() {
                   value={formData.contactEmail!}
                   onChange={handleChange}
                   placeholder={t.emailPlaceholder}
-                  required
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={`w-full px-4 py-3 bg-background border ${
+                    errors.contactEmail
+                      ? "border-red-500"
+                      : "border-card-border"
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
                 />
+                {errors.contactEmail && (
+                  <p className="mt-1 text-sm text-red-500">{t.emailRequired}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">
@@ -705,9 +836,17 @@ export default function ReportPage() {
                   name="contactPhone"
                   value={formData.contactPhone}
                   onChange={handleChange}
-                  placeholder={t.phonePlaceholder}
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="99112233"
+                  maxLength={8}
+                  className={`w-full px-4 py-3 bg-background border ${
+                    errors.contactPhone
+                      ? "border-red-500"
+                      : "border-card-border"
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
                 />
+                {errors.contactPhone && (
+                  <p className="mt-1 text-sm text-red-500">{t.phoneInvalid}</p>
+                )}
               </div>
             </div>
           </div>
