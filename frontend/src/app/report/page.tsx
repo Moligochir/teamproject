@@ -17,7 +17,11 @@ type User = {
   createdAt?: string;
   updatedAt?: string;
 };
-
+type Match = {
+  postId: string;
+  image: string;
+  dist: number;
+};
 const UPLOAD_PRESET = "Pawpew";
 const CLOUD_NAME = "dyduodw7q";
 
@@ -267,7 +271,7 @@ export default function ReportPage() {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
       const data = await response.json();
       return data.secure_url;
@@ -277,7 +281,7 @@ export default function ReportPage() {
   };
 
   const handleLogoUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -295,7 +299,9 @@ export default function ReportPage() {
   };
 
   const [uploading, setUploading] = useState(false);
+  const [matches, setMatches] = useState<Match[]>([]);
   const [preview, setPreview] = useState<string | null>(null);
+  const [test, setTest] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleEdit = () => {
@@ -321,7 +327,7 @@ export default function ReportPage() {
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -353,6 +359,10 @@ export default function ReportPage() {
           userId: FilterUser?._id,
         }),
       });
+      const data = await res.json();
+      console.log("LostFound hariu:", data.matches);
+      setTest(data.matches);
+      setMatches(data.matches);
     } catch (err) {
       console.log(err);
     }
@@ -362,6 +372,7 @@ export default function ReportPage() {
     return (
       <div className="min-h-screen py-12 flex items-center justify-center">
         <div className="max-w-md mx-auto text-center px-4">
+          {/* ✅ icon */}
           <div className="w-24 h-24 bg-found/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-scale-in">
             <svg
               className="w-12 h-12 text-found"
@@ -377,22 +388,31 @@ export default function ReportPage() {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold mb-4">{t.successTitle}</h1>
-          <p className="text-muted mb-8">{t.successDescription}</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/browse"
-              className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all"
-            >
-              {t.viewListings}
-            </Link>
-            <Link
-              href="/probability"
-              className="px-6 py-3 bg-card-bg border border-card-border hover:border-primary rounded-full font-semibold transition-all"
-            >
-              {t.viewProbability}
-            </Link>
-          </div>
+
+          {/* ✅ MATCH RESULT */}
+          {matches && (
+            <>
+              <h2 className="text-xl font-bold mb-3">Магадлалтай тохирлууд</h2>
+
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {matches.map((m) => (
+                  <div
+                    key={m.postId}
+                    className="border rounded-lg p-2 shadow-sm"
+                  >
+                    <img
+                      src={m.image}
+                      alt="match"
+                      className="w-full h-40 object-cover rounded-md"
+                    />
+                    <p className="text-xs mt-2 text-gray-500">
+                      similarity: {(100 - m.dist / 4).toFixed(0)}%
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
     );
