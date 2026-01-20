@@ -74,9 +74,6 @@ export default function UBMap() {
       console.log(err);
     }
   };
-  const lastItem = animalData
-    .filter((m) => m.lat != null && m.lng != null)
-    .at(-1);
 
   useEffect(() => {
     GetLostFound();
@@ -97,45 +94,47 @@ export default function UBMap() {
           attribution='&copy; <a href="https://carto.com/">CARTO</a>'
         />
 
-        {animalData.map((marker) => (
-          <Marker
-            key={marker._id}
-            position={[marker.lat, marker.lng]}
-            icon={marker.petType === "Нохой" ? maxIcon : lunaIcon}
-          >
-            <Popup>
-              <div className="space-y-1">
-                <div className="flex justify-center gap-10">
-                  <img
-                    src={`${marker.image}`}
-                    className="w-30 h-30 rounded-lg"
-                  />
+        {animalData
+          .filter((m) => m.lat != null && m.lng != null)
+          .map((marker) => (
+            <Marker
+              key={marker._id}
+              position={[marker.lat, marker.lng]}
+              icon={marker.petType === "Нохой" ? maxIcon : lunaIcon}
+            >
+              <Popup>
+                <div className="space-y-1">
+                  <div className="flex justify-center gap-10">
+                    <img
+                      src={`${marker.image}`}
+                      className="w-30 h-30 rounded-lg"
+                    />
 
-                  <div>
-                    <h3 className="font-bold text-lg">{marker.name}</h3>
-                    <p>
-                      <strong>Төрөл:</strong> {marker.petType}
-                    </p>
-                    <p>
-                      <strong>Төлөв:</strong>{" "}
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full font-medium
+                    <div>
+                      <h3 className="font-bold text-lg">{marker.name}</h3>
+                      <p>
+                        <strong>Төрөл:</strong> {marker.petType}
+                      </p>
+                      <p>
+                        <strong>Төлөв:</strong>{" "}
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full font-medium
           ${
             marker.role === "Төөрсөн"
               ? "bg-red-100 text-red-600"
               : "bg-green-100 text-green-600"
           }`}
-                      >
-                        {marker.role === "Төөрсөн" ? "Төөрсөн" : "Олдсон"}
-                      </span>
-                    </p>
-                    <p>{marker.description}</p>
+                        >
+                          {marker.role === "Төөрсөн" ? "Төөрсөн" : "Олдсон"}
+                        </span>
+                      </p>
+                      <p>{marker.description}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+              </Popup>
+            </Marker>
+          ))}
       </MapContainer>
     </div>
   );

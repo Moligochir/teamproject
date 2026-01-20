@@ -8,7 +8,7 @@ const LostFoundSchema = new mongoose.Schema(
       require: true,
       ref: "User",
     },
-    role: { type: String, enum: ["Lost", "Found" , "Adopt"] },
+    role: { type: String, enum: ["Lost", "Found", "Adopt"] },
     petType: { type: String, enum: ["Dog", "Cat"] },
     name: String,
     gender: { type: String, enum: ["Male", "Female", "Unknown"] },
@@ -20,7 +20,19 @@ const LostFoundSchema = new mongoose.Schema(
     Date: Date,
     breed: { type: String },
     phonenumber: Number,
+    matchedPosts: [
+      {
+        postId: mongoose.Schema.Types.ObjectId,
+        score: Number,
+      },
+    ],
+    status: {
+      type: String,
+      enum: ["open", "matched", "closed"],
+      default: "open",
+    },
+    embedding: { type: [Number], default: [] },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 export const LostFoundModel = mongoose.model("LostFound", LostFoundSchema);
