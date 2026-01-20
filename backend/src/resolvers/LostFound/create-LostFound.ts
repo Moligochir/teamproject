@@ -1,9 +1,16 @@
 import { Request, Response } from "express";
 import { LostFoundModel } from "../../models/LostFoundModel";
+import { sendPostNotification } from "../../server";
 
 export const createLostFound = async (req: Request, res: Response) => {
   const newLostFound = req.body;
-  try {
+  try { 
+    const send  = await sendPostNotification(newLostFound.name, newLostFound.description);
+    if (send) {
+      console.log("Admin notified!");
+    } else {
+      console.log("Failed to send email");
+    }
     await LostFoundModel.create({
       role: newLostFound.role,
       petType: newLostFound.petType,
@@ -19,7 +26,7 @@ export const createLostFound = async (req: Request, res: Response) => {
       Date: newLostFound.Date,
       phonenumber: newLostFound.phonenumber,
     });
-
+   
     res.status(200).json("success");
   } catch (e: unknown) {
     res.status(500).json({ message: (e as Error).message });
