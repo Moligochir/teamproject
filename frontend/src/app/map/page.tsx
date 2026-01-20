@@ -125,16 +125,12 @@ export default function UBMap() {
                   </div>
                 </div>
 
-                {/* Content */}
                 <div className="p-4 space-y-3">
-                  {/* Name */}
                   <h3 className="font-bold text-lg text-black leading-tight">
                     {marker.name}
                   </h3>
 
-                  {/* Info Grid */}
                   <div className="space-y-2">
-                    {/* Pet Type */}
                     <div className="flex items-center gap-2">
                       <TypeIcon />
                       <span className="text-sm text-muted">Төрөл:</span>
@@ -143,7 +139,6 @@ export default function UBMap() {
                       </span>
                     </div>
 
-                    {/* Description */}
                     <div className="flex items-center gap-2">
                       <DetailIcon />
                       <p className="text-sm text-muted leading-relaxed line-clamp-2 flex-1">
@@ -152,7 +147,6 @@ export default function UBMap() {
                     </div>
                   </div>
 
-                  {/* View Details Button */}
                   <button
                     onClick={() => router.push(`/pet/${id}`)}
                     className="w-full cursor-pointer mt-3 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold text-sm transition-all"

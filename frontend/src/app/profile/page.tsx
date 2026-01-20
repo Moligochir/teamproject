@@ -32,6 +32,18 @@ export default function ProfilePage() {
   const [userData, setUserData] = useState<userType | null>(null);
   const [myPosts, setMyPosts] = useState<PostType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<PostType | null>(null);
+
+  // Edit form states
+  const [editForm, setEditForm] = useState({
+    name: "",
+    petType: "",
+    description: "",
+    role: "Төөрсөн" as "Төөрсөн" | "Олдсон",
+    location: "",
+  });
 
   // Get current user data
   const GetCurrentUser = async () => {
@@ -47,13 +59,11 @@ export default function ProfilePage() {
       });
       const data = await res.json();
 
-      // Find current user by clerkId
       const currentUser = data.find(
         (u: userType) => u.clerkId === clerkUser.id,
       );
       if (currentUser) {
         setUserData(currentUser);
-
         GetUserPosts(currentUser._id);
       }
     } catch (err) {
@@ -61,7 +71,7 @@ export default function ProfilePage() {
     }
   };
 
-  // Get user's posts - userId-aar shalgah
+  // Get user's posts
   const GetUserPosts = async (userId: string) => {
     try {
       const res = await fetch(`http://localhost:8000/lostFound`, {
@@ -72,11 +82,7 @@ export default function ProfilePage() {
         },
       });
       const data = await res.json();
-      console.log("All posts:", data);
-
-      // Filter posts by userId
       const userPosts = data.filter((post: PostType) => post.userId === userId);
-      console.log("User posts:", userPosts);
       setMyPosts(userPosts);
     } catch (err) {
       console.log("Error fetching posts:", err);
@@ -85,21 +91,77 @@ export default function ProfilePage() {
     }
   };
 
-  // Delete post
-  const handleDeletePost = async (postId: string) => {
-    if (!confirm("Та энэ зарыг устгахдаа итгэлтэй байна уу?")) return;
+  // Open Edit Modal
+  const openEditModal = (post: PostType) => {
+    setSelectedPost(post);
+    setEditForm({
+      name: post.name,
+      petType: post.petType,
+      description: post.description,
+      role: post.role,
+      location: post.location,
+    });
+    setEditModal(true);
+  };
+
+  // Handle Edit Submit
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPost) return;
 
     try {
-      const res = await fetch(`http://localhost:8000/lostFound/${postId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `http://localhost:8000/lostFound/${selectedPost._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(editForm),
         },
-      });
+      );
 
       if (res.ok) {
-        // Remove post from state
-        setMyPosts(myPosts.filter((post) => post._id !== postId));
+        const updatedPost = await res.json();
+        setMyPosts(
+          myPosts.map((post) =>
+            post._id === selectedPost._id ? updatedPost : post,
+          ),
+        );
+        setEditModal(false);
+        setSelectedPost(null);
+      }
+    } catch (err) {
+      console.log("Error updating post:", err);
+      alert("Зар засахад алдаа гарлаа");
+    }
+  };
+
+  // Open Delete Modal
+  const openDeleteModal = (post: PostType) => {
+    setSelectedPost(post);
+    setDeleteModal(true);
+  };
+
+  // Handle Delete Confirm
+  const handleDeleteConfirm = async () => {
+    if (!selectedPost) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:8000/lostFound/${selectedPost._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (res.ok) {
+        setMyPosts(myPosts.filter((post) => post._id !== selectedPost._id));
+        setDeleteModal(false);
+        setSelectedPost(null);
       }
     } catch (err) {
       console.log("Error deleting post:", err);
@@ -118,7 +180,6 @@ export default function ProfilePage() {
     "posts",
   );
 
-  // Calculate stats from actual posts
   const stats = {
     totalPosts: myPosts.length,
     reunited: myPosts.filter((post) => post.role === "Олдсон").length,
@@ -127,35 +188,24 @@ export default function ProfilePage() {
 
   const translations = {
     mn: {
-      // Header
       myProfile: "Миний профайл",
       memberSince: "Гишүүнээр элссэн",
-
-      // Stats
       totalPosts: "Нийт зар",
       reunited: "Олдсон",
       activePosts: "Төөрсөн",
-
-      // Tabs
       myPosts: "Миний зарлалууд",
       savedPosts: "Хадгалсан",
       settings: "Тохиргоо",
-
-      // Posts
       edit: "Засах",
       delete: "Устгах",
       viewDetails: "Дэлгэрэнгүй",
       noPosts: "Танд зар байхгүй байна",
       noPostsDesc: "Төөрсөн эсвэл олдсон амьтны мэдээлэл оруулж эхлээрэй",
       createPost: "Зар үүсгэх",
-
-      // Pet info
       lost: "Төөрсөн",
       found: "Олдсон",
       dog: "Нохой",
       cat: "Муур",
-
-      // Settings
       personalInfo: "Хувийн мэдээлэл",
       name: "Нэр",
       email: "Имэйл",
@@ -169,45 +219,40 @@ export default function ProfilePage() {
       pushNotifDesc: "Аппликэйшн дээр мэдэгдэл харуулах",
       saveChanges: "Өөрчлөлт хадгалах",
       cancel: "Цуцлах",
-
-      // Account
       accountSettings: "Акаунтын тохиргоо",
       deleteAccount: "Акаунт устгах",
       deleteAccountDesc: "Таны бүх өгөгдөл бүрмөсөн устах болно",
       deleteBtn: "Акаунт устгах",
-
       loading: "Уншиж байна...",
+      editPost: "Зар засах",
+      petName: "Амьтны нэр",
+      petType: "Төрөл",
+      description: "Тайлбар",
+      location: "Байршил",
+      status: "Төлөв",
+      deleteConfirm: "Та энэ зарыг устгахдаа итгэлтэй байна уу?",
+      deleteWarning: "Энэ үйлдлийг буцаах боломжгүй. Зар бүрмөсөн устах болно.",
+      confirmDelete: "Тийм, устга",
     },
     en: {
-      // Header
       myProfile: "My Profile",
       memberSince: "Member since",
-
-      // Stats
       totalPosts: "Total Posts",
       reunited: "Found",
       activePosts: "Lost",
-
-      // Tabs
       myPosts: "My Posts",
       savedPosts: "Saved",
       settings: "Settings",
-
-      // Posts
       edit: "Edit",
       delete: "Delete",
       viewDetails: "View Details",
       noPosts: "You don't have any posts",
       noPostsDesc: "Start by reporting a lost or found pet",
       createPost: "Create Post",
-
-      // Pet info
       lost: "Lost",
       found: "Found",
       dog: "Dog",
       cat: "Cat",
-
-      // Settings
       personalInfo: "Personal Information",
       name: "Name",
       email: "Email",
@@ -221,14 +266,21 @@ export default function ProfilePage() {
       pushNotifDesc: "Show notifications in the app",
       saveChanges: "Save Changes",
       cancel: "Cancel",
-
-      // Account
       accountSettings: "Account Settings",
       deleteAccount: "Delete Account",
       deleteAccountDesc: "All your data will be permanently deleted",
       deleteBtn: "Delete Account",
-
       loading: "Loading...",
+      editPost: "Edit Post",
+      petName: "Pet Name",
+      petType: "Pet Type",
+      description: "Description",
+      location: "Location",
+      status: "Status",
+      deleteConfirm: "Are you sure you want to delete this post?",
+      deleteWarning:
+        "This action cannot be undone. The post will be permanently deleted.",
+      confirmDelete: "Yes, Delete",
     },
   };
 
@@ -251,7 +303,6 @@ export default function ProfilePage() {
         {/* Profile Header */}
         <div className="bg-card-bg rounded-2xl border border-card-border p-8 mb-8">
           <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
-            {/* Avatar */}
             <div className="relative">
               <img
                 src={
@@ -263,7 +314,6 @@ export default function ProfilePage() {
               />
             </div>
 
-            {/* User Info */}
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-3xl font-bold mb-2">
                 {userData?.name || clerkUser?.fullName}
@@ -279,7 +329,6 @@ export default function ProfilePage() {
               </p>
             </div>
 
-            {/* Stats */}
             <div className="flex gap-6">
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">
@@ -305,7 +354,6 @@ export default function ProfilePage() {
 
         {/* Tabs */}
         <div className="bg-card-bg rounded-2xl border border-card-border overflow-hidden">
-          {/* Tab Headers */}
           <div className="flex border-b border-card-border">
             <button
               onClick={() => setActiveTab("posts")}
@@ -339,9 +387,7 @@ export default function ProfilePage() {
             </button>
           </div>
 
-          {/* Tab Content */}
           <div className="p-6">
-            {/* My Posts Tab */}
             {activeTab === "posts" && (
               <div>
                 {myPosts.length > 0 ? (
@@ -351,14 +397,12 @@ export default function ProfilePage() {
                         key={post._id}
                         className="w-[320px] bg-white dark:bg-card-bg rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
                       >
-                        {/* Image Header - Fixed aspect ratio */}
                         <div className="relative w-full aspect-4/3 overflow-hidden bg-gray-100">
                           <img
                             src={post.image}
                             alt={post.name}
                             className="w-full h-full object-cover"
                           />
-                          {/* Status Badge */}
                           <div className="absolute top-3 left-3">
                             <span
                               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm ${
@@ -374,16 +418,12 @@ export default function ProfilePage() {
                           </div>
                         </div>
 
-                        {/* Content */}
                         <div className="p-5 space-y-4">
-                          {/* Name */}
                           <h3 className="font-bold text-xl text-gray-900 dark:text-foreground leading-tight line-clamp-2">
                             {post.name}
                           </h3>
 
-                          {/* Info Grid */}
                           <div className="space-y-3">
-                            {/* Pet Type */}
                             <div className="flex items-center gap-2">
                               <svg
                                 className="w-5 h-5 text-blue-600 dark:text-primary shrink-0"
@@ -406,7 +446,6 @@ export default function ProfilePage() {
                               </span>
                             </div>
 
-                            {/* Location */}
                             <div className="flex items-center gap-2">
                               <svg
                                 className="w-5 h-5 text-blue-600 dark:text-primary shrink-0"
@@ -432,7 +471,6 @@ export default function ProfilePage() {
                               </span>
                             </div>
 
-                            {/* Description */}
                             <div className="flex gap-2">
                               <svg
                                 className="w-5 h-5 text-blue-600 dark:text-primary shrink-0 mt-0.5"
@@ -453,17 +491,16 @@ export default function ProfilePage() {
                             </div>
                           </div>
 
-                          {/* Actions */}
                           <div className="flex gap-2 pt-2">
-                            <Link
-                              href={`/edit/${post._id}`}
-                              className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-sm transition-colors duration-200 text-center"
+                            <button
+                              onClick={() => openEditModal(post)}
+                              className="flex-1 px-4 py-2.5 bg-primary hover:bg-primary-dark cursor-pointer text-white rounded-lg font-semibold text-sm transition-colors duration-200"
                             >
                               {t.edit}
-                            </Link>
+                            </button>
                             <button
-                              onClick={() => handleDeletePost(post._id)}
-                              className="px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold text-sm transition-colors duration-200"
+                              onClick={() => openDeleteModal(post)}
+                              className="px-4 py-2.5 cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold text-sm transition-colors duration-200"
                             >
                               {t.delete}
                             </button>
@@ -488,7 +525,6 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Saved Posts Tab */}
             {activeTab === "saved" && (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">🔖</div>
@@ -505,10 +541,8 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Settings Tab */}
             {activeTab === "settings" && (
               <div className="space-y-8 max-w-2xl">
-                {/* Personal Information */}
                 <div>
                   <h3 className="text-xl font-bold mb-4">{t.personalInfo}</h3>
                   <div className="space-y-4">
@@ -545,7 +579,6 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Password */}
                 <div>
                   <h3 className="text-xl font-bold mb-4">{t.password}</h3>
                   <button className="px-6 py-3 bg-card-bg border border-card-border rounded-xl font-semibold hover:border-primary transition-all">
@@ -553,7 +586,6 @@ export default function ProfilePage() {
                   </button>
                 </div>
 
-                {/* Notifications */}
                 <div>
                   <h3 className="text-xl font-bold mb-4">{t.notifications}</h3>
                   <div className="space-y-4">
@@ -588,7 +620,6 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Save Button */}
                 <div className="flex gap-4">
                   <button className="px-8 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-all">
                     {t.saveChanges}
@@ -598,7 +629,6 @@ export default function ProfilePage() {
                   </button>
                 </div>
 
-                {/* Danger Zone */}
                 <div className="border-t border-card-border pt-8">
                   <h3 className="text-xl font-bold mb-4 text-red-500">
                     {t.accountSettings}
@@ -624,6 +654,176 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {editModal && selectedPost && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-card-bg rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-card-border">
+              <h2 className="text-2xl font-bold">{t.editPost}</h2>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="p-6 space-y-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t.petName}
+                </label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, name: e.target.value })
+                  }
+                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t.petType}
+                </label>
+                <input
+                  type="text"
+                  value={editForm.petType}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, petType: e.target.value })
+                  }
+                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t.status}
+                </label>
+                <select
+                  value={editForm.role}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      role: e.target.value as "Төөрсөн" | "Олдсон",
+                    })
+                  }
+                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="Төөрсөн">{t.lost}</option>
+                  <option value="Олдсон">{t.found}</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t.location}
+                </label>
+                <input
+                  type="text"
+                  value={editForm.location}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, location: e.target.value })
+                  }
+                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t.description}
+                </label>
+                <textarea
+                  value={editForm.description}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, description: e.target.value })
+                  }
+                  rows={4}
+                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                  required
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button
+                  type="submit"
+                  className="flex-1 cursor-pointer px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-all"
+                >
+                  {t.saveChanges}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditModal(false);
+                    setSelectedPost(null);
+                  }}
+                  className="flex-1 cursor-pointer px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
+                >
+                  {t.cancel}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal && selectedPost && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-card-bg rounded-2xl max-w-md w-full p-6">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-8 h-8 text-red-600 dark:text-red-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold mb-2">{t.deleteConfirm}</h3>
+              <p className="text-muted text-sm">{t.deleteWarning}</p>
+            </div>
+
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 mb-6">
+              <div className="flex items-center gap-3">
+                <img
+                  src={selectedPost.image}
+                  alt={selectedPost.name}
+                  className="w-16 h-16 rounded-lg object-cover"
+                />
+                <div className="flex-1">
+                  <p className="font-semibold">{selectedPost.name}</p>
+                  <p className="text-sm text-muted">{selectedPost.petType}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setDeleteModal(false);
+                  setSelectedPost(null);
+                }}
+                className="flex-1 px-6 cursor-pointer py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
+              >
+                {t.cancel}
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="flex-1 px-6 py-3 cursor-pointer bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-all"
+              >
+                {t.confirmDelete}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
