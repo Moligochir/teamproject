@@ -63,13 +63,28 @@ export default function Footer() {
             <h3 className="font-semibold mb-4">{t.quickLinks}</h3>
             <ul className="space-y-2 text-muted">
               <li>
-                <Link href="/browse">{t.browse}</Link>
+                <Link
+                  href="/browse"
+                  className="hover:text-[#e47a3d] transition-all duration-300"
+                >
+                  {t.browse}
+                </Link>
               </li>
               <li>
-                <Link href="/report">{t.report}</Link>
+                <Link
+                  href="/report"
+                  className="hover:text-[#e47a3d] transition-all duration-300"
+                >
+                  {t.report}
+                </Link>
               </li>
               <li>
-                <Link href="/about">{t.about}</Link>
+                <Link
+                  href="/about"
+                  className="hover:text-[#e47a3d] transition-all duration-300"
+                >
+                  {t.about}
+                </Link>
               </li>
             </ul>
           </div>
@@ -78,16 +93,36 @@ export default function Footer() {
             <h3 className="font-semibold mb-4">{t.categories}</h3>
             <ul className="space-y-2 text-muted">
               <li>
-                <Link href="/browse?type=dog">{t.dog}</Link>
+                <Link
+                  href="/browse?type=dog"
+                  className="hover:text-[#e47a3d] transition-all duration-300"
+                >
+                  {t.dog}
+                </Link>
               </li>
               <li>
-                <Link href="/browse?type=cat">{t.cat}</Link>
+                <Link
+                  href="/browse?type=cat"
+                  className="hover:text-[#e47a3d] transition-all duration-300"
+                >
+                  {t.cat}
+                </Link>
               </li>
               <li>
-                <Link href="/browse?status=lost">{t.lost}</Link>
+                <Link
+                  href="/browse?status=lost"
+                  className="hover:text-[#e47a3d] transition-all duration-300"
+                >
+                  {t.lost}
+                </Link>
               </li>
               <li>
-                <Link href="/browse?status=found">{t.found}</Link>
+                <Link
+                  href="/browse?status=found"
+                  className="hover:text-[#e47a3d] transition-all duration-300"
+                >
+                  {t.found}
+                </Link>
               </li>
             </ul>
           </div>

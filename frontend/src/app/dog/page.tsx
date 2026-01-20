@@ -28,8 +28,8 @@ export default function ReportPage() {
       subheading:
         "Please provide the details below to help them find a loving new home",
       question: "What are you reporting?",
-      posttype1: "Pet breeding",
-      posttype2: "Adopt an Pet",
+      posttype1: "Pet Adopting",
+      posttype2: "Adopt a Pet",
       dood1: "Looking for an owner",
       dood2: "Looking to adopt a pet",
     },
@@ -58,7 +58,7 @@ export default function ReportPage() {
                 setShowPeople(true);
                 setShowAdopt(false);
               }}
-              className={`p-6 rounded-xl border-2 transition-all ${
+              className={`p-6 rounded-xl border-2 transition-all cursor-pointer ${
                 showPeople
                   ? "border-primary bg-primary/10"
                   : "border-card-border hover:border-primary/50"
@@ -75,7 +75,7 @@ export default function ReportPage() {
                 setShowAdopt(true);
                 setShowPeople(false);
               }}
-              className={`p-6 rounded-xl border-2 transition-all ${
+              className={`p-6 rounded-xl border-2 transition-all cursor-pointer ${
                 showAdopt
                   ? "border-primary bg-primary/10"
                   : "border-card-border hover:border-primary/50"

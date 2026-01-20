@@ -1,12 +1,19 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMapEvents,
+  Popup,
+} from "react-leaflet";
 import { useEffect, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-geosearch/dist/geosearch.css";
 import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
 
+// Custom marker icon
 const customMarkerIcon = new L.Icon({
   iconUrl:
     "https://images.vexels.com/media/users/3/131625/isolated/preview/35942a8a6bb75dc1842582deb7168bf8-orange-location-marker-infographic.png",
@@ -15,7 +22,7 @@ const customMarkerIcon = new L.Icon({
   popupAnchor: [0, -40],
 });
 
-// Marker icon fix
+// Default Leaflet marker fix
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -56,7 +63,7 @@ class BoundedOSMProvider extends OpenStreetMapProvider {
     };
 
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-      query
+      query,
     )}&viewbox=${bounds.lng1},${bounds.lat1},${bounds.lng2},${bounds.lat2}&bounded=1&limit=10&accept-language=mn,en`;
 
     try {
@@ -216,7 +223,7 @@ function ClickHandler({
       try {
         // Reverse geocoding - хаяг авах
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=mn,en`
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=mn,en`,
         );
         const data = await response.json();
 
@@ -233,7 +240,7 @@ function ClickHandler({
         // Хайлтын input-д хаяг оруулах
         setTimeout(() => {
           const searchInput = document.querySelector(
-            ".leaflet-control-geosearch input"
+            ".leaflet-control-geosearch input",
           ) as HTMLInputElement;
 
           if (searchInput) {
@@ -254,7 +261,7 @@ function ClickHandler({
         // Координат оруулах
         setTimeout(() => {
           const searchInput = document.querySelector(
-            ".leaflet-control-geosearch input"
+            ".leaflet-control-geosearch input",
           ) as HTMLInputElement;
 
           if (searchInput) {
@@ -274,28 +281,42 @@ export default function MapLocationPicker({
   onSelect: (loc: Location) => void;
 }) {
   const [position, setPosition] = useState<[number, number] | null>(null);
+  const [address, setAddress] = useState<string>("");
 
   const handleLocationSelect = (loc: Location) => {
+    console.log("Location selected:", loc); // Debug log
     setPosition([loc.lat, loc.lng]);
+    setAddress(loc.address);
     onSelect(loc);
   };
 
   return (
-    <div className="w-full h-87.5 rounded-xl overflow-hidden border">
+    <div className="w-full h-96 rounded-xl overflow-hidden border border-card-border">
       <MapContainer
         center={[UB_CENTER.lat, UB_CENTER.lng]}
         zoom={13}
+        scrollWheelZoom={true}
         className="w-full h-full"
+        style={{ height: "100%", width: "100%" }}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution="© OpenStreetMap"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
 
         <SearchControl onSelect={handleLocationSelect} />
         <ClickHandler onLocationSelect={handleLocationSelect} />
 
-        {position && <Marker position={position} icon={customMarkerIcon} />}
+        {position && (
+          <Marker position={position} icon={customMarkerIcon}>
+            <Popup>
+              <div className="p-2">
+                <p className="font-semibold mb-1">Сонгосон байршил</p>
+                <p className="text-sm text-gray-600">{address}</p>
+              </div>
+            </Popup>
+          </Marker>
+        )}
       </MapContainer>
     </div>
   );

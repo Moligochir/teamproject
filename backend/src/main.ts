@@ -1,9 +1,9 @@
-import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
 import { User } from "./routes/users";
 import { Adopt } from "./routes/adopt";
 import { LostFound } from "./routes/lostFound";
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
 const app = express();
 const port = 8000;
 
@@ -15,7 +15,7 @@ app.use("/lostFound", LostFound);
 
 mongoose
   .connect(
-    "mongodb+srv://welovepetspawpew_db_user:Pawpew1234@cluster0.gdp0zjv.mongodb.net/"
+    "mongodb+srv://welovepetspawpew_db_user:Pawpew1234@cluster0.gdp0zjv.mongodb.net/",
   )
   .then(() => console.log("connected"));
 app.listen(port, () => {
