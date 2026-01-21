@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 
 import {
@@ -60,7 +60,9 @@ export function Navbar() {
 
   const t = translations[language];
 
-  const handleClick = (e) => {
+  const handleClick = (
+    e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
+  ) => {
     if (!isSignedIn) {
       e.preventDefault();
       toast(t.loginRequired);
@@ -170,7 +172,7 @@ export function Navbar() {
 
                   <SignedIn>
                     <div className="flex items-center gap-2">
-                      <UserButton afterSignOutUrl="/" />
+                      <UserButton />
                       <span
                         onClick={() => router.push(`/profile`)}
                         className="px-3 py-1 rounded-full cursor-pointer bg-primary/10 text-primary text-xs font-semibold"
