@@ -318,9 +318,7 @@ export default function ReportPage() {
   };
 
   const [uploading, setUploading] = useState(false);
-  const [matches, setMatches] = useState<Match[]>([]);
   const [preview, setPreview] = useState<string | null>(null);
-  const [test, setTest] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleEdit = () => {
@@ -438,63 +436,13 @@ export default function ReportPage() {
           userId: FilterUser?._id,
         }),
       });
-      const data = await res.json();
-      console.log("LostFound hariu:", data.matches);
-      setTest(data.matches);
-      setMatches(data.matches);
     } catch (err) {
       console.log(err);
     }
   };
 
   if (submitted) {
-    return (
-      <div className="min-h-screen py-12 flex items-center justify-center">
-        <div className="max-w-md mx-auto text-center px-4">
-          {/* ✅ icon */}
-          <div className="w-24 h-24 bg-found/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-scale-in">
-            <svg
-              className="w-12 h-12 text-found"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-
-          {/* ✅ MATCH RESULT */}
-          {matches && (
-            <>
-              <h2 className="text-xl font-bold mb-3">Магадлалтай тохирлууд</h2>
-
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                {matches.map((m) => (
-                  <div
-                    key={m.postId}
-                    className="border rounded-lg p-2 shadow-sm"
-                  >
-                    <img
-                      src={m.image}
-                      alt="match"
-                      className="w-full h-40 object-cover rounded-md"
-                    />
-                    <p className="text-xs mt-2 text-gray-500">
-                      similarity: {(100 - m.dist / 4).toFixed(0)}%
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    );
+    return <div>dhdg</div>;
   }
 
   return (

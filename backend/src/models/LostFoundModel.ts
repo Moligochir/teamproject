@@ -20,7 +20,6 @@ const LostFoundSchema = new mongoose.Schema(
     Date: Date,
     breed: { type: String },
     phonenumber: Number,
-    imageHash: { type: String },
   },
   { timestamps: true },
 );
