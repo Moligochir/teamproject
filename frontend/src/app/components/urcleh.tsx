@@ -15,7 +15,7 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "dog" | "cat">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "lost" | "found">(
-    "all"
+    "all",
   );
   const { language } = useLanguage();
 

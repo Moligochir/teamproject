@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { UrclehPage } from "../components/adopt";
-import { UrcluulehPage } from "../components/people";
+
 import { useLanguage } from "../contexts/Languagecontext";
+import { UrcluulehPage } from "../components/urcluuleh";
+import { UrclehPage } from "../components/urcleh";
 
 export default function ReportPage() {
   const [showPeople, setShowPeople] = useState(false);

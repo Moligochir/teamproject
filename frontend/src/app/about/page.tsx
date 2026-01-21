@@ -49,9 +49,12 @@ export default function AboutPage() {
       // Team
       teamTitle: "Манай баг",
       teamDescription: "Гэр бүлүүдийг холбоход зориулсан амьтан хайрлагчид",
-      founder: "Үүсгэн байгуулагч & CEO",
-      communityManager: "Нийгэмлэгийн менежер",
-      operationsDirector: "Үйл ажиллагааны удирдагч",
+      founder: "Багийн аxлагч ",
+      communityManager: "Frontend - Туслах",
+      operationsDirector: "Backend - Axлагч",
+      uugana: "Frontend - Туслах",
+      ariuk: "Backend - Туслах",
+      ociro: "Backend - Туслах",
 
       // CTA
       ctaTitle: "Туслахад бэлэн үү?",
@@ -102,9 +105,12 @@ export default function AboutPage() {
       // Team
       teamTitle: "Our Team",
       teamDescription: "Pet lovers dedicated to reuniting families",
-      founder: "Founder & CEO",
-      communityManager: "Community Manager",
-      operationsDirector: "Operations Director",
+      founder: " Team Leader ",
+      communityManager: "Frontend - Assistant",
+      operationsDirector: "Backend - Leader",
+      uugana: "Frontend - Assistant",
+      ariuk: "Backend - Assistant",
+      ociro: "Backend - Assistant",
 
       // CTA
       ctaTitle: "Ready to Help?",
@@ -181,7 +187,6 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* How It Works */}
         <div className="mb-20">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">{t.howItWorksTitle}</h2>
@@ -230,27 +235,45 @@ export default function AboutPage() {
         <div className="mb-20">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">{t.teamTitle}</h2>
-            <p className="text-muted text-lg">{t.teamDescription}</p>
+            <p className="text-muted text-lg">{t.teamDescription} 🐾</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                name: language === "mn" ? "Сараа" : "Sarah",
+                name: language === "mn" ? "Сундуйбазар" : "Sunduibazrr",
                 role: t.founder,
                 image:
-                  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop",
+                  "https://png.pngtree.com/png-vector/20191110/ourmid/pngtree-avatar-icon-profile-icon-member-login-vector-isolated-png-image_1978396.jpg",
               },
               {
-                name: language === "mn" ? "Батаа" : "David",
+                name: language === "mn" ? "Ангараг" : "Angarag",
                 role: t.communityManager,
                 image:
-                  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+                  "https://png.pngtree.com/png-vector/20191110/ourmid/pngtree-avatar-icon-profile-icon-member-login-vector-isolated-png-image_1978396.jpg",
               },
               {
-                name: language === "mn" ? "Оюунаа" : "Emily",
+                name: language === "mn" ? "Мандах" : "Mandah",
                 role: t.operationsDirector,
                 image:
-                  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+                  "https://png.pngtree.com/png-vector/20191110/ourmid/pngtree-avatar-icon-profile-icon-member-login-vector-isolated-png-image_1978396.jpg",
+              },
+              {
+                name: language === "mn" ? "Ууганаа" : "Uuganaa",
+                role: t.uugana,
+                image:
+                  "https://png.pngtree.com/png-vector/20191110/ourmid/pngtree-avatar-icon-profile-icon-member-login-vector-isolated-png-image_1978396.jpg",
+              },
+              {
+                name: language === "mn" ? "Ариук" : "Ariuk",
+                role: t.ariuk,
+                image:
+                  "https://png.pngtree.com/png-vector/20191110/ourmid/pngtree-avatar-icon-profile-icon-member-login-vector-isolated-png-image_1978396.jpg",
+              },
+              {
+                name: language === "mn" ? "Очироо" : "Ociroo",
+                role: t.ociro,
+                image:
+                  "https://png.pngtree.com/png-vector/20191110/ourmid/pngtree-avatar-icon-profile-icon-member-login-vector-isolated-png-image_1978396.jpg",
               },
             ].map((member) => (
               <div key={member.name} className="text-center">

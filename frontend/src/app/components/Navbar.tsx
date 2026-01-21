@@ -162,11 +162,7 @@ export function Navbar() {
               </button>
 
               {/* Dropdown */}
-              <div
-                className="absolute right-0 mt-3 w-48 rounded-xl bg-card-bg border border-card-border shadow-xl
-                  opacity-0 invisible group-hover:opacity-100 group-hover:visible
-                  transition-all duration-200 z-50"
-              >
+              <div className="absolute right-0 mt-3 w-48 rounded-xl bg-card-bg border border-card-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div className="flex flex-col p-3 gap-5 text-sm">
                   <div className="h-px bg-card-border my-1" />
 
