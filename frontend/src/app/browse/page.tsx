@@ -6,6 +6,7 @@ import { useAuth, useClerk } from "@clerk/nextjs";
 import toast from "react-hot-toast";
 import { useLanguage } from "../contexts/Languagecontext";
 import PetCard from "../components/petcard";
+import { RightArrow } from "../components/icons";
 
 type lostFound = {
   role: string;
@@ -26,7 +27,7 @@ export default function BrowsePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "Dog" | "Cat">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "Lost" | "Found">(
-    "all"
+    "all",
   );
   const [lostFoundData, setLostFoundData] = useState<lostFound[]>([]);
   const GetLostFound = async () => {
@@ -244,7 +245,7 @@ export default function BrowsePage() {
               setTypeFilter("all");
               setStatusFilter("all");
             }}
-            className={`px-4 py-2 rounded-full font-medium transition-all ${
+            className={`px-4 py-2 rounded-full font-medium transition-all cursor-pointer ${
               typeFilter === "all" && statusFilter === "all"
                 ? "bg-primary text-white"
                 : "bg-card-bg border border-card-border hover:border-primary"
@@ -257,7 +258,7 @@ export default function BrowsePage() {
               setTypeFilter("Dog");
               setStatusFilter("all");
             }}
-            className={`px-4 py-2 rounded-full font-medium transition-all ${
+            className={`px-4 py-2 rounded-full font-medium transition-all cursor-pointer ${
               typeFilter === "Dog" && statusFilter === "all"
                 ? "bg-primary text-white"
                 : "bg-card-bg border border-card-border hover:border-primary"
@@ -270,7 +271,7 @@ export default function BrowsePage() {
               setTypeFilter("Cat");
               setStatusFilter("all");
             }}
-            className={`px-4 py-2 rounded-full font-medium transition-all ${
+            className={`px-4 py-2 rounded-full font-medium transition-all cursor-pointer ${
               typeFilter === "Cat" && statusFilter === "all"
                 ? "bg-primary text-white"
                 : "bg-card-bg border border-card-border hover:border-primary"
@@ -283,7 +284,7 @@ export default function BrowsePage() {
               setTypeFilter("all");
               setStatusFilter("Lost");
             }}
-            className={`px-4 py-2 rounded-full font-medium transition-all ${
+            className={`px-4 py-2 rounded-full font-medium transition-all cursor-pointer ${
               statusFilter === "Lost" && typeFilter === "all"
                 ? "bg-lost text-white"
                 : "bg-card-bg border border-card-border hover:border-lost"
@@ -296,7 +297,7 @@ export default function BrowsePage() {
               setTypeFilter("all");
               setStatusFilter("Found");
             }}
-            className={`px-4 py-2 rounded-full font-medium transition-all ${
+            className={`px-4 py-2 rounded-full font-medium transition-all cursor-pointer ${
               statusFilter === "Found" && typeFilter === "all"
                 ? "bg-found text-white"
                 : "bg-card-bg border border-card-border hover:border-found"
@@ -355,7 +356,6 @@ export default function BrowsePage() {
           </div>
         )}
 
-        {/* CTA */}
         <div className="mt-16 text-center bg-card-bg rounded-2xl border border-card-border p-8">
           <h2 className="text-2xl font-bold mb-3">{t.notFoundTitle}</h2>
           <p className="text-muted mb-6">{t.notFoundDescription}</p>
@@ -364,19 +364,7 @@ export default function BrowsePage() {
             className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all"
           >
             {t.submitReport}
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              />
-            </svg>
+            <RightArrow />
           </Link>
         </div>
       </div>

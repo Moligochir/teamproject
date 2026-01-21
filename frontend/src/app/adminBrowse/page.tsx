@@ -1,172 +1,113 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const allPets = [
-  {
-    id: 1,
-    name: "Макс",
-    type: "dog",
-    breed: "Алтан ретривер",
-    status: "lost",
-    location: "Төв цэцэрлэгт хүрээлэн",
-    date: "2026.01.03",
-    image:
-      "https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=400&fit=crop",
-    description: "Найрсаг алтан ретривер, цэнхэр хүзүүвчтэй",
-  },
-  {
-    id: 2,
-    name: "Луна",
-    type: "cat",
-    breed: "Сиам",
-    status: "found",
-    location: "Царс гудамж",
-    date: "2026.01.04",
-    image:
-      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=400&fit=crop",
-    description: "Үзэсгэлэнтэй сиам муур, тайван найрсаг",
-  },
-  {
-    id: 3,
-    name: "Бадди",
-    type: "dog",
-    breed: "Лабрадор",
-    status: "lost",
-    location: "Голын эрэг",
-    date: "2026.01.02",
-    image:
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop",
-    description: "Хар лабрадор, цээжин дээр цагаан толботой",
-  },
-  {
-    id: 4,
-    name: "Мишка",
-    type: "cat",
-    breed: "Табби",
-    status: "found",
-    location: "Нарлаг гудамж",
-    date: "2026.01.05",
-    image:
-      "https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=400&h=400&fit=crop",
-    description: "Улбар шар табби муур, маш тоглоомч",
-  },
-  {
-    id: 5,
-    name: "Роки",
-    type: "dog",
-    breed: "Герман хоньч",
-    status: "lost",
-    location: "Хотын төв",
-    date: "2026.01.01",
-    image:
-      "https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?w=400&h=400&fit=crop",
-    description: "Том герман хоньч, Роки гэж дуудахад хариулдаг",
-  },
-  {
-    id: 6,
-    name: "Мими",
-    type: "cat",
-    breed: "Перс",
-    status: "found",
-    location: "Нарсны гудамж",
-    date: "2026.01.04",
-    image:
-      "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=400&h=400&fit=crop",
-    description: "Цагаан перс муур, хөх нүдтэй",
-  },
-  {
-    id: 7,
-    name: "Чарли",
-    type: "dog",
-    breed: "Бигль",
-    status: "lost",
-    location: "Хойд дүүрэг",
-    date: "2025.12.30",
-    image:
-      "https://images.unsplash.com/photo-1505628346881-b72b27e84530?w=400&h=400&fit=crop",
-    description: "Жижиг бигль, хүрэн цагаан толботой",
-  },
-  {
-    id: 8,
-    name: "Сүүдэр",
-    type: "cat",
-    breed: "Хар богино үст",
-    status: "lost",
-    location: "Баруун хэсэг",
-    date: "2026.01.02",
-    image:
-      "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=400&h=400&fit=crop",
-    description: "Бүхэлдээ хар муур, ногоон нүдтэй",
-  },
-  {
-    id: 9,
-    name: "Цэцэг",
-    type: "dog",
-    breed: "Пүүдл",
-    status: "found",
-    location: "Төв талбай",
-    date: "2026.01.05",
-    image:
-      "https://images.unsplash.com/photo-1516371535707-512a1e83bb9a?w=400&h=400&fit=crop",
-    description: "Цагаан пүүдл, маш найрсаг",
-  },
-  {
-    id: 10,
-    name: "Занга",
-    type: "cat",
-    breed: "Мэйн кун",
-    status: "lost",
-    location: "Далайн эрэг",
-    date: "2025.12.28",
-    image:
-      "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=400&h=400&fit=crop",
-    description: "Том ноосон улбар шар мэйн кун",
-  },
-  {
-    id: 11,
-    name: "Купер",
-    type: "dog",
-    breed: "Хаски",
-    status: "found",
-    location: "Уулын зам",
-    date: "2026.01.03",
-    image:
-      "https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=400&h=400&fit=crop",
-    description: "Хөх нүдтэй хаски, маш эрч хүчтэй",
-  },
-  {
-    id: 12,
-    name: "Клео",
-    type: "cat",
-    breed: "Рэгдолл",
-    status: "found",
-    location: "Нарлаг цэцэрлэг",
-    date: "2026.01.04",
-    image:
-      "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop",
-    description: "Ноосон рэгдолл муур, хөх нүдтэй",
-  },
-];
+type lostFound = {
+  role: string;
+  name: string;
+  gender: string;
+  location: string;
+  description: string;
+  Date: Date;
+  lat: number;
+  lng: number;
+  petType: string;
+  image: string;
+  breed: string;
+  _id: string;
+  phonenumber: number;
+  createdAt?: string;
+};
 
 export default function AdminPetsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "dog" | "cat">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "lost" | "found">(
-    "all"
+    "all",
   );
-  const [editModal, SetEditModal] = useState(false);
+  const [allPets, setAllPets] = useState<lostFound[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [selectedPet, setSelectedPet] = useState<lostFound | null>(null);
 
+  // Fetch pets from backend
+  const GetAllPets = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/lostFound`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+      const data = await res.json();
+      console.log("Fetched pets:", data);
+      setAllPets(data);
+    } catch (err) {
+      console.error("Error fetching pets:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    GetAllPets();
+  }, []);
+
+  // Filter pets
   const filteredPets = allPets.filter((pet) => {
     const matchesSearch =
       pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pet.breed.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pet.location.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = typeFilter === "all" || pet.type === typeFilter;
-    const matchesStatus = statusFilter === "all" || pet.status === statusFilter;
+      pet.breed?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pet.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pet.petType.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesType =
+      typeFilter === "all" ||
+      (typeFilter === "dog" &&
+        (pet.petType === "Dog" || pet.petType === "Нохой")) ||
+      (typeFilter === "cat" &&
+        (pet.petType === "Cat" || pet.petType === "Муур"));
+
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "lost" &&
+        (pet.role === "Төөрсөн" || pet.role.toLowerCase() === "lost")) ||
+      (statusFilter === "found" &&
+        (pet.role === "Олдсон" || pet.role.toLowerCase() === "found"));
+
     return matchesSearch && matchesType && matchesStatus;
   });
+
+  // Delete pet
+  const handleDeletePet = async (petId: string) => {
+    try {
+      const res = await fetch(`http://localhost:8000/lostFound/${petId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (res.ok) {
+        setAllPets(allPets.filter((pet) => pet._id !== petId));
+        setDeleteModal(false);
+        setSelectedPet(null);
+        alert("Зар амжилттай устгагдлаа!");
+      }
+    } catch (err) {
+      console.error("Error deleting pet:", err);
+      alert("Зар устгахад алдаа гарлаа");
+    }
+  };
+
+  // Format date
+  const formatDate = (date: Date | string) => {
+    if (!date) return "Огноо байхгүй";
+    const d = new Date(date);
+    return d.toLocaleDateString("mn-MN");
+  };
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -222,99 +163,315 @@ export default function AdminPetsPage() {
             />
             <Link
               href="/report"
-              className="px-4 py-2 bg-primary text-white rounded-xl"
+              className="px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-dark transition"
             >
               Шинэ зарлал нэмэх
             </Link>
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-3 mb-4">
-          {["all", "dog", "cat"].map((type) => (
-            <button
-              key={type}
-              onClick={() => setTypeFilter(type as any)}
-              className={`px-4 py-2 rounded-full border ${
-                typeFilter === type
-                  ? "bg-primary text-white border-primary"
-                  : "bg-card-bg border-card-border"
-              }`}
-            >
-              {type === "all"
-                ? "Бүгд"
-                : type === "dog"
-                  ? "🐕 Нохой"
-                  : "🐱 Муур"}
-            </button>
-          ))}
-          {["all", "lost", "found"].map((status) => (
-            <button
-              key={status}
-              onClick={() => setStatusFilter(status as any)}
-              className={`px-4 py-2 rounded-full border ${
-                statusFilter === status
-                  ? "bg-primary text-white border-primary"
-                  : "bg-card-bg border-card-border"
-              }`}
-            >
-              {status === "all"
-                ? "Бүгд"
-                : status === "lost"
-                  ? "🔍 Төөрсөн"
-                  : "✓ Олдсон"}
-            </button>
-          ))}
+        <div className="flex flex-wrap gap-3 mb-6">
+          <div className="flex gap-2">
+            {["all", "dog", "cat"].map((type) => (
+              <button
+                key={type}
+                onClick={() => setTypeFilter(type as any)}
+                className={`px-4 py-2 rounded-full border transition cursor-pointer ${
+                  typeFilter === type
+                    ? "bg-primary text-white border-primary"
+                    : "bg-card-bg border-card-border hover:border-primary/50"
+                }`}
+              >
+                {type === "all"
+                  ? "Бүгд"
+                  : type === "dog"
+                    ? "🐕 Нохой"
+                    : "🐱 Муур"}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            {["all", "lost", "found"].map((status) => (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status as any)}
+                className={`px-4 py-2 rounded-full border transition cursor-pointer ${
+                  statusFilter === status
+                    ? "bg-primary text-white border-primary"
+                    : "bg-card-bg border-card-border hover:border-primary/50"
+                }`}
+              >
+                {status === "all"
+                  ? "Бүгд"
+                  : status === "lost"
+                    ? "🔍 Төөрсөн"
+                    : "✓ Олдсон"}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Table */}
-        <div className="bg-card-bg border border-card-border rounded-2xl overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-card-border/40">
-              <tr>
-                <th className="px-4 py-3">Зураг</th>
-                <th className="px-4 py-3">Нэр</th>
-                <th className="px-4 py-3">Төрөл</th>
-                <th className="px-4 py-3">Төлөв</th>
-                <th className="px-4 py-3">Байршил</th>
-                <th className="px-4 py-3">Огноо</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPets.map((pet) => (
-                <tr key={pet.id} className="border-t border-card-border">
-                  <td className="px-4 py-3">
-                    <div className="w-12 h-12 relative rounded-lg overflow-hidden">
-                      <img
-                        src={pet.image}
-                        alt={pet.name}
-                        className="object-cover"
-                      />
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 font-semibold">{pet.name}</td>
-                  <td className="px-4 py-3">
-                    {pet.type === "dog" ? "Нохой" : "Муур"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-sm font-semibold ${
-                        pet.status === "lost"
-                          ? "bg-red-500/10 text-red-500"
-                          : "bg-green-500/10 text-green-500"
-                      }`}
-                    >
-                      {pet.status === "lost" ? "Төөрсөн" : "Олдсон"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">{pet.location}</td>
-                  <td className="px-4 py-3">{pet.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mb-4 text-muted">
+          <span className="text-primary">{filteredPets.length}</span> зарлал
+          олдлоо
         </div>
+
+        {loading ? (
+          <div className="space-y-6">
+            <div className="bg-linear-to-r from-card-bg via-card-border/20 to-card-bg rounded-2xl p-8 text-center">
+              <div className="relative w-24 h-24 mx-auto mb-6">
+                <div className="absolute inset-0 flex items-center justify-center animate-pulse">
+                  <svg
+                    className="w-20 h-20 text-primary"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-7 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm14 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM5.5 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm13 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                  </svg>
+                </div>
+
+                <div className="absolute inset-0">
+                  <div className="w-full h-full border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                </div>
+              </div>
+
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3 animate-pulse">
+                Зарлалуудыг уншиж байна...
+              </h3>
+
+              <div className="flex justify-center gap-1.5 mb-6">
+                <span
+                  className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                ></span>
+                <span
+                  className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce"
+                  style={{ animationDelay: "150ms" }}
+                ></span>
+                <span
+                  className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce"
+                  style={{ animationDelay: "300ms" }}
+                ></span>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="max-w-xs mx-auto">
+                <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-linear-to-r from-primary to-secondary rounded-full animate-[loading_1.5s_ease-in-out_infinite]"
+                    style={{
+                      animation: "loading 1.5s ease-in-out infinite",
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-card-bg border border-card-border rounded-2xl overflow-hidden">
+              <div className="bg-card-border/40 px-4 py-3 border-b border-card-border">
+                <div className="grid grid-cols-8 gap-4">
+                  {[
+                    "Зураг",
+                    "Нэр",
+                    "Төрөл",
+                    "Үүлдэр",
+                    "Төлөв",
+                    "Байршил",
+                    "Огноо",
+                    "Үйлдэл",
+                  ].map((label, i) => (
+                    <div
+                      key={i}
+                      className="h-4 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"
+                    ></div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="divide-y divide-card-border">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div
+                    key={i}
+                    className="px-4 py-4 animate-pulse"
+                    style={{ animationDelay: `${i * 100}ms` }}
+                  >
+                    <div className="grid grid-cols-8 gap-4 items-center">
+                      <div className="w-12 h-12 bg-linear-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-lg"></div>
+
+                      <div className="h-4 bg-linear-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded w-3/4"></div>
+
+                      <div className="h-4 bg-linear-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded w-2/3"></div>
+
+                      <div className="h-4 bg-linear-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded w-1/2"></div>
+
+                      <div className="h-7 bg-linear-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full w-20"></div>
+
+                      <div className="h-4 bg-linear-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded w-full"></div>
+
+                      <div className="h-4 bg-linear-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded w-2/3"></div>
+
+                      <div className="flex gap-2">
+                        <div className="h-8 bg-linear-to-r from-blue-400/30 to-blue-500/50 rounded-lg w-14"></div>
+                        <div className="h-8 bg-linear-to-r from-red-400/30 to-red-500/50 rounded-lg w-16"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : filteredPets.length > 0 ? (
+          <div className="bg-card-bg border border-card-border rounded-2xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-card-border/40">
+                  <tr>
+                    <th className="px-4 py-3">Зураг</th>
+                    <th className="px-4 py-3">Нэр</th>
+                    <th className="px-4 py-3">Төрөл</th>
+                    <th className="px-4 py-3">Үүлдэр</th>
+                    <th className="px-4 py-3">Төлөв</th>
+                    <th className="px-4 py-3">Байршил</th>
+                    <th className="px-4 py-3">Огноо</th>
+                    <th className="px-4 py-3">Үйлдэл</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPets.map((pet) => (
+                    <tr
+                      key={pet._id}
+                      className="border-t border-card-border cursor-pointer hover:bg-card-border/20 transition"
+                    >
+                      <td className="px-4 py-3">
+                        <div className="w-12 h-12 relative rounded-lg overflow-hidden">
+                          <img
+                            src={pet.image}
+                            alt={pet.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 font-semibold">{pet.name}</td>
+                      <td className="px-4 py-3">{pet.petType}</td>
+                      <td className="px-4 py-3 text-muted">
+                        {pet.breed || "-"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                            pet.role === "Төөрсөн" ||
+                            pet.role.toLowerCase() === "lost"
+                              ? "status-lost"
+                              : "status-found"
+                          }`}
+                        >
+                          {pet.role}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-muted">
+                        {pet.location.slice(0, 80)}...
+                      </td>
+                      <td className="px-4 py-3 text-muted">
+                        {formatDate(pet.createdAt || pet.Date)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2">
+                          <Link
+                            href={`/pet/${pet._id}`}
+                            className="px-3 py-1 rounded-lg bg-primary hover:bg-primary-dark text-white text-sm transition"
+                          >
+                            Үзэх
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setSelectedPet(pet);
+                              setDeleteModal(true);
+                            }}
+                            className="px-3 py-1 rounded-lg bg-red-500 text-white text-sm hover:bg-red-600 transition cursor-pointer"
+                          >
+                            Устгах
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-card-bg border border-card-border rounded-2xl p-12 text-center">
+            <div className="text-6xl mb-4">🔍</div>
+            <h3 className="text-xl font-bold mb-2">Зарлал олдсонгүй</h3>
+            <p className="text-muted">
+              Сонгосон шүүлтүүрт тохирох зарлал байхгүй байна
+            </p>
+          </div>
+        )}
       </main>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal && selectedPet && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-card-bg rounded-2xl max-w-md w-full p-6">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-8 h-8 text-red-600 dark:text-red-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold mb-2">
+                Та энэ зарыг устгахдаа итгэлтэй байна уу?
+              </h3>
+              <p className="text-muted text-sm">
+                Энэ үйлдлийг буцаах боломжгүй
+              </p>
+            </div>
+
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 mb-6">
+              <div className="flex items-center gap-3">
+                <img
+                  src={selectedPet.image}
+                  alt={selectedPet.name}
+                  className="w-16 h-16 rounded-lg object-cover"
+                />
+                <div className="flex-1">
+                  <p className="font-semibold">{selectedPet.name}</p>
+                  <p className="text-sm text-muted">{selectedPet.petType}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setDeleteModal(false);
+                  setSelectedPet(null);
+                }}
+                className="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition cursor-pointer"
+              >
+                Цуцлах
+              </button>
+              <button
+                onClick={() => handleDeletePet(selectedPet._id)}
+                className="flex-1 px-6 py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition cursor-pointer"
+              >
+                Тийм, устга
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

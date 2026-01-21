@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "../contexts/Languagecontext";
+import { LocccIcon } from "./icons";
 
 // export type Pet = {
 //   id: number;
@@ -66,51 +67,35 @@ export default function PetCard({
       href={`/pet/${_id}`}
       className="pet-card block bg-card-bg rounded-2xl overflow-hidden border border-card-border"
     >
-      <div className="relative h-48 overflow-hidden">
+      <div className="relative w-full aspect-square overflow-hidden bg-gray-100 rounded-t-xl">
         <img
           src={image || "/default-pet.jpg"}
           alt={name}
-          className="object-fit transition-transform duration-300 hover:scale-110"
+          className="w-full h-full object-cover"
         />
-        <div
-          className={`absolute top-3 left-3 px-3 py-1 rounded-full text-sm font-semibold ${
-            role === "Lost" ? "status-lost" : "status-found"
-          }`}
-        >
-          {role === "Lost" ? t.lost : t.found}
-        </div>
-        <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/50 text-white text-sm font-medium backdrop-blur-sm">
-          {petType === "Dog" ? t.dog : t.cat}
+
+        <div className="absolute inset-0 bg-linear-to-t from-black/30 via-transparent to-black/10" />
+
+        <div className="absolute top-4 left-3">
+          <span
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold shadow-xl backdrop-blur-md ${
+              role === "Lost" ? "status-lost" : "status-found"
+            }`}
+          >
+            {role === "Lost" ? " " + t.lost : " " + t.found}
+          </span>
         </div>
       </div>
 
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-bold text-lg">{name}</h3>
-          <span className="text-sm text-muted">hho</span>
+          <p className="text-muted text-sm mb-2">{breed}</p>
         </div>
-        <p className="text-muted text-sm mb-2">{breed}</p>
-        <div className="flex items-center gap-1 text-sm text-muted">
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-          </svg>
-          {location}
+
+        <div className="flex items-center gap-2 text-sm text-muted">
+          <LocccIcon />
+          {location.slice(0, 30)}...
         </div>
       </div>
     </Link>

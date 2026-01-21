@@ -61,7 +61,7 @@ export default function ReportPage() {
       petDetailsTitle: "Амьтны мэдээлэл",
       petName: "Амьтны нэр",
       ifKnown: "(хэрэв мэдвэл)",
-      petNamePlaceholder: "Банхарь Шаариг",
+      petNamePlaceholder: "Банхар, Шаариг",
       breed: "Үүлдэр",
       breedPlaceholder: "Жишээ нь: Алтан ретривер, Сиам",
       gender: "Хүйс",
