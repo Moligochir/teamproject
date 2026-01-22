@@ -396,7 +396,7 @@ export const SearchIcon2 = () => {
 export const FoundIcon = () => {
   return (
     <svg
-      fill="#e47a3d"
+      fill="currentcolor"
       height="68px"
       width="68px"
       version="1.1"
@@ -405,7 +405,7 @@ export const FoundIcon = () => {
       xmlnsXlink="http://www.w3.org/1999/xlink"
       viewBox="-3.2 -3.2 38.40 38.40"
       xmlSpace="preserve"
-      stroke="#e47a3d"
+      stroke="currentcolor"
     >
       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
       <g
@@ -711,5 +711,43 @@ export const LocccIcon = () => {
         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
       />
     </svg>
+  );
+};
+
+export const TriggerIcon = () => {
+  return (
+    <svg
+      className="w-5 h-5"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M4 6h16M4 12h16M4 18h16"
+      />
+    </svg>
+  );
+};
+
+export const NotificationIcon2 = () => {
+  return (
+    <div style={{ position: "relative", display: "inline-block" }}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-6 h-6 text-[#e47a3d]"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+      </svg>
+    </div>
   );
 };
