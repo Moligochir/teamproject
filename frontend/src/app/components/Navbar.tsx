@@ -16,6 +16,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { toast, Toaster } from "react-hot-toast";
 import { useLanguage } from "../contexts/Languagecontext";
+import { NotificationIcon, NotificationIcon2, TriggerIcon } from "./icons";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -144,19 +145,7 @@ export function Navbar() {
             <div className="relative group">
               {/* Trigger button */}
               <button className="w-10 h-10 rounded-full cursor-pointer bg-card-bg border border-card-border flex items-center justify-center">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
+                <TriggerIcon />
               </button>
 
               {/* Dropdown */}
@@ -184,6 +173,10 @@ export function Navbar() {
                 </div>
               </div>
             </div>
+
+            <button className="w-10 h-10 rounded-full cursor-pointer bg-card-bg border border-card-border flex items-center justify-center">
+              <NotificationIcon2 />
+            </button>
 
             {/* Mobile menu button */}
             <button
