@@ -7,3 +7,5 @@ export const LostFound = express.Router();
 LostFound.get("/findid/:id", FindIdLostFound);
 LostFound.post("/", createLostFound);
 LostFound.get("/", getLostFound);
+// LostFound.put("/:id")
+// LostFound.delete("/:id")
