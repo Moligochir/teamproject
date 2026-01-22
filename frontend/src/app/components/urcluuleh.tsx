@@ -22,7 +22,6 @@ export function UrcluulehPage() {
     contactEmail: user?.primaryEmailAddress?.emailAddress || "",
     contactPhone: "",
   });
-  const [submitted, setSubmitted] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -109,7 +108,7 @@ export function UrcluulehPage() {
   };
 
   const t = translations[language];
-
+  const [data, setData] = useState(null);
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -119,12 +118,6 @@ export function UrcluulehPage() {
 
   const handleEdit = () => {
     inputRef.current?.click();
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    setSubmitted(true);
   };
 
   const handleDelete = () => {
@@ -149,6 +142,9 @@ export function UrcluulehPage() {
           userId: user?.id,
         }),
       });
+      const data = await res.json();
+      setData(data);
+      console.log("Success:", data);
     } catch (err) {
       console.log(err);
     }
@@ -164,7 +160,9 @@ export function UrcluulehPage() {
       [e.target.name]: e.target.value,
     }));
   };
-
+  if (data) {
+    return <div>Амжилттай илгээгдлээ</div>;
+  }
   return (
     <div className="space-y-6">
       {/* Animal Type */}
