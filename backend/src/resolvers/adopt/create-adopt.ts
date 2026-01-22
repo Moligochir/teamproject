@@ -14,7 +14,7 @@ export const CreateAdopt = async (req: Request, res: Response) => {
       description: newAdopt.description,
       phonenumber: newAdopt.phonenumber,
     });
-    res.status(200).json("success");
+    res.status(200).json({ message: "success", data: dbAdopt });
   } catch (e: unknown) {
     res.status(500).json({ message: (e as Error).message });
     console.log(e);
