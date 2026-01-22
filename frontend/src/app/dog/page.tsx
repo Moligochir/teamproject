@@ -97,7 +97,7 @@ export default function ReportPage() {
 
         {showAdopt && (
           <div className="mt-8">
-            <UrclehPage />
+            <UrclehPage onChange={() => {}} />
           </div>
         )}
       </div>

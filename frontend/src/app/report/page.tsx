@@ -16,11 +16,16 @@ type User = {
   createdAt?: string;
   updatedAt?: string;
 };
-type Match = {
-  postId: string;
-  image: string;
-  dist: number;
+type MatchResponse = {
+  success: boolean;
+  data: {
+    matchId: string;
+    matchScore: number;
+    confidence: "HIGH" | "MEDIUM" | "LOW";
+  }[];
+  dataLength: number;
 };
+
 const UPLOAD_PRESET = "Pawpew";
 const CLOUD_NAME = "dyduodw7q";
 
@@ -320,7 +325,7 @@ export default function ReportPage() {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-
+  const [match, setMatch] = useState<MatchResponse | null>(null);
   const handleEdit = () => {
     inputRef.current?.click();
   };
@@ -436,6 +441,9 @@ export default function ReportPage() {
           userId: FilterUser?._id,
         }),
       });
+      const result = await res.json();
+      console.log("LostFound create hariu:", result.data);
+      setMatch(result.data);
     } catch (err) {
       console.log(err);
     }
