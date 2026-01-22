@@ -450,8 +450,51 @@ export default function ReportPage() {
   };
 
   if (submitted) {
-    return <div>dhdg</div>;
+    return (
+      <div className="min-h-screen py-12 flex items-center justify-center">
+        <div className="max-w-md mx-auto text-center px-4">
+          <div className="w-24 h-24 bg-found/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-scale-in">
+            <svg
+              className="w-12 h-12 text-found"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold mb-4">Мэдээлэл илгээгдлээ!</h1>
+          <p className="text-muted mb-8">
+            Тэжээвэр амьтдыг гэр бүлтэй нь холбоход туслаж байгаад баярлалаа.
+           
+          </p>
+          <div className="flex justify-center gap-4">
+            <Link
+              href="/browse"
+              className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all items-center justify-center flex"
+            >
+              Зарлалууд үзэх
+            </Link>
+         
+
+        <Link
+          href="probability"
+          className="px-8 py-4 bg-card-bg border border-card-border rounded-full font-bold text-lg text-center hover:border-primary transition cursor-pointer"
+        >
+          Магадлалтай тохирол үзэх
+        </Link>
+     
+      </div>
+      </div>
+      </div>
+    );
   }
+
 
   return (
     <div className="min-h-screen py-12">
