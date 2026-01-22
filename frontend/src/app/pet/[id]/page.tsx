@@ -28,6 +28,8 @@ export default function PetDetailPage() {
   const params = useParams();
   const { id } = params;
   const { language } = useLanguage();
+  const [animalData, setAnimalData] = useState<lostFound[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const translations = {
     mn: {
@@ -76,6 +78,9 @@ export default function PetDetailPage() {
       notFoundDescription:
         "Таны хайж буй амьтан байхгүй эсвэл устгагдсан байна.",
       viewAllPets: "Бүх амьтдыг үзэх",
+
+      // Loading
+      loading: "Уншиж байна...",
 
       // Email subject
       emailSubject: "амьтны талаар",
@@ -127,14 +132,15 @@ export default function PetDetailPage() {
         "The pet you're looking for doesn't exist or has been removed.",
       viewAllPets: "View All Pets",
 
+      // Loading
+      loading: "Loading...",
+
       // Email subject
       emailSubject: "about",
     },
   };
 
   const t = translations[language];
-
-  const [animalData, setAnimalData] = useState<lostFound[]>([]);
 
   const GetLostFound = async () => {
     try {
@@ -150,6 +156,8 @@ export default function PetDetailPage() {
       setAnimalData(data);
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -157,6 +165,127 @@ export default function PetDetailPage() {
     GetLostFound();
   }, []);
 
+  // Loading State
+  if (loading) {
+    return (
+      <div className="min-h-screen py-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Loading Animation */}
+          <div className="mb-8 text-center">
+            <div className="relative w-24 h-24 mx-auto mb-6">
+              <div className="absolute inset-0 flex items-center justify-center animate-pulse">
+                <svg
+                  className="w-20 h-20 text-primary"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-7 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm14 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM5.5 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm13 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                </svg>
+              </div>
+              <div className="absolute inset-0">
+                <div className="w-full h-full border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+              </div>
+            </div>
+
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3 animate-pulse">
+              {t.loading}
+            </h3>
+
+            <div className="flex justify-center gap-1.5">
+              <span
+                className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce"
+                style={{ animationDelay: "0ms" }}
+              ></span>
+              <span
+                className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce"
+                style={{ animationDelay: "150ms" }}
+              ></span>
+              <span
+                className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce"
+                style={{ animationDelay: "300ms" }}
+              ></span>
+            </div>
+          </div>
+
+          {/* Skeleton Layout */}
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Image Skeleton */}
+            <div className="space-y-4">
+              <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+            </div>
+
+            {/* Details Skeleton */}
+            <div className="space-y-6">
+              {/* Name & Breed */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-card-bg rounded-xl p-4 border border-card-border animate-pulse">
+                  <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-1/3 mb-2"></div>
+                  <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-2/3"></div>
+                </div>
+                <div className="bg-card-bg rounded-xl p-4 border border-card-border animate-pulse">
+                  <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-1/3 mb-2"></div>
+                  <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-2/3"></div>
+                </div>
+              </div>
+
+              {/* Quick Info Skeleton */}
+              <div className="grid grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-card-bg rounded-xl p-4 border border-card-border animate-pulse"
+                  >
+                    <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-1/2 mb-2"></div>
+                    <div className="h-5 bg-gray-300 dark:bg-gray-700 rounded w-3/4"></div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Location Skeleton */}
+              <div className="bg-card-bg rounded-xl p-4 border border-card-border animate-pulse">
+                <div className="h-5 bg-gray-300 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+                <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-3/4"></div>
+              </div>
+
+              {/* Description Skeleton */}
+              <div className="bg-card-bg rounded-xl p-4 border border-card-border animate-pulse">
+                <div className="h-5 bg-gray-300 dark:bg-gray-700 rounded w-1/3 mb-3"></div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-full"></div>
+                  <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-5/6"></div>
+                  <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-4/6"></div>
+                </div>
+              </div>
+
+              {/* Contact Skeleton */}
+              <div className="bg-card-bg rounded-xl p-6 border border-card-border animate-pulse">
+                <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
+                      <div className="flex-1">
+                        <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+                        <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-2/3"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Buttons Skeleton */}
+              <div className="flex gap-4">
+                <div className="flex-1 h-14 bg-gray-300 dark:bg-gray-700 rounded-full animate-pulse"></div>
+                <div className="flex-1 h-14 bg-gray-300 dark:bg-gray-700 rounded-full animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Not Found State
   if (!id || animalData.length === 0) {
     return (
       <div className="min-h-screen py-12 flex items-center justify-center">
@@ -376,7 +505,6 @@ export default function PetDetailPage() {
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
               <a
                 href={`mailto:${pet?.userId?.email}?subject=${isLost ? t.lost : t.found} ${isDog ? t.dog : t.cat}: ${pet?.name}`}
@@ -394,7 +522,6 @@ export default function PetDetailPage() {
           </div>
         </div>
 
-        {/* Share Section */}
         <div className="mt-12 bg-card-bg rounded-2xl border border-card-border p-6 text-center">
           <h3 className="font-bold text-lg mb-3">{t.helpSpread}</h3>
           <p className="text-muted mb-4">

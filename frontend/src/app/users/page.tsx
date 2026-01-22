@@ -99,7 +99,6 @@ export default function AdminUsersPage() {
         <div className="p-4 text-sm text-muted">© 2026 Pet Finder</div>
       </aside>
 
-      {/* Main content */}
       <main className="flex-1 p-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold">Хэрэглэгчид удирдах</h1>
@@ -110,7 +109,6 @@ export default function AdminUsersPage() {
           </div>
         </div>
 
-        {/* Status filter - Optional if backend has status */}
         <div className="flex gap-3 mb-6">
           {["all", "active", "inactive"].map((status) => (
             <button
