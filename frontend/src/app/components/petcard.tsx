@@ -33,15 +33,10 @@ type lostFound = {
 export default function PetCard({
   role,
   name,
-  gender,
   location,
-  description,
-  Date,
-  petType,
   image,
   breed,
   _id,
-  phonenumber,
 }: lostFound) {
   const { language } = useLanguage();
 

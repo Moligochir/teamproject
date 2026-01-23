@@ -12,12 +12,8 @@ import {
   ContactIcon,
   DogIcon,
   FoundIcon,
-  FoundIcon2,
-  ListingIcon,
   NotificationIcon,
-  ReUnited,
   SearchIcon,
-  SearchIcon2,
   SearchIconn,
 } from "./components/icons";
 import { useEffect, useState } from "react";
