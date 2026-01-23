@@ -82,6 +82,7 @@ export default function BrowsePage() {
       submitReport: "Мэдээлэл оруулах",
       loginRequired: "Та нэвтрэх шаардлагатай",
       fetchError: "Дата татахад алдаа гарлаа",
+      allFilter: "Бүх төрөл",
     },
     en: {
       title: "Browse All Pets",
@@ -109,6 +110,7 @@ export default function BrowsePage() {
       submitReport: "Submit Report",
       loginRequired: "You need to sign in",
       fetchError: "Error fetching data",
+      allFilter: "All filters",
     },
   };
 
@@ -209,9 +211,9 @@ export default function BrowsePage() {
                 }
                 className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none cursor-pointer"
               >
-                <option value="all">Бүх төрөл</option>
-                <option value="Dog">🐕 Нохой</option>
-                <option value="Cat">🐱 Муур</option>
+                <option value="all">{t.allFilter}</option>
+                <option value="Dog">{t.dog}</option>
+                <option value="Cat">{t.cat}</option>
               </select>
             </div>
 
@@ -227,9 +229,6 @@ export default function BrowsePage() {
                 }
                 className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none cursor-pointer"
               >
-                <option value="all">Бүх төлөв</option>
-                <option value="Lost">🔍 Төөрсөн</option>
-                <option value="Found">☑️ Олдсон</option>
                 <option value="all">{t.allStatuses}</option>
                 <option value="Lost">{t.lost}</option>
                 <option value="Found">{t.found}</option>

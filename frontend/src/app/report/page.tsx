@@ -6,6 +6,7 @@ import { DeleteIcon, EditIcon } from "../components/icons";
 import { useUser } from "@clerk/nextjs";
 import * as React from "react";
 import { useLanguage } from "../contexts/Languagecontext";
+import { useNotification } from "../contexts/Notificationcontext";
 
 type User = {
   _id: string;
@@ -33,6 +34,7 @@ export default function ReportPage() {
   const [usersdata, setUsersData] = useState<User[]>([]);
   const { user } = useUser();
   const { language } = useLanguage();
+  const { addNotification } = useNotification();
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   // Translations
@@ -444,6 +446,25 @@ export default function ReportPage() {
       const result = await res.json();
       console.log("LostFound create hariu:", result.data);
       setMatch(result.data);
+
+      // Send notification for each match found
+      if (result.data && Array.isArray(result.data)) {
+        result.data.forEach((matchItem: any) => {
+          addNotification({
+            title:
+              language === "mn" ? "Шинэ тохирол олдлоо!" : "New Match Found!",
+            message:
+              language === "mn"
+                ? `${formData.breed} үүлдрийн ${formData.name || "амьтан"}-тай тохирол олдлоо`
+                : `Found a match with ${formData.breed} ${formData.name || "pet"}`,
+            matchData: {
+              matchId: matchItem.matchId,
+              matchScore: matchItem.matchScore,
+              confidence: matchItem.confidence,
+            },
+          });
+        });
+      }
     } catch (err) {
       console.log(err);
     }
@@ -468,33 +489,27 @@ export default function ReportPage() {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold mb-4">Мэдээлэл илгээгдлээ!</h1>
-          <p className="text-muted mb-8">
-            Тэжээвэр амьтдыг гэр бүлтэй нь холбоход туслаж байгаад баярлалаа.
-           
-          </p>
+          <h1 className="text-3xl font-bold mb-4">{t.successTitle}</h1>
+          <p className="text-muted mb-8">{t.successDescription}</p>
           <div className="flex justify-center gap-4">
             <Link
               href="/browse"
               className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all items-center justify-center flex"
             >
-              Зарлалууд үзэх
+              {t.viewListings}
             </Link>
-         
 
-        <Link
-          href="probability"
-          className="px-8 py-4 bg-card-bg border border-card-border rounded-full font-bold text-lg text-center hover:border-primary transition cursor-pointer"
-        >
-          Магадлалтай тохирол үзэх
-        </Link>
-     
-      </div>
-      </div>
+            <Link
+              href="probability"
+              className="px-8 py-4 bg-card-bg border border-card-border rounded-full font-bold text-lg text-center hover:border-primary transition cursor-pointer"
+            >
+              {t.viewProbability}
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
-
 
   return (
     <div className="min-h-screen py-12">

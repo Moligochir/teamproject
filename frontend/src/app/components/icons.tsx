@@ -737,7 +737,7 @@ export const NotificationIcon2 = () => {
     <div style={{ position: "relative", display: "inline-block" }}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="w-6 h-6 text-[#e47a3d]"
+        className="w-6 h-6 "
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"

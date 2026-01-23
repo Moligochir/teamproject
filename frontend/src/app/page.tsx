@@ -418,17 +418,17 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {animalData.slice(0, 6).map((pet) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-6">
+            {animalData.slice(0, 8).map((pet) => (
               <PetCard
                 key={pet._id}
-                petType={pet.petType}
                 role={pet.role}
                 name={pet.name}
                 gender={pet.gender}
                 location={pet.location}
                 description={pet.description}
                 Date={pet.Date}
+                petType={pet.petType}
                 image={pet.image}
                 breed={pet.breed}
                 _id={pet._id}
