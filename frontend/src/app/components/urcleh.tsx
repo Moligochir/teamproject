@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLanguage } from "../contexts/Languagecontext";
+import PetCard from "./petcard";
+import toast from "react-hot-toast";
 
 type PetFiltersProps = {
   onChange: (filters: {
@@ -11,6 +13,19 @@ type PetFiltersProps = {
   }) => void;
 };
 
+type adopt = {
+  role: string;
+  name: string;
+  gender: string;
+  location: string;
+  description: string;
+  Date: Date;
+  petType: string;
+  image: string;
+  breed: string;
+  _id: string;
+  phonenumber: number;
+};
 export function UrclehPage({ onChange }: PetFiltersProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "dog" | "cat">("all");
@@ -18,6 +33,45 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
     "all",
   );
   const { language } = useLanguage();
+
+  const [adoptData, setAdoptData] = useState<adopt[]>([]);
+  const [animalData, setAnimalData] = useState<adopt[]>([]);
+  const GetAdopts = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/adopts`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+      const data = await res.json();
+      console.log("User data:", data);
+      setAdoptData(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    GetAdopts();
+  }, []);
+
+  useEffect(() => {
+    const GetAdopts = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/adopts");
+        const data = await res.json();
+        console.log("User data:", data);
+        setAnimalData(data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    GetAdopts();
+  }, []);
+
+  const filteredPets = animalData;
 
   const translations = {
     mn: {
@@ -98,6 +152,24 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
             </select>
           </div>
         </div>
+      </div>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mt-40">
+        {filteredPets.map((pet) => (
+          <PetCard
+            key={pet._id}
+            role={pet.role}
+            name={pet.name}
+            gender={pet.gender}
+            location={pet.location}
+            description={pet.description}
+            Date={pet.Date}
+            petType={pet.petType}
+            image={pet.image}
+            breed={pet.breed}
+            _id={pet._id}
+            phonenumber={pet.phonenumber}
+          />
+        ))}
       </div>
     </div>
   );
