@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLanguage } from "../contexts/Languagecontext";
+import { Logo1 } from "./icons";
 
 export default function Footer() {
   const { language } = useLanguage();
@@ -20,6 +21,7 @@ export default function Footer() {
       lost: "Төөрсөн",
       found: "Олдсон",
       copyright: "© 2026 PawFinder. Бүх тэжээвэр амьтдад ❤️ зориулав.",
+      map: "Газарын зураг",
     },
     en: {
       description:
@@ -34,6 +36,7 @@ export default function Footer() {
       lost: "Lost",
       found: "Found",
       copyright: "© 2026 PawFinder. Made with ❤️ for all pets.",
+      map: "Map",
     },
   };
 
@@ -45,14 +48,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 18c-1.5 0-2.7 1.2-2.7 2.7s1.2 2.7 2.7 2.7 2.7-1.2 2.7-2.7-1.2-2.7-2.7-2.7zm-4.3-2.7c-.9 0-1.6.7-1.6 1.6s.7 1.6 1.6 1.6 1.6-.7 1.6-1.6-.7-1.6-1.6-1.6zm8.6 0c-.9 0-1.6.7-1.6 1.6s.7 1.6 1.6 1.6 1.6-.7 1.6-1.6-.7-1.6-1.6-1.6zm-6.5-2.7c-.9 0-1.6.7-1.6 1.6s.7 1.6 1.6 1.6 1.6-.7 1.6-1.6-.7-1.6-1.6-1.6zm4.3 0c-.9 0-1.6.7-1.6 1.6s.7 1.6 1.6 1.6 1.6-.7 1.6-1.6-.7-1.6-1.6-1.6z" />
-                </svg>
+              <div className="w-11 h-11 rounded-xl bg-primary flex items-center justify-center">
+                <Logo1 />
               </div>
               <span className="text-xl font-bold">PawFinder</span>
             </div>
@@ -61,7 +58,7 @@ export default function Footer() {
 
           <div>
             <h3 className="font-semibold mb-4">{t.quickLinks}</h3>
-            <ul className="space-y-2 text-muted">
+            <ul className="space-y-4 text-muted">
               <li>
                 <Link
                   href="/browse"
@@ -84,6 +81,14 @@ export default function Footer() {
                   className="hover:text-[#e47a3d] transition-all duration-300"
                 >
                   {t.about}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/map"
+                  className={`hover:text-[#e47a3d] transition-all duration-300`}
+                >
+                  {t.map}
                 </Link>
               </li>
             </ul>
