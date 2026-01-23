@@ -754,166 +754,47 @@ export const NotificationIcon2 = () => {
 
 export const Logo1 = () => {
   return (
-    <svg width="240" height="240" viewBox="0 0 240 240" fill="none">
-      {/* Animated background */}
-      <defs>
-        <linearGradient id="q1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#0A0E27" />
-          <stop offset="100%" stopColor="#1A1A3E" />
-        </linearGradient>
-        <filter id="glow1">
-          <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-          <feMerge>
-            <feMergeNode in="coloredBlur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-
-      <rect width="240" height="240" rx="32" fill="url(#q1)" />
-
-      {/* Central paw with quantum fragments */}
-      <g filter="url(#glow1)">
-        {/* Main pad - fragmented */}
-        <circle
-          cx="120"
-          cy="140"
-          r="18"
-          fill="none"
-          stroke="#00FF88"
-          strokeWidth="2"
-        />
-        <polygon
-          points="120,140 135,140 130,155 125,155"
-          fill="#00FF88"
-          opacity="0.8"
-        />
-        <polygon
-          points="120,140 110,145 115,160 120,155"
-          fill="#FF00FF"
-          opacity="0.7"
-        />
-
-        {/* Top left toe - shattered */}
-        <g transform="translate(85, 85)">
-          <circle
-            cx="0"
-            cy="0"
-            r="12"
-            fill="none"
-            stroke="#00D4FF"
-            strokeWidth="2"
-          />
-          <polygon points="0,0 10,-8 5,-15" fill="#00D4FF" opacity="0.8" />
-          <polygon points="0,0 -8,8 -15,5" fill="#FF00FF" opacity="0.6" />
-          <line
-            x1="0"
-            y1="0"
-            x2="15"
-            y2="-15"
-            stroke="#00FF88"
-            strokeWidth="1"
-            opacity="0.5"
-          />
-        </g>
-
-        {/* Top middle toe */}
-        <g transform="translate(120, 70)">
-          <circle
-            cx="0"
-            cy="0"
-            r="12"
-            fill="none"
-            stroke="#FF00FF"
-            strokeWidth="2"
-          />
-          <polygon points="0,-12 8,-5 0,0" fill="#FF00FF" opacity="0.8" />
-          <polygon points="0,-12 -8,-5 0,0" fill="#00D4FF" opacity="0.7" />
-        </g>
-
-        {/* Top right toe */}
-        <g transform="translate(155, 85)">
-          <circle
-            cx="0"
-            cy="0"
-            r="12"
-            fill="none"
-            stroke="#00FF88"
-            strokeWidth="2"
-          />
-          <polygon points="0,0 8,-8 15,-5" fill="#00FF88" opacity="0.8" />
-          <polygon points="0,0 8,8 15,5" fill="#FF00FF" opacity="0.6" />
-          <line
-            x1="0"
-            y1="0"
-            x2="-15"
-            y2="-15"
-            stroke="#00D4FF"
-            strokeWidth="1"
-            opacity="0.5"
-          />
-        </g>
-
-        {/* Right toe */}
-        <g transform="translate(170, 140)">
-          <circle
-            cx="0"
-            cy="0"
-            r="12"
-            fill="none"
-            stroke="#00D4FF"
-            strokeWidth="2"
-          />
-          <polygon points="0,0 12,-8 12,8" fill="#00D4FF" opacity="0.8" />
-          <line
-            x1="0"
-            y1="0"
-            x2="20"
-            y2="0"
-            stroke="#FF00FF"
-            strokeWidth="1"
-            opacity="0.5"
-          />
+    <svg
+      viewBox="-6.4 -6.4 76.80 76.80"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      aria-hidden="true"
+      role="img"
+      className="iconify iconify--emojione"
+      preserveAspectRatio="xMidYMid meet"
+      fill="#e47a3d"
+      stroke="#e47a3d"
+    >
+      <g id="SVGRepo_bgCarrier" strokeWidth="0">
+        <rect
+          x="-6.4"
+          y="-6.4"
+          width="76.80"
+          height="76.80"
+          rx="23.04"
+          fill="#e47a3d"
+          strokeWidth="0"
+        ></rect>
+      </g>
+      <g
+        id="SVGRepo_tracerCarrier"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      ></g>
+      <g id="SVGRepo_iconCarrier">
+        <g fill="#ffff">
+          <path d="M18.1 22.1C12.5 23.6 9 29 10 32.8s4.8-.5 10.4-2c5.6-1.5 11 .3 10-3.4s-6.6-6.8-12.3-5.3"></path>
+          <path d="M13.8 20.3c1.7-.6 1.9-4.3 1-6.8c-.9-2.5-3-4-4.7-3.4s-2.3 3.1-1.4 5.6s3.4 5.3 5.1 4.6"></path>
+          <path d="M20.7 18.4c1.8-.2 3-3.7 2.7-6.3c-.2-2.6-1.9-4.6-3.7-4.5c-1.8.2-3.1 2.4-2.8 5.1c.2 2.6 2 5.9 3.8 5.7"></path>
+          <path d="M28.7 10.7c-1.8 0-3.3 2.1-3.3 4.8s1.5 6 3.3 6s3.3-3.4 3.3-6c0-2.7-1.5-4.8-3.3-4.8"></path>
+          <path d="M3.3 17.5c-1.6.9-1.8 3.5-.4 5.8c1.3 2.3 4.3 4.5 5.9 3.6c1.6-.9 1.1-4.6-.2-6.9s-3.7-3.4-5.3-2.5"></path>
+          <path d="M45.9 44.2c-5.6-1.5-11.4 1.5-12.3 5.2s4.4 1.9 10 3.4s9.4 5.8 10.4 2s-2.5-9.1-8.1-10.6"></path>
+          <path d="M50.2 42.5c1.7.6 4.2-2.1 5.1-4.6s.3-5-1.4-5.6c-1.7-.6-3.8.9-4.7 3.4s-.7 6.2 1 6.8"></path>
+          <path d="M43.3 40.6c1.8.2 3.6-3.1 3.8-5.7c.2-2.6-1-4.9-2.8-5.1c-1.8-.2-3.5 1.9-3.7 4.5c-.3 2.6.9 6.1 2.7 6.3"></path>
+          <path d="M35.3 43.7c1.8 0 3.3-3.4 3.3-6s-1.5-4.8-3.3-4.8c-1.8 0-3.3 2.1-3.3 4.8c0 2.6 1.5 6 3.3 6"></path>
+          <path d="M60.7 39.6c-1.6-.9-3.9.2-5.2 2.5c-1.3 2.3-1.8 6-.2 6.9c1.6.9 4.5-1.3 5.9-3.6s1-4.9-.5-5.8"></path>
         </g>
       </g>
-
-      {/* Decorative lines connecting elements */}
-      <line
-        x1="120"
-        y1="140"
-        x2="85"
-        y2="85"
-        stroke="#00FF88"
-        strokeWidth="1"
-        opacity="0.3"
-      />
-      <line
-        x1="120"
-        y1="140"
-        x2="120"
-        y2="70"
-        stroke="#FF00FF"
-        strokeWidth="1"
-        opacity="0.3"
-      />
-      <line
-        x1="120"
-        y1="140"
-        x2="155"
-        y2="85"
-        stroke="#00D4FF"
-        strokeWidth="1"
-        opacity="0.3"
-      />
-      <line
-        x1="120"
-        y1="140"
-        x2="170"
-        y2="140"
-        stroke="#00FF88"
-        strokeWidth="1"
-        opacity="0.3"
-      />
     </svg>
   );
 };
@@ -941,6 +822,150 @@ export const BulbIcon = () => {
     <svg
       width="20px"
       height="20px"
+      viewBox="0 0 128 128"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      aria-hidden="true"
+      role="img"
+      className="iconify iconify--noto"
+      preserveAspectRatio="xMidYMid meet"
+      fill="#000000"
+    >
+      <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+      <g
+        id="SVGRepo_tracerCarrier"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      ></g>
+      <g id="SVGRepo_iconCarrier">
+        {" "}
+        <ellipse
+          cx="64"
+          cy="116.87"
+          rx="12.09"
+          ry="7.13"
+          fill="#424242"
+        ></ellipse>
+        <path
+          d="M64 4C42.92 4 25.82 19.67 25.82 38.99c0 5.04 1.52 10.43 3.75 15.18c3.13 6.68 6.54 11.62 7.54 13.44c2.78 5.06 2.38 10.39 3.15 13.73c1.45 6.24 5.79 8.5 23.73 8.5s21.8-2.15 23.41-7.9c1.1-3.91.03-8.18 2.8-13.23c1-1.82 5.07-7.85 8.21-14.54c2.23-4.75 3.75-10.14 3.75-15.18C102.18 19.67 85.08 4 64 4z"
+          fill="#ffd600"
+        ></path>
+        <ellipse
+          cx="64"
+          cy="86.13"
+          rx="21.94"
+          ry="4.46"
+          fill="#b26500"
+        ></ellipse>
+        <ellipse
+          cx="64"
+          cy="86.13"
+          rx="21.94"
+          ry="4.46"
+          fill="#b26500"
+        ></ellipse>{" "}
+        <ellipse
+          cx="64"
+          cy="86.13"
+          rx="15.99"
+          ry="2.06"
+          fill="#ffa000"
+        ></ellipse>{" "}
+        <g fill="none" strokeWidth="2" strokeMiterlimit="10">
+          {" "}
+          <path
+            d="M53.3 56.77c-.62 1.56-2.23 4.77-1.39 6.21c1.95 3.35 6.6 4.55 6.6 7.63c0 4.7-3.42 19.93-3.42 19.93"
+            stroke="#b26500"
+          >
+            {" "}
+          </path>{" "}
+          <path
+            d="M74.03 56.21s2.24 4.8 1.29 6.95c-.71 1.6-4.98 4.18-5.53 4.61c-2.55 2 .84 22.78.84 22.78"
+            stroke="#b26500"
+          >
+            {" "}
+          </path>{" "}
+          <path
+            d="M53.3 56.77c3.44-6.8 5.21-22.32.84-21.53c-7.37 1.33 1.71 26.83 6.18 23.9s10.01-23.85 3.21-23.93c-6.8-.08.46 26.66 5.08 23.69c3.65-2.35 12.56-23.66 5.24-23.66c-6.23 0 .19 20.97.19 20.97"
+            stroke="#ffffff"
+          >
+            {" "}
+          </path>{" "}
+        </g>{" "}
+        <path
+          d="M85.89 87.06S80.13 89.84 64 89.84s-21.89-2.78-21.89-2.78s-.36 5.14.83 7.47c1.43 2.8 2.53 3.77 2.53 3.77l.6 2.85l-.24.75c-.31.98-.09 2.06.6 2.83l.52.58l.58 2.74l-.2.55c-.38 1.05-.12 2.22.66 3.02l.38.39l.47 2.24s2.38 5.08 15.16 5.08s15.16-5.08 15.16-5.08l.04-.19l.26-.26c.52-.51.69-1.27.44-1.95l-.15-.39l.62-2.96l1.09-1.15c.54-.57.66-1.41.31-2.11l-.5-.99l.63-2.97l.4-.31c.59-.65.6-1.63.34-2.3c-.2-.53-.04-1.13.37-1.52c.63-.6 1.44-1.51 2.04-2.64c1.23-2.29.84-7.45.84-7.45z"
+          fill="#82aec0"
+        >
+          {" "}
+        </path>{" "}
+        <path
+          d="M45.47 98.3l.54 2.87c5.82-.03 13.59.26 28.5-2.11c2.69-.61 5.92-1.82 2.35-1.32c0-.01-13.69 1.3-31.39.56z"
+          fill="#2f7889"
+        >
+          {" "}
+        </path>{" "}
+        <path
+          d="M47.47 108.07c6.44-.11 19.6-.75 33.74-3.82l.63-2.97c-14.79 3.36-28.7 3.96-34.95 4.04l.58 2.75z"
+          fill="#2f7889"
+        >
+          {" "}
+        </path>{" "}
+        <path
+          d="M80.31 108.49c-13.09 2.84-25.34 3.57-31.97 3.73l.43 2.04s.21 6.33 15.16 6.33s15.16-6.33 15.16-6.33s-6.38 1.82-14.23.93a.63.63 0 0 1-.01-1.26c4.69-.62 10.29-1.54 14.84-2.48l.62-2.96z"
+          fill="#2f7889"
+        >
+          {" "}
+        </path>{" "}
+        <path
+          d="M42.18 87.06s6.46 2.78 21.76 2.78s21.88-2.78 21.88-2.78"
+          fill="none"
+          stroke="#82aec0"
+          strokeWidth="3.997"
+          strokeLinecap="round"
+          strokeMiterlimit="10"
+        >
+          {" "}
+        </path>{" "}
+        <path
+          d="M49.88 10.32c3.91-.96 8-.48 10.8 2.92c.79.96 1.4 2.1 1.54 3.34c.28 2.39-1.2 4.65-2.96 6.31c-5.02 4.74-12.15 7.04-15.39 13.58c-.76 1.53-1.36 3.18-2.52 4.43c-1.16 1.25-3.09 2.01-4.6 1.21c-.8-.42-1.35-1.21-1.8-2c-2.84-5.06-2.63-11.51-.13-16.75c2.75-5.74 8.78-11.5 15.06-13.04z"
+          fill="#ffff8d"
+        >
+          {" "}
+        </path>{" "}
+        <path
+          d="M46.45 91.93c-.88-.4-.53-1.72.43-1.65c3.22.25 8.7.56 15.95.56c7.64 0 14.36-.57 18.28-.99c.97-.1 1.34 1.23.45 1.64c-3.02 1.42-8.55 3.04-18.03 3.04c-9.25 0-14.35-1.37-17.08-2.6z"
+          fill="#ffd600"
+        >
+          {" "}
+        </path>{" "}
+        <path
+          d="M51.94 102.03c-.67.24-1.36.57-1.7 1.19c-.12.23-.19.49-.14.75c.08.38.43.65.78.82c.7.34 1.49.43 2.26.44c1.59.02 3.17-.28 4.74-.58c.47-.09.95-.18 1.37-.41c.42-.23.78-.62.85-1.09c.1-.63-.35-1.24-.9-1.54c-1.9-1.05-5.34-.27-7.26.42z"
+          fill="#94d1e0"
+        >
+          {" "}
+        </path>{" "}
+        <path
+          d="M53.43 108.62c-.67.24-1.36.57-1.7 1.19c-.12.23-.19.49-.14.75c.08.38.43.65.78.82c.7.34 1.49.43 2.26.44c1.59.02 3.17-.28 4.74-.58c.47-.09.95-.18 1.37-.41c.42-.23.78-.62.85-1.09c.1-.63-.35-1.24-.9-1.54c-1.9-1.04-5.35-.26-7.26.42z"
+          fill="#94d1e0"
+        >
+          {" "}
+        </path>{" "}
+        <path
+          d="M50.01 84.2c.91.09 1.87.01 2.64-.48s1.26-1.49.95-2.35c-.16-.45-.51-.81-.85-1.15c-.75-.74-1.5-1.48-2.24-2.22c-.83-.83-1.66-1.65-2.56-2.4c-1.39-1.16-3.26-2.25-5.09-1.4c-1.56.72-1.93 2.14-1.24 3.63c1.47 3.13 4.89 6.01 8.39 6.37z"
+          fill="#ffff8d"
+        >
+          {" "}
+        </path>{" "}
+      </g>
+    </svg>
+  );
+};
+
+export const BulbIcon2 = () => {
+  return (
+    <svg
+      width="60px"
+      height="60px"
       viewBox="0 0 128 128"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"

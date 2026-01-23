@@ -112,7 +112,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center group-hover:animate-pulse transition-all">
+            <div className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center  transition-all">
               <Logo1 />
             </div>
             <span className="text-xl font-bold text-foreground">PawFinder</span>
@@ -138,7 +138,7 @@ export function Navbar() {
             {/* Browse with Dropdown */}
             <div className="relative group">
               <button
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 relative flex items-center gap-1 ${
+                className={`px-4 py-2 rounded-lg cursor-pointer font-medium transition-all duration-300 relative flex items-center gap-1 ${
                   isActive("browse")
                     ? "text-primary"
                     : "text-muted hover:text-primary"
@@ -151,7 +151,7 @@ export function Navbar() {
                 )}
               </button>
 
-              {/* Browse Dropdown Menu endendendnenigur3ugyi4hgih43eoghoer*/}
+              {/* Browse Dropdown Menu */}
               <div className="absolute left-0 mt-0 w-56 rounded-xl bg-card-bg border border-card-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div className="py-2">
                   <Link
@@ -240,14 +240,14 @@ export function Navbar() {
               </SignInButton>
             </SignedOut>
 
-            {/* Language & Profile Dropdown */}
+            {/* Language & Profile Dropdown - CENTERED */}
             <div className="relative group max-sm:hidden">
               <button className="w-10 h-10 rounded-full cursor-pointer bg-card-bg border border-card-border flex items-center justify-center hover:border-primary transition-colors">
                 <TriggerIcon />
               </button>
 
-              {/* Dropdown */}
-              <div className="absolute right-0 mt-3 w-48 rounded-xl bg-card-bg border border-card-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              {/* Dropdown - CENTER ALIGNED */}
+              <div className="absolute left-1/2 -translate-x-1/2 mt-3 w-48 rounded-xl bg-card-bg border border-card-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div className="flex flex-col p-3 gap-3">
                   <SignedIn>
                     <div
@@ -272,7 +272,7 @@ export function Navbar() {
               </div>
             </div>
 
-            {/* Notification Button */}
+            {/* Notification Button - CENTERED */}
             <div className="relative group">
               <button
                 onClick={() => setNotificationOpen(!notificationOpen)}
@@ -280,14 +280,14 @@ export function Navbar() {
               >
                 <NotificationIcon2 />
                 {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
               </button>
 
-              {/* Notification Dropdown */}
-              <div className="absolute right-0 mt-3 w-80 rounded-xl bg-card-bg border border-card-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 max-h-96 overflow-y-auto">
+              {/* Notification Dropdown - CENTER ALIGNED */}
+              <div className="absolute left-1/2 -translate-x-1/2 mt-3 w-80 rounded-xl bg-card-bg border border-card-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 max-h-96 overflow-y-auto">
                 <NotificationDropdown />
               </div>
             </div>

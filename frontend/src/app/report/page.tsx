@@ -17,13 +17,16 @@ type User = {
   createdAt?: string;
   updatedAt?: string;
 };
+
+type MatchData = {
+  matchId: string;
+  matchScore: number;
+  confidence: "HIGH" | "MEDIUM" | "LOW";
+};
+
 type MatchResponse = {
   success: boolean;
-  data: {
-    matchId: string;
-    matchScore: number;
-    confidence: "HIGH" | "MEDIUM" | "LOW";
-  }[];
+  data: MatchData[];
   dataLength: number;
 };
 
@@ -36,6 +39,7 @@ export default function ReportPage() {
   const { language } = useLanguage();
   const { addNotification } = useNotification();
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Translations
   const translations = {
@@ -101,6 +105,7 @@ export default function ReportPage() {
 
       // Buttons
       submit: "Мэдээлэл илгээх",
+      submitting: "Илгээж байна...",
       cancel: "Цуцлах",
 
       // Quit modal
@@ -119,6 +124,16 @@ export default function ReportPage() {
       emailRequired: "Имэйл оруулах шаардлагатай",
       emailInvalid: "Зөв имэйл хаяг оруулна уу",
       phoneInvalid: "Утасны дугаар 8 оронтой тоо байх ёстой",
+
+      // Match notifications
+      matchFound: "🎉 Тохирол олдлоо!",
+      matchFoundDesc: "{breed} үүлдрийн амьтантай {score}% тохирол",
+      highConfidence: "Өндөр итгэлцүүрийн",
+      mediumConfidence: "Дунд итгэлцүүрийн",
+      lowConfidence: "Нам итгэлцүүрийн",
+      viewMatches: "Тохирлуудыг үзэх",
+      noMatches: "Төөрөлтгүй тохирол олдсонгүй",
+      matchesFound: "{count} тохирол олдлоо",
     },
     en: {
       // Success page
@@ -178,10 +193,11 @@ export default function ReportPage() {
       email: "Email",
       emailPlaceholder: "example@email.com",
       phone: "Phone Number",
-      phonePlaceholder: "555-1234",
+      phonePlaceholder: "9911-2233",
 
       // Buttons
       submit: "Submit Report",
+      submitting: "Submitting...",
       cancel: "Cancel",
 
       // Quit modal
@@ -200,6 +216,16 @@ export default function ReportPage() {
       emailRequired: "Email is required",
       emailInvalid: "Please enter a valid email",
       phoneInvalid: "Phone number must be exactly 8 digits",
+
+      // Match notifications
+      matchFound: "🎉 Match Found!",
+      matchFoundDesc: "{score}% match with {breed} pet",
+      highConfidence: "High confidence",
+      mediumConfidence: "Medium confidence",
+      lowConfidence: "Low confidence",
+      viewMatches: "View Matches",
+      noMatches: "No matches found",
+      matchesFound: "{count} matches found",
     },
   };
 
@@ -327,7 +353,8 @@ export default function ReportPage() {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [match, setMatch] = useState<MatchResponse | null>(null);
+  const [match, setMatch] = useState<MatchData[] | null>(null);
+
   const handleEdit = () => {
     inputRef.current?.click();
   };
@@ -335,6 +362,23 @@ export default function ReportPage() {
   const handleDelete = () => {
     setPreview(null);
     if (inputRef.current) inputRef.current.value = "";
+  };
+
+  // Check if form is valid
+  const isFormValid = (): boolean => {
+    return (
+      formData.breed.trim() !== "" &&
+      formData.gender !== "" &&
+      formData.date !== "" &&
+      formData.location !== "" &&
+      formData.description.trim() !== "" &&
+      preview !== null &&
+      formData.contactName.trim() !== "" &&
+      formData.contactEmail.trim() !== "" &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail) &&
+      (formData.contactPhone.trim() === "" ||
+        formData.contactPhone.replace(/\D/g, "").length === 8)
+    );
   };
 
   // Validation function
@@ -398,9 +442,7 @@ export default function ReportPage() {
       return;
     }
 
-    handleAddChange();
-    setSubmitted(true);
-    console.log("Form submitted:", formData);
+    await handleAddChange();
   };
 
   const handleChange = (
@@ -419,7 +461,21 @@ export default function ReportPage() {
     }
   };
 
+  const getConfidenceColor = (confidence: string) => {
+    switch (confidence) {
+      case "HIGH":
+        return "🟢 " + t.highConfidence;
+      case "MEDIUM":
+        return "🟡 " + t.mediumConfidence;
+      case "LOW":
+        return "🔴 " + t.lowConfidence;
+      default:
+        return confidence;
+    }
+  };
+
   const handleAddChange = async () => {
+    setIsSubmitting(true);
     try {
       const res = await fetch(`http://localhost:8000/lostFound`, {
         method: "POST",
@@ -445,28 +501,83 @@ export default function ReportPage() {
       });
       const result = await res.json();
       console.log("LostFound create hariu:", result.data);
-      setMatch(result.data);
 
-      // Send notification for each match found
-      if (result.data && Array.isArray(result.data)) {
-        result.data.forEach((matchItem: any) => {
-          addNotification({
-            title:
-              language === "mn" ? "Шинэ тохирол олдлоо!" : "New Match Found!",
-            message:
-              language === "mn"
-                ? `${formData.breed} үүлдрийн ${formData.name || "амьтан"}-тай тохирол олдлоо`
-                : `Found a match with ${formData.breed} ${formData.name || "pet"}`,
-            matchData: {
-              matchId: matchItem.matchId,
-              matchScore: matchItem.matchScore,
-              confidence: matchItem.confidence,
-            },
+      const matchesData = result.data || [];
+      setMatch(matchesData);
+
+      // Send notifications for matches
+      if (matchesData && Array.isArray(matchesData) && matchesData.length > 0) {
+        // Main notification showing total matches found
+        addNotification({
+          type: "match",
+          title: t.matchFound,
+          message: t.matchesFound.replace(
+            "{count}",
+            matchesData.length.toString(),
+          ),
+          matchData: {
+            totalMatches: matchesData.length,
+            matches: matchesData,
+          },
+          action: {
+            label: t.viewMatches,
+            href: "/probability",
+          },
+        });
+
+        // Individual notifications for each match (optional - can be commented out if too many)
+        matchesData
+          .slice(0, 3)
+          .forEach((matchItem: MatchData, index: number) => {
+            setTimeout(
+              () => {
+                addNotification({
+                  type: "match",
+                  title: `${t.matchFound} #${index + 1}`,
+                  message: t.matchFoundDesc
+                    .replace("{breed}", formData.breed)
+                    .replace("{score}", matchItem.matchScore.toString()),
+                  matchData: {
+                    matchId: matchItem.matchId,
+                    matchScore: matchItem.matchScore,
+                    confidence: matchItem.confidence,
+                  },
+                  action: {
+                    label: t.viewMatches,
+                    href: "/probability",
+                  },
+                });
+              },
+              (index + 1) * 500,
+            ); // Stagger notifications
           });
+      } else {
+        // No matches found notification
+        addNotification({
+          type: "info",
+          title:
+            "📝 " +
+            (language === "mn" ? "Мэдээлэл илгээгдлээ" : "Report Submitted"),
+          message: t.noMatches,
         });
       }
+
+      // Show success page after a delay
+      setTimeout(() => {
+        setSubmitted(true);
+        setIsSubmitting(false);
+      }, 1000);
     } catch (err) {
       console.log(err);
+      setIsSubmitting(false);
+      addNotification({
+        type: "error",
+        title: language === "mn" ? "❌ Алдаа" : "❌ Error",
+        message:
+          language === "mn"
+            ? "Мэдээлэл илгээхэд алдаа гарлаа"
+            : "Failed to submit report",
+      });
     }
   };
 
@@ -491,6 +602,23 @@ export default function ReportPage() {
           </div>
           <h1 className="text-3xl font-bold mb-4">{t.successTitle}</h1>
           <p className="text-muted mb-8">{t.successDescription}</p>
+          {match && match.length > 0 && (
+            <div className="mb-8 p-4 bg-primary/10 rounded-xl border border-primary/20">
+              <p className="text-sm font-semibold text-primary mb-2">
+                🎉 {t.matchesFound.replace("{count}", match.length.toString())}
+              </p>
+              <div className="space-y-2">
+                {match.slice(0, 3).map((m, idx) => (
+                  <div key={idx} className="text-xs text-muted">
+                    <p>
+                      Match #{idx + 1}: {m.matchScore}% -{" "}
+                      {getConfidenceColor(m.confidence)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="flex justify-center gap-4">
             <Link
               href="/browse"
@@ -499,12 +627,14 @@ export default function ReportPage() {
               {t.viewListings}
             </Link>
 
-            <Link
-              href="probability"
-              className="px-8 py-4 bg-card-bg border border-card-border rounded-full font-bold text-lg text-center hover:border-primary transition cursor-pointer"
-            >
-              {t.viewProbability}
-            </Link>
+            {match && match.length > 0 && (
+              <Link
+                href="/probability"
+                className="px-8 py-4 bg-card-bg border border-card-border rounded-full font-bold text-lg text-center hover:border-primary transition cursor-pointer"
+              >
+                {t.viewMatches}
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -792,14 +922,14 @@ export default function ReportPage() {
                     <button
                       type="button"
                       onClick={handleEdit}
-                      className="bg-white p-2 rounded-full hover:bg-gray-100 transition"
+                      className="bg-white p-2 cursor-pointer rounded-full hover:bg-gray-100 transition"
                     >
                       <EditIcon />
                     </button>
                     <button
                       type="button"
                       onClick={handleDelete}
-                      className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
+                      className="bg-red-500 cursor-pointer text-white p-2 rounded-full hover:bg-red-600 transition"
                     >
                       <DeleteIcon />
                     </button>
@@ -889,14 +1019,31 @@ export default function ReportPage() {
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               type="submit"
-              className="flex-1 px-8 py-4 cursor-pointer bg-primary hover:bg-primary-dark text-white rounded-full font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/30"
+              disabled={!isFormValid() || isSubmitting}
+              className={`flex-1 px-8 py-4 text-white rounded-full font-bold text-lg transition-all ${
+                !isFormValid() || isSubmitting
+                  ? "bg-gray-400 cursor-not-allowed opacity-60"
+                  : "bg-primary hover:bg-primary-dark cursor-pointer hover:shadow-xl hover:shadow-primary/30"
+              } flex items-center justify-center gap-2`}
             >
-              {t.submit}
+              {isSubmitting ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  {t.submitting}
+                </>
+              ) : (
+                t.submit
+              )}
             </button>
             <button
               type="button"
               onClick={() => setQuit(true)}
-              className="px-8 py-4 bg-card-bg cursor-pointer border border-card-border hover:border-primary text-foreground rounded-full font-bold text-lg transition-all text-center"
+              disabled={isSubmitting}
+              className={`px-8 py-4 border border-card-border text-foreground rounded-full font-bold text-lg transition-all text-center ${
+                isSubmitting
+                  ? "bg-gray-200 cursor-not-allowed opacity-60"
+                  : "bg-card-bg cursor-pointer hover:border-primary"
+              }`}
             >
               {t.cancel}
             </button>

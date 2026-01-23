@@ -56,21 +56,6 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
     GetAdopts();
   }, []);
 
-  useEffect(() => {
-    const GetAdopts = async () => {
-      try {
-        const res = await fetch("http://localhost:8000/adopts");
-        const data = await res.json();
-        console.log("User data:", data);
-        setAnimalData(data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    GetAdopts();
-  }, []);
-
   const filteredPets = animalData;
 
   const translations = {
