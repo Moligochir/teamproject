@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "../contexts/Languagecontext";
 import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 type userType = {
   _id: string;
@@ -35,7 +36,7 @@ export default function ProfilePage() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<PostType | null>(null);
-
+  const router = useRouter();
   // Edit form states
   const [editForm, setEditForm] = useState({
     name: "",
@@ -382,7 +383,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="bg-card-bg rounded-2xl border border-card-border overflow-hidden">
           <div className="flex border-b border-card-border">
             <button
@@ -425,7 +425,7 @@ export default function ProfilePage() {
                     {myPosts.map((post) => (
                       <div
                         key={post._id}
-                        className="w-[320px] bg-white dark:bg-card-bg rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                        className="w-[320px] cursor-pointer bg-white dark:bg-card-bg rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
                       >
                         <div className="relative w-full aspect-4/3 overflow-hidden bg-gray-100">
                           <img
@@ -437,8 +437,8 @@ export default function ProfilePage() {
                             <span
                               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm ${
                                 post.role === "Төөрсөн"
-                                  ? "bg-red-500/90 text-white"
-                                  : "bg-green-500/90 text-white"
+                                  ? "status-lost"
+                                  : "status-found"
                               }`}
                             >
                               {post.role === "Төөрсөн"

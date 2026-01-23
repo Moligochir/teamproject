@@ -7,6 +7,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 
 import Footer from "./components/Footer";
 import { LanguageProvider } from "./contexts/Languagecontext";
+import { NotificationProvider } from "./contexts/Notificationcontext";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -61,9 +62,11 @@ export default function RootLayout({
         >
           <ThemeProvider>
             <LanguageProvider>
-              <Navbar />
-              <main className="pt-16">{children}</main>
-              <Footer />
+              <NotificationProvider>
+                <Navbar />
+                <main className="pt-16">{children}</main>
+                <Footer />
+              </NotificationProvider>
             </LanguageProvider>
           </ThemeProvider>
         </body>
