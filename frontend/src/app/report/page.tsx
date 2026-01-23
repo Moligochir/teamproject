@@ -88,7 +88,7 @@ export default function ReportPage() {
       photoTitle: "Зураг",
       uploadPhoto: "Зураг оруулахын тулд дарна уу",
       uploadingPhoto: "Зураг ачааллаж байна...",
-      imageFormats: "PNG, JPG",
+      imageFormats: "PNG, JPG, WEBP",
 
       // Contact info
       contactTitle: "Таны холбоо барих мэдээлэл",
@@ -169,7 +169,7 @@ export default function ReportPage() {
       photoTitle: "Photo",
       uploadPhoto: "Click to upload photo",
       uploadingPhoto: "Uploading photo...",
-      imageFormats: "PNG, JPG",
+      imageFormats: "PNG, JPG, WEBP",
 
       // Contact info
       contactTitle: "Your Contact Information",
@@ -649,7 +649,7 @@ export default function ReportPage() {
                     name="gender"
                     value={formData.gender}
                     onChange={handleChange}
-                    className={`w-full h-12 px-4 pr-10 bg-background border ${
+                    className={`w-full h-12 px-4 pr-10 bg-background border cursor-pointer ${
                       errors.gender ? "border-red-500" : "border-card-border"
                     } rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
                   >
@@ -658,7 +658,7 @@ export default function ReportPage() {
                     <option value="Female">{t.female}</option>
                     <option value="Unknown">{t.unknown}</option>
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
+                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center ">
                     <svg
                       className="h-4 w-4 text-muted-foreground"
                       viewBox="0 0 20 20"
@@ -866,11 +866,11 @@ export default function ReportPage() {
                   {t.phone}
                 </label>
                 <input
-                  type="tel"
+                  type="telephone"
                   name="contactPhone"
-                  value={formData.contactPhone}
+                  value={formData.contactPhone!}
                   onChange={handleChange}
-                  placeholder="99112233"
+                  placeholder={t.phonePlaceholder}
                   maxLength={8}
                   className={`w-full px-4 py-3 bg-background border ${
                     errors.contactPhone

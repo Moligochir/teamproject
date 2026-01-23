@@ -387,7 +387,7 @@ export default function ProfilePage() {
           <div className="flex border-b border-card-border">
             <button
               onClick={() => setActiveTab("posts")}
-              className={`flex-1 px-6 py-4 font-semibold  cursor-pointer hover:bg-gray-500 transition-all duration-300 hover:text-black ${
+              className={`flex-1 px-6 py-4 font-semibold  cursor-pointer relative group hover:bg-primary/10 rounded-md transition-all duration-300   ${
                 activeTab === "posts"
                   ? "bg-primary text-white"
                   : "text-muted hover:bg-card-bg/50"
@@ -397,7 +397,7 @@ export default function ProfilePage() {
             </button>
             <button
               onClick={() => setActiveTab("saved")}
-              className={`flex-1 px-6 py-4 font-semibold  cursor-pointer hover:bg-gray-500 transition-all duration-300 hover:text-black ${
+              className={`flex-1 px-6 py-4 font-semibold  cursor-pointer relative group hover:bg-primary/10 rounded-md transition-all duration-300 hover:text-black ${
                 activeTab === "saved"
                   ? "bg-primary text-white"
                   : "text-muted hover:bg-card-bg/50"
@@ -407,7 +407,7 @@ export default function ProfilePage() {
             </button>
             <button
               onClick={() => setActiveTab("settings")}
-              className={`flex-1 px-6 py-4 font-semibold  cursor-pointer hover:bg-gray-500 transition-all duration-300 hover:text-black ${
+              className={`flex-1 px-6 py-4 font-semibold  cursor-pointer relative group hover:bg-primary/10 rounded-md transition-all duration-300 hover:text-black ${
                 activeTab === "settings"
                   ? "bg-primary text-white"
                   : "text-muted hover:bg-card-bg/50"
