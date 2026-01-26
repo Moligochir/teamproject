@@ -3,6 +3,7 @@ import {
   Copy,
   EmailIcon,
   Facebook,
+  LocationPinIcon,
   PhoneIcon,
   Twitter,
   Whatsapp,
@@ -65,7 +66,7 @@ export default function PetDetailPage() {
       gender: "Хүйс",
       date: "Огноо",
       location: "Байршил",
-      description: "Тайлбар",
+      description: "Нэмэлт Тайлбар",
 
       // Status values
       lost: "Төөрсөн",
@@ -111,7 +112,7 @@ export default function PetDetailPage() {
       save: "💾 Хадгалах",
       saved: "✓ Хадгалагдсан",
       report: "🚩 Мэдээлэх",
-      viewOnMap: "🗺️ Карт дээр үзэх",
+      viewOnMap: "Маp дээр үзэх",
       shareStory: "📸 Зургаа илгээх",
       editPost: "✏️ Засах",
       deletePost: "🗑️ Устгах",
@@ -132,8 +133,8 @@ export default function PetDetailPage() {
 
       // Success messages
       linkCopied: "Холбоос хуулагдсан!",
-      posted: "Нийтэлэгдсэн",
-      daysAgo: "өдөр өмнө",
+      posted: "нийтлэгдсэн",
+      daysAgo: "Өдрийн өмнө",
 
       // Verification
       verified: "✓ Баталгаажсан",
@@ -200,7 +201,7 @@ export default function PetDetailPage() {
       save: "💾 Save",
       saved: "✓ Saved",
       report: "🚩 Report",
-      viewOnMap: "🗺️ View on Map",
+      viewOnMap: "View on Map",
       shareStory: "📸 Share Story",
       editPost: "✏️ Edit Post",
       deletePost: "🗑️ Delete Post",
@@ -475,8 +476,14 @@ export default function PetDetailPage() {
   const isLost = pet.role === "Lost";
   const isDog = pet.petType === "Dog";
   const isOwner = clerkUser?.id === pet.userId._id;
+  const today = new Date();
+  const petDate = new Date(pet.Date);
+
+  today.setHours(0, 0, 0, 0);
+  petDate.setHours(0, 0, 0, 0);
+
   const daysAgo = Math.floor(
-    (Date.now() - new Date(pet.Date).getTime()) / (1000 * 60 * 60 * 24),
+    (today.getTime() - petDate.getTime()) / (1000 * 60 * 60 * 24),
   );
 
   return (
@@ -519,47 +526,13 @@ export default function PetDetailPage() {
             {pet.userId && (
               <div className="flex items-center gap-2 text-sm text-muted">
                 <span>
-                  {t.posted} {daysAgo} {t.daysAgo}
+                  {daysAgo} {t.daysAgo} {t.posted}
                 </span>
               </div>
             )}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2">
-            <button
-              onClick={handleSave}
-              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-                isSaved
-                  ? "bg-primary text-white"
-                  : "bg-card-bg border-2 border-card-border hover:border-primary"
-              }`}
-              title={isSaved ? t.saved : t.save}
-            >
-              {isSaved ? "✓ " : ""}💾
-            </button>
-            <button
-              onClick={handleFollow}
-              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-                isFollowing
-                  ? "bg-primary text-white"
-                  : "bg-card-bg border-2 border-card-border hover:border-primary"
-              }`}
-              title={isFollowing ? t.following : t.follow}
-            >
-              {isFollowing ? "✓ " : ""}👤
-            </button>
-            {isOwner && (
-              <>
-                <button className="px-4 py-2 bg-card-bg border-2 border-card-border hover:border-orange-500 rounded-lg font-semibold transition-all">
-                  ✏️
-                </button>
-                <button className="px-4 py-2 bg-card-bg border-2 border-card-border hover:border-red-500 rounded-lg font-semibold transition-all">
-                  🗑️
-                </button>
-              </>
-            )}
-          </div>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
@@ -577,16 +550,7 @@ export default function PetDetailPage() {
             <div className="bg-card-bg rounded-2xl border border-card-border p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-bold flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5 text-primary"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                    />
-                  </svg>
+                  <LocationPinIcon />
                   {pet.location}
                 </h3>
                 <Link
@@ -595,9 +559,6 @@ export default function PetDetailPage() {
                 >
                   {t.viewOnMap} →
                 </Link>
-              </div>
-              <div className="w-full h-40 bg-primary/10 rounded-lg flex items-center justify-center text-muted">
-                🗺️ Map Preview
               </div>
             </div>
           </div>
@@ -787,7 +748,7 @@ export default function PetDetailPage() {
           <div className="flex flex-wrap justify-center gap-4 mb-6">
             <button
               onClick={() => handleShare("facebook")}
-              className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
+              className="px-6 py-3 cursor-pointer bg-blue-500 hover:bg-blue-600 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
               title={t.shareFacebook}
             >
               <Facebook />
@@ -795,7 +756,7 @@ export default function PetDetailPage() {
             </button>
             <button
               onClick={() => handleShare("twitter")}
-              className="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
+              className="px-6 py-3 cursor-pointer bg-sky-500 hover:bg-sky-600 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
               title={t.shareTwitter}
             >
               <Twitter />
@@ -803,7 +764,7 @@ export default function PetDetailPage() {
             </button>
             <button
               onClick={() => handleShare("whatsapp")}
-              className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
+              className="px-6 py-3 cursor-pointer bg-green-500 hover:bg-green-600 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
               title={t.shareWhatsapp}
             >
               <Whatsapp />
@@ -811,7 +772,7 @@ export default function PetDetailPage() {
             </button>
             <button
               onClick={() => handleShare("copy")}
-              className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
+              className="px-6 py-3 cursor-pointer bg-gray-600 hover:bg-gray-700 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
               title={t.copyLink}
             >
               <Copy />
