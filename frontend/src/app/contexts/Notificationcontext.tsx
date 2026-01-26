@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
 
 export interface MatchData {
   matchId?: string;
@@ -45,10 +51,44 @@ const NotificationContext = createContext<NotificationContextType | undefined>(
   undefined,
 );
 
+const STORAGE_KEY = "pawfinder_notifications";
+const MAX_NOTIFICATIONS = 50;
+
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load notifications from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Convert timestamp strings back to Date objects
+        const notificationsWithDates = parsed.map((n: any) => ({
+          ...n,
+          timestamp: new Date(n.timestamp),
+        }));
+        setNotifications(notificationsWithDates);
+      }
+    } catch (err) {
+      console.log("Error loading notifications from localStorage:", err);
+    }
+    setIsLoaded(true);
+  }, []);
+
+  // Save notifications to localStorage whenever they change
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
+    } catch (err) {
+      console.log("Error saving notifications to localStorage:", err);
+    }
+  }, [notifications, isLoaded]);
 
   const addNotification = useCallback(
     (notification: Omit<Notification, "id" | "timestamp" | "read">) => {
@@ -60,7 +100,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
         read: false,
       };
 
-      setNotifications((prev) => [newNotification, ...prev]);
+      setNotifications((prev) => {
+        // Add new notification and keep only latest MAX_NOTIFICATIONS
+        const updated = [newNotification, ...prev].slice(0, MAX_NOTIFICATIONS);
+        return updated;
+      });
 
       // Auto remove after 5 seconds (for non-match notifications)
       if (notification.type !== "match") {

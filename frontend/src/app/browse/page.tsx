@@ -83,6 +83,7 @@ export default function BrowsePage() {
       loginRequired: "Та нэвтрэх шаардлагатай",
       fetchError: "Дата татахад алдаа гарлаа",
       allFilter: "Бүх төрөл",
+      nerguiii: "Нэр мэдэгдэхгүй",
     },
     en: {
       title: "Browse All Pets",
@@ -111,6 +112,7 @@ export default function BrowsePage() {
       loginRequired: "You need to sign in",
       fetchError: "Error fetching data",
       allFilter: "All filters",
+      nerguiii: "Unknown",
     },
   };
 
@@ -324,7 +326,7 @@ export default function BrowsePage() {
               <PetCard
                 key={pet._id}
                 role={pet.role}
-                name={pet.name}
+                name={pet.name || t.nerguiii}
                 gender={pet.gender}
                 location={pet.location}
                 description={pet.description}

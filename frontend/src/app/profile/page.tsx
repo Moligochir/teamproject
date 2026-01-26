@@ -6,7 +6,12 @@ import { useLanguage } from "../contexts/Languagecontext";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { SuccessNotification } from "../components/SuccesNotif";
-import { FoundIcon } from "../components/icons";
+import {
+  ActivityEdit,
+  DeleteIcon,
+  EditIcon,
+  FoundIcon,
+} from "../components/icons";
 import { Loading } from "../components/profileLoading";
 
 type userType = {
@@ -35,12 +40,72 @@ type PostType = {
 type ActivityType = {
   _id: string;
   userId: string;
-  action: "created" | "edited" | "deleted";
+  action: "created" | "edited" | "deleted" | "viewed" | "contacted";
   postId: string;
   postName: string;
   postImage: string;
   details: string;
   timestamp: string;
+  targetUserId?: string; // For contact action
+  targetUserName?: string; // For contact action
+};
+
+// Activity tracking service
+export const ActivityService = {
+  // Log activity to localStorage
+  logActivity: (activity: Omit<ActivityType, "_id">) => {
+    try {
+      const stored = localStorage.getItem("pawfinder_activities");
+      const allActivities: ActivityType[] = stored ? JSON.parse(stored) : [];
+
+      const newActivity: ActivityType = {
+        ...activity,
+        _id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        timestamp: new Date().toISOString(),
+      };
+
+      const updated = [newActivity, ...allActivities].slice(0, 200); // Keep 200 activities
+      localStorage.setItem("pawfinder_activities", JSON.stringify(updated));
+
+      return newActivity;
+    } catch (err) {
+      console.log("Error logging activity:", err);
+      return null;
+    }
+  },
+
+  // Get user's activities
+  getUserActivities: (userId: string): ActivityType[] => {
+    try {
+      const stored = localStorage.getItem("pawfinder_activities");
+      if (!stored) return [];
+
+      const allActivities = JSON.parse(stored) as ActivityType[];
+      return allActivities
+        .filter((a) => a.userId === userId)
+        .sort(
+          (a, b) =>
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+        );
+    } catch (err) {
+      console.log("Error getting activities:", err);
+      return [];
+    }
+  },
+
+  // Clear all activities for user
+  clearUserActivities: (userId: string) => {
+    try {
+      const stored = localStorage.getItem("pawfinder_activities");
+      if (!stored) return;
+
+      const allActivities = JSON.parse(stored) as ActivityType[];
+      const updated = allActivities.filter((a) => a.userId !== userId);
+      localStorage.setItem("pawfinder_activities", JSON.stringify(updated));
+    } catch (err) {
+      console.log("Error clearing activities:", err);
+    }
+  },
 };
 
 export default function ProfilePage() {
@@ -53,6 +118,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [deleteModal, setDeleteModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
+  const [contactModal, setContactModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<PostType | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -70,6 +136,12 @@ export default function ProfilePage() {
     location: "",
   });
 
+  // Contact form states
+  const [contactForm, setContactForm] = useState({
+    message: "",
+    phone: "",
+  });
+
   // Translations
   const translations = {
     mn: {
@@ -84,6 +156,7 @@ export default function ProfilePage() {
       settings: "Тохиргоо",
       edit: "Засах",
       delete: "Устгах",
+      contact: "Холбогдох",
       viewDetails: "Дэлгэрэнгүй",
       noPosts: "Танд зар байхгүй байна",
       noPostsDesc: "Төөрсөн эсвэл олдсон амьтны мэдээлэл оруулж эхлээрэй",
@@ -124,20 +197,31 @@ export default function ProfilePage() {
       deleting: "Устгаж байна...",
       editSuccess: "✓ Зар амжилттай засагдлаа",
       deleteSuccess: "✓ Зар амжилттай устгагдлаа",
+      contactSuccess: "✓ Эзэмшигчтэй холбогдлоо",
       editError: "Зар засахад алдаа гарлаа",
       deleteError: "Зар устгахад алдаа гарлаа",
+      contactError: "Холбогдоход алдаа гарлаа",
       type: "Төрөл:",
       breedd: "Үүлдэр:",
       locc: "Байршил:",
       noActivity: "Идэвхилэл байхгүй байна",
       noActivityDesc:
-        "Таны зарлалуудыг засах эсвэл устгах үйлдэлүүдийг энд харж болно",
+        "Таны бүх үйлдлүүдийг (зар үүсгэх, засах, устгах, уршлах, холбогдох) энд харж болно",
       noMatches: "Тохирсон зар байхгүй байна",
       noMatchesDesc:
         "Та амьтнаа сайтад оруулахад тохирсон зарлалууд энд гарч ирнэ",
       created: "Үүсгэсэн",
       edited: "Засагдсан",
       deletedAct: "Устгасан",
+      viewed: "Уршсан",
+      contacted: "Холбогдсон",
+      nerguiii: "Нэр мэдэгдэхгүй",
+      contactOwner: "Эзэмшигчтэй холбогдох",
+      contactMessage: "Мессеж",
+      contactPhone: "Утасны дугаар",
+      send: "Илгээх",
+      sending: "Илгээж байна...",
+      justnow: "Дөнгөж сая",
     },
     en: {
       myProfile: "My Profile",
@@ -151,6 +235,7 @@ export default function ProfilePage() {
       settings: "Settings",
       edit: "Edit",
       delete: "Delete",
+      contact: "Contact",
       viewDetails: "View Details",
       noPosts: "You don't have any posts",
       noPostsDesc: "Start by reporting a lost or found pet",
@@ -192,19 +277,31 @@ export default function ProfilePage() {
       deleting: "Deleting...",
       editSuccess: "✓ Post updated successfully",
       deleteSuccess: "✓ Post deleted successfully",
+      contactSuccess: "✓ Message sent to owner",
       editError: "Failed to update post",
       deleteError: "Failed to delete post",
+      contactError: "Failed to contact owner",
       type: "Pet Type:",
       breedd: "Pet Breed:",
       locc: "Location:",
       noActivity: "No activity yet",
-      noActivityDesc: "Your recent edits and deletions will appear here",
+      noActivityDesc:
+        "All your actions (create, edit, delete, view, contact) will appear here",
       noMatches: "No matches yet",
       noMatchesDesc:
         "When you create a listing, potential matches will appear here",
       created: "Created",
       edited: "Edited",
       deletedAct: "Deleted",
+      viewed: "Viewed",
+      contacted: "Contacted",
+      nerguiii: "Unknown",
+      contactOwner: "Contact Owner",
+      contactMessage: "Message",
+      contactPhone: "Phone Number",
+      send: "Send",
+      sending: "Sending...",
+      justnow: "Just now",
     },
   };
 
@@ -230,7 +327,6 @@ export default function ProfilePage() {
       if (currentUser) {
         setUserData(currentUser);
         GetUserPosts(currentUser._id);
-        LoadActivities(currentUser._id);
       }
     } catch (err) {
       console.log("Error fetching user:", err);
@@ -259,21 +355,8 @@ export default function ProfilePage() {
 
   // Load activities from localStorage
   const LoadActivities = (userId: string) => {
-    try {
-      const stored = localStorage.getItem("pawfinder_activities");
-      if (stored) {
-        const allActivities = JSON.parse(stored) as ActivityType[];
-        const userActivities = allActivities
-          .filter((a) => a.userId === userId)
-          .sort(
-            (a, b) =>
-              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-          );
-        setActivities(userActivities);
-      }
-    } catch (err) {
-      console.log("Error loading activities:", err);
-    }
+    const userActivities = ActivityService.getUserActivities(userId);
+    setActivities(userActivities);
   };
 
   // Open Edit Modal
@@ -290,10 +373,17 @@ export default function ProfilePage() {
     setEditModal(true);
   };
 
+  // Open Contact Modal
+  const openContactModal = (post: PostType) => {
+    setSelectedPost(post);
+    setContactForm({ message: "", phone: "" });
+    setContactModal(true);
+  };
+
   // Handle Edit Submit
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedPost) return;
+    if (!selectedPost || !userData) return;
 
     setIsSaving(true);
 
@@ -311,15 +401,29 @@ export default function ProfilePage() {
 
       if (res.ok) {
         const updatedPost = await res.json();
+        const postData = updatedPost.data || updatedPost;
         setMyPosts(
           myPosts.map((post) =>
-            post._id === selectedPost._id
-              ? updatedPost.data || updatedPost
-              : post,
+            post._id === selectedPost._id ? postData : post,
           ),
         );
+
+        // Log activity
+        ActivityService.logActivity({
+          userId: userData._id,
+          timestamp: userData.role,
+          action: "edited",
+          postId: selectedPost._id,
+          postName: editForm.name,
+          postImage: selectedPost.image,
+          details: `${editForm.petType} - ${editForm.location}`,
+        });
+
         setEditModal(false);
         setSelectedPost(null);
+
+        // Refresh activities
+        LoadActivities(userData._id);
 
         // Show success notification
         setSuccessMessage(t.editSuccess);
@@ -343,7 +447,7 @@ export default function ProfilePage() {
 
   // Handle Delete Confirm
   const handleDeleteConfirm = async () => {
-    if (!selectedPost) return;
+    if (!selectedPost || !userData) return;
 
     setIsDeleting(true);
 
@@ -359,9 +463,25 @@ export default function ProfilePage() {
       );
 
       if (res.ok) {
+        const deletedPost = selectedPost;
         setMyPosts(myPosts.filter((post) => post._id !== selectedPost._id));
+
+        // Log activity
+        ActivityService.logActivity({
+          userId: userData._id,
+          timestamp: userData.role,
+          action: "deleted",
+          postId: deletedPost._id,
+          postName: deletedPost.name,
+          postImage: deletedPost.image,
+          details: `${deletedPost.petType} - ${deletedPost.location}`,
+        });
+
         setDeleteModal(false);
         setSelectedPost(null);
+
+        // Refresh activities
+        LoadActivities(userData._id);
 
         // Show success notification
         setSuccessMessage(t.deleteSuccess);
@@ -377,18 +497,57 @@ export default function ProfilePage() {
     }
   };
 
+  // Handle Contact Submit
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPost || !userData) return;
+
+    setIsSaving(true);
+
+    try {
+      // Here you would send the contact message to backend
+      // For now, we'll just log the activity
+
+      // Log activity
+      ActivityService.logActivity({
+        userId: userData._id,
+        timestamp: userData.role,
+        action: "contacted",
+        postId: selectedPost._id,
+        postName: selectedPost.name,
+        postImage: selectedPost.image,
+        details: `${selectedPost.petType} - ${selectedPost.location}`,
+        targetUserId: selectedPost.userId,
+        targetUserName: selectedPost.name,
+      });
+
+      setContactModal(false);
+      setSelectedPost(null);
+
+      // Refresh activities
+      LoadActivities(userData._id);
+
+      // Show success notification
+      setSuccessMessage(t.contactSuccess);
+      setShowSuccess(true);
+    } catch (err) {
+      console.log("Error contacting owner:", err);
+      alert(t.contactError);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // Handle theme change
   const handleThemeChange = (newTheme: "auto" | "light" | "dark") => {
     setTheme(newTheme);
     localStorage.setItem("pawfinder_theme", newTheme);
 
-    // Apply theme
     if (newTheme === "dark") {
       document.documentElement.classList.add("dark");
     } else if (newTheme === "light") {
       document.documentElement.classList.remove("dark");
     } else {
-      // Auto - check system preference
       if (
         window.matchMedia &&
         window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -406,6 +565,8 @@ export default function ProfilePage() {
       created: `${t.created}`,
       edited: `${t.edited}`,
       deleted: `${t.deletedAct}`,
+      viewed: `${t.viewed}`,
+      contacted: `${t.contacted}`,
     };
     return `${actions[action as keyof typeof actions]} "${postName}"`;
   };
@@ -419,11 +580,29 @@ export default function ProfilePage() {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return "just now";
+    if (diffMins < 1) return `${t.justnow}`;
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
     return date.toLocaleDateString();
+  };
+
+  // Get activity icon and color
+  const getActivityIcon = (action: string) => {
+    switch (action) {
+      case "created":
+        return { icon: "✨", color: "bg-green-500" };
+      case "edited":
+        return { icon: <ActivityEdit />, color: "bg-primary" };
+      case "deleted":
+        return { icon: <DeleteIcon />, color: "bg-red-500" };
+      case "viewed":
+        return { icon: "👁️", color: "bg-purple-500" };
+      case "contacted":
+        return { icon: "💬", color: "bg-orange-500" };
+      default:
+        return { icon: "•", color: "bg-gray-500" };
+    }
   };
 
   useEffect(() => {
@@ -431,16 +610,21 @@ export default function ProfilePage() {
       GetCurrentUser();
     }
 
-    // Load saved theme
     const savedTheme =
       (localStorage.getItem("pawfinder_theme") as "auto" | "light" | "dark") ||
       "auto";
     setTheme(savedTheme);
   }, [clerkUser]);
 
-  const [activeTab, setActiveTab] = useState<
-    "posts" | "activity" | "matches" | "settings"
-  >("posts");
+  useEffect(() => {
+    if (userData?._id) {
+      LoadActivities(userData._id);
+    }
+  }, [userData]);
+
+  const [activeTab, setActiveTab] = useState<"posts" | "activity" | "settings">(
+    "posts",
+  );
 
   const stats = {
     totalPosts: myPosts.length,
@@ -454,7 +638,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen py-12">
-      {/* Success Notification */}
       <SuccessNotification
         message={successMessage}
         isVisible={showSuccess}
@@ -540,16 +723,6 @@ export default function ProfilePage() {
             </button>
 
             <button
-              onClick={() => setActiveTab("matches")}
-              className={`flex-1 px-4 sm:px-6 py-4 font-semibold cursor-pointer transition-all whitespace-nowrap ${
-                activeTab === "matches"
-                  ? "bg-primary text-white"
-                  : "text-muted hover:bg-primary/10 "
-              }`}
-            >
-              {t.matches}
-            </button>
-            <button
               onClick={() => setActiveTab("settings")}
               className={`flex-1 px-4 sm:px-6 py-4 font-semibold cursor-pointer transition-all whitespace-nowrap ${
                 activeTab === "settings"
@@ -594,7 +767,7 @@ export default function ProfilePage() {
 
                         <div className="p-5 space-y-4">
                           <h3 className="font-bold text-xl text-gray-900 dark:text-foreground leading-tight line-clamp-2">
-                            {post.name}
+                            {post?.name || t.nerguiii}
                           </h3>
 
                           <div className="space-y-2 text-sm">
@@ -657,71 +830,66 @@ export default function ProfilePage() {
               <div>
                 {activities.length > 0 ? (
                   <div className="space-y-4">
-                    {activities.map((activity) => (
-                      <div
-                        key={activity._id}
-                        className="flex gap-4 p-4 border border-card-border rounded-xl hover:bg-primary/5 transition-colors"
-                      >
-                        {/* Activity Image */}
-                        <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-gray-700">
-                          <img
-                            src={
-                              activity.postImage ||
-                              "https://via.placeholder.com/64"
-                            }
-                            alt={activity.postName}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
+                    {activities.map((activity) => {
+                      const { icon, color } = getActivityIcon(activity.action);
+                      return (
+                        <div
+                          key={activity._id}
+                          className="flex items-center gap-4 p-4 border border-card-border rounded-xl hover:bg-primary/5 transition-colors"
+                        >
+                          {/* Activity Image */}
+                          <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-gray-200 dark:bg-gray-700">
+                            <img
+                              src={
+                                activity.postImage ||
+                                "https://via.placeholder.com/64"
+                              }
+                              alt={activity.postName}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
 
-                        {/* Activity Details */}
-                        <div className="flex-1 min-w-0">
-                          {/* Action Icon & Message */}
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-lg">
-                              {activity.action === "created"
-                                ? "✨"
-                                : activity.action === "edited"
-                                  ? "✏️"
-                                  : "🗑️"}
-                            </span>
-                            <p className="font-semibold text-sm text-gray-900 dark:text-foreground">
-                              {getActivityMessage(
-                                activity.action,
-                                activity.postName,
-                              )}
+                          {/* Activity Details */}
+                          <div className="flex-1 min-w-0 items-center">
+                            {/* Action Icon & Message */}
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-lg">{icon}</span>
+                              <p className="font-semibold text-sm text-gray-900 dark:text-foreground">
+                                {getActivityMessage(
+                                  activity.action,
+                                  activity.postName,
+                                )}
+                              </p>
+                            </div>
+
+                            {/* Caption */}
+                            <p className="text-xs text-muted mb-2">
+                              {activity.details}
+                            </p>
+
+                            {/* Time */}
+                            <p className="text-xs text-muted">
+                              {formatActivityTime(activity.timestamp)}
                             </p>
                           </div>
 
-                          {/* Caption */}
-                          <p className="text-xs text-muted mb-2">
-                            {activity.details}
-                          </p>
-
-                          {/* Time */}
-                          <p className="text-xs text-muted">
-                            {formatActivityTime(activity.timestamp)}
-                          </p>
-                        </div>
-
-                        {/* Action Badge */}
-                        <div
-                          className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold text-white whitespace-nowrap ${
-                            activity.action === "created"
-                              ? "bg-green-500"
+                          {/* Action Badge */}
+                          <div
+                            className={`shrink-0 w-[8%] h-10 rounded-xl text-xs flex justify-center items-center font-semibold text-white whitespace-nowrap ${color}`}
+                          >
+                            {activity.action === "created"
+                              ? t.created
                               : activity.action === "edited"
-                                ? "bg-blue-500"
-                                : "bg-red-500"
-                          }`}
-                        >
-                          {activity.action === "created"
-                            ? t.created
-                            : activity.action === "edited"
-                              ? t.edited
-                              : t.deletedAct}
+                                ? t.edited
+                                : activity.action === "deleted"
+                                  ? t.deletedAct || "Unknown"
+                                  : activity.action === "viewed"
+                                    ? t.viewed
+                                    : t.contacted}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-12">
@@ -730,22 +898,6 @@ export default function ProfilePage() {
                     <p className="text-muted mb-6">{t.noActivityDesc}</p>
                   </div>
                 )}
-              </div>
-            )}
-
-            {activeTab === "matches" && (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4 flex justify-center">
-                  <FoundIcon />
-                </div>
-                <h3 className="text-xl font-bold mb-2">{t.noMatches}</h3>
-                <p className="text-muted mb-6">{t.noMatchesDesc}</p>
-                <Link
-                  href="/report"
-                  className="inline-block px-6 py-3 bg-primary text-white rounded-full font-semibold hover:bg-primary-dark"
-                >
-                  {t.createPost}
-                </Link>
               </div>
             )}
 
@@ -1330,6 +1482,68 @@ export default function ProfilePage() {
                 {isDeleting ? t.deleting : t.confirmDelete}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contact Modal */}
+      {contactModal && selectedPost && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-card-bg rounded-2xl max-w-md w-full p-6">
+            <h2 className="text-2xl font-bold mb-4">{t.contactOwner}</h2>
+
+            <form onSubmit={handleContactSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t.contactMessage}
+                </label>
+                <textarea
+                  value={contactForm.message}
+                  onChange={(e) =>
+                    setContactForm({ ...contactForm, message: e.target.value })
+                  }
+                  rows={4}
+                  className="w-full px-4 py-2 bg-background border border-card-border rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t.contactPhone}
+                </label>
+                <input
+                  type="tel"
+                  value={contactForm.phone}
+                  onChange={(e) =>
+                    setContactForm({ ...contactForm, phone: e.target.value })
+                  }
+                  className="w-full px-4 py-2 bg-background border border-card-border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                  required
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="flex-1 cursor-pointer px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+                >
+                  {isSaving ? t.sending : t.send}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setContactModal(false);
+                    setSelectedPost(null);
+                  }}
+                  disabled={isSaving}
+                  className="flex-1 cursor-pointer px-6 py-2 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 disabled:opacity-60 transition-all"
+                >
+                  {t.cancel}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

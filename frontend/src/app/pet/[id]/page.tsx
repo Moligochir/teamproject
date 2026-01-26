@@ -1,13 +1,24 @@
 "use client";
-import { Copy, Facebook, Twitter, Whatsapp } from "@/app/components/icons";
+import {
+  Copy,
+  EmailIcon,
+  Facebook,
+  PhoneIcon,
+  Twitter,
+  Whatsapp,
+} from "@/app/components/icons";
+import MatchSuggestions from "@/app/components/MatchSuggestions";
 import { useLanguage } from "@/app/contexts/Languagecontext";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs";
+import { toast } from "react-hot-toast";
 
 type lostFound = {
   role: string;
   userId: {
+    _id: string;
     name: string;
     email: string;
     phonenumber: number;
@@ -22,20 +33,29 @@ type lostFound = {
   breed: string;
   _id: string;
   phonenumber: number;
+  lat?: number;
+  lng?: number;
 };
 
 export default function PetDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const { id } = params;
   const { language } = useLanguage();
-  const [animalData, setAnimalData] = useState<lostFound[]>([]);
+  const { user: clerkUser } = useUser();
+  const [pet, setPet] = useState<lostFound | null>(null);
+  const [allPets, setAllPets] = useState<lostFound[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   const translations = {
     mn: {
       // Breadcrumb
       home: "Нүүр",
       pets: "Амьтад",
+      browse: "Үзэх",
 
       // Pet info
       name: "Нэр",
@@ -64,6 +84,7 @@ export default function PetDetailPage() {
       phone: "Утас",
       emailContact: "Имэйлээр холбогдох",
       phoneContact: "Утсаар залгах",
+      messageContact: "Мессеж илгээх",
 
       // Share section
       helpSpread: "Түгээхэд туслаарай",
@@ -72,6 +93,10 @@ export default function PetDetailPage() {
       returnHome: "гэртээ буцахад",
       findFamily: "гэр бүлээ олоход",
       shareDescriptionEnd: "туслаарай",
+      copyLink: "Холбоос хуулах",
+      shareFacebook: "Facebook-т хуваалцах",
+      shareTwitter: "Twitter-т хуваалцах",
+      shareWhatsapp: "WhatsApp-т хуваалцах",
 
       // Not found
       notFoundTitle: "Амьтан олдсонгүй",
@@ -82,13 +107,44 @@ export default function PetDetailPage() {
       // Loading
       loading: "Уншиж байна...",
 
-      // Email subject
-      emailSubject: "амьтны талаар",
+      // Actions
+      save: "💾 Хадгалах",
+      saved: "✓ Хадгалагдсан",
+      report: "🚩 Мэдээлэх",
+      viewOnMap: "🗺️ Карт дээр үзэх",
+      shareStory: "📸 Зургаа илгээх",
+      editPost: "✏️ Засах",
+      deletePost: "🗑️ Устгах",
+      follow: "👤 Дагах",
+      following: "✓ Дагаж байна",
+
+      // Gallery
+      photoGallery: "Фото галерей",
+      previousPhoto: "Өмнөх",
+      nextPhoto: "Дараа",
+
+      // Additional info
+      additionalInfo: "Нэмэлт мэдээлэл",
+      color: "Өнгө",
+      size: "Хэмжээ",
+      age: "Нас",
+      distinguishingFeatures: "Ялгаруулах шинж",
+
+      // Success messages
+      linkCopied: "Холбоос хуулагдсан!",
+      posted: "Нийтэлэгдсэн",
+      daysAgo: "өдөр өмнө",
+
+      // Verification
+      verified: "✓ Баталгаажсан",
+      responseTime: "Хариу үйл ажиллагааны хугацаа",
+      fast: "Хурдан",
     },
     en: {
       // Breadcrumb
       home: "Home",
       pets: "Pets",
+      browse: "Browse",
 
       // Pet info
       name: "Name",
@@ -117,6 +173,7 @@ export default function PetDetailPage() {
       phone: "Phone Number",
       emailContact: "Contact via Email",
       phoneContact: "Call Phone",
+      messageContact: "Send Message",
 
       // Share section
       helpSpread: "Help Spread the Word",
@@ -125,6 +182,10 @@ export default function PetDetailPage() {
       returnHome: "return home",
       findFamily: "find a loving family",
       shareDescriptionEnd: "",
+      copyLink: "Copy Link",
+      shareFacebook: "Share on Facebook",
+      shareTwitter: "Share on Twitter",
+      shareWhatsapp: "Share on WhatsApp",
 
       // Not found
       notFoundTitle: "Pet Not Found",
@@ -135,14 +196,45 @@ export default function PetDetailPage() {
       // Loading
       loading: "Loading...",
 
-      // Email subject
-      emailSubject: "about",
+      // Actions
+      save: "💾 Save",
+      saved: "✓ Saved",
+      report: "🚩 Report",
+      viewOnMap: "🗺️ View on Map",
+      shareStory: "📸 Share Story",
+      editPost: "✏️ Edit Post",
+      deletePost: "🗑️ Delete Post",
+      follow: "👤 Follow",
+      following: "✓ Following",
+
+      // Gallery
+      photoGallery: "Photo Gallery",
+      previousPhoto: "Previous",
+      nextPhoto: "Next",
+
+      // Additional info
+      additionalInfo: "Additional Information",
+      color: "Color",
+      size: "Size",
+      age: "Age",
+      distinguishingFeatures: "Distinguishing Features",
+
+      // Success messages
+      linkCopied: "Link copied to clipboard!",
+      posted: "Posted",
+      daysAgo: "days ago",
+
+      // Verification
+      verified: "✓ Verified",
+      responseTime: "Response Time",
+      fast: "Fast",
     },
   };
 
   const t = translations[language];
 
-  const GetLostFound = async () => {
+  // Fetch pet data
+  const GetPetDetails = async () => {
     try {
       const res = await fetch(`http://localhost:8000/lostFound/findid/${id}`, {
         method: "GET",
@@ -152,23 +244,121 @@ export default function PetDetailPage() {
         },
       });
       const data = await res.json();
-      console.log("User data:", data);
-      setAnimalData(data);
+      if (Array.isArray(data) && data.length > 0) {
+        setPet(data[0]);
+      } else {
+        setPet(data);
+      }
     } catch (err) {
-      console.log(err);
+      console.log("Error fetching pet:", err);
+    }
+  };
+
+  // Fetch all pets for matching
+  const GetAllPets = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/lostFound`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+      const data = await res.json();
+      setAllPets(data);
+    } catch (err) {
+      console.log("Error fetching pets:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    GetLostFound();
-  }, []);
+    if (id) {
+      GetPetDetails();
+      GetAllPets();
+
+      // Check if saved
+      const saved = localStorage.getItem(`saved_${id}`);
+      setIsSaved(!!saved);
+
+      // Check if following user
+      const following = localStorage.getItem(`following_${pet?.userId?._id}`);
+      setIsFollowing(!!following);
+    }
+  }, [id]);
+
+  // Handle save pet
+  const handleSave = () => {
+    if (!pet) return;
+
+    if (isSaved) {
+      localStorage.removeItem(`saved_${pet._id}`);
+      setIsSaved(false);
+      toast.success(
+        language === "mn"
+          ? "Уг амьтан хадгалалтаас хасагдсан"
+          : "Pet removed from saved",
+      );
+    } else {
+      localStorage.setItem(`saved_${pet._id}`, JSON.stringify(pet));
+      setIsSaved(true);
+      toast.success(t.saved);
+    }
+  };
+
+  // Handle follow user
+  const handleFollow = () => {
+    if (!pet?.userId?._id) return;
+
+    if (isFollowing) {
+      localStorage.removeItem(`following_${pet.userId._id}`);
+      setIsFollowing(false);
+    } else {
+      localStorage.setItem(
+        `following_${pet.userId._id}`,
+        JSON.stringify(pet.userId),
+      );
+      setIsFollowing(true);
+      toast.success(language === "mn" ? "Дагагдлаа" : "Following");
+    }
+  };
+
+  // Handle share
+  const handleShare = (platform: string) => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const text = `Check out this ${pet?.role.toLowerCase()} ${pet?.petType.toLowerCase()}: ${pet?.name}`;
+
+    switch (platform) {
+      case "facebook":
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+          "_blank",
+        );
+        break;
+      case "twitter":
+        window.open(
+          `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
+          "_blank",
+        );
+        break;
+      case "whatsapp":
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(text + " " + url)}`,
+          "_blank",
+        );
+        break;
+      case "copy":
+        navigator.clipboard.writeText(url);
+        toast.success(t.linkCopied);
+        break;
+    }
+  };
 
   // Loading State
   if (loading) {
     return (
-      <div className="min-h-screen py-12">
+      <div className="min-h-screen py-12 bg-gradient-to-b from-background to-card-bg/50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Loading Animation */}
           <div className="mb-8 text-center">
@@ -211,7 +401,7 @@ export default function PetDetailPage() {
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Image Skeleton */}
             <div className="space-y-4">
-              <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+              <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 animate-pulse"></div>
             </div>
 
             {/* Details Skeleton */}
@@ -256,28 +446,6 @@ export default function PetDetailPage() {
                   <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-4/6"></div>
                 </div>
               </div>
-
-              {/* Contact Skeleton */}
-              <div className="bg-card-bg rounded-xl p-6 border border-card-border animate-pulse">
-                <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
-                <div className="space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
-                      <div className="flex-1">
-                        <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
-                        <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-2/3"></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Buttons Skeleton */}
-              <div className="flex gap-4">
-                <div className="flex-1 h-14 bg-gray-300 dark:bg-gray-700 rounded-full animate-pulse"></div>
-                <div className="flex-1 h-14 bg-gray-300 dark:bg-gray-700 rounded-full animate-pulse"></div>
-              </div>
             </div>
           </div>
         </div>
@@ -286,16 +454,16 @@ export default function PetDetailPage() {
   }
 
   // Not Found State
-  if (!id || animalData.length === 0) {
+  if (!pet) {
     return (
-      <div className="min-h-screen py-12 flex items-center justify-center">
+      <div className="min-h-screen py-12 flex items-center justify-center bg-gradient-to-b from-background to-card-bg/50">
         <div className="text-center">
           <div className="text-6xl mb-4">🐾</div>
           <h1 className="text-3xl font-bold mb-4">{t.notFoundTitle}</h1>
           <p className="text-muted mb-6">{t.notFoundDescription}</p>
           <Link
             href="/browse"
-            className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all"
+            className="px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-500 hover:shadow-lg text-white rounded-full font-semibold transition-all inline-block"
           >
             {t.viewAllPets}
           </Link>
@@ -304,12 +472,15 @@ export default function PetDetailPage() {
     );
   }
 
-  const pet = animalData[0];
-  const isLost = pet?.role === "Lost";
-  const isDog = pet?.petType === "Dog";
+  const isLost = pet.role === "Lost";
+  const isDog = pet.petType === "Dog";
+  const isOwner = clerkUser?.id === pet.userId._id;
+  const daysAgo = Math.floor(
+    (Date.now() - new Date(pet.Date).getTime()) / (1000 * 60 * 60 * 24),
+  );
 
   return (
-    <div className="min-h-screen py-12">
+    <div className="min-h-screen py-12 bg-linear-to-b from-background to-card-bg/50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <nav className="mb-8">
@@ -325,135 +496,192 @@ export default function PetDetailPage() {
                 href="/browse"
                 className="hover:text-primary transition-colors"
               >
-                {t.pets}
+                {t.browse}
               </Link>
             </li>
             <li>/</li>
-            <li className="text-foreground font-medium">{pet?.name}</li>
+            <li className="text-foreground font-medium">{pet.name}</li>
           </ol>
         </nav>
+
+        {/* Status Badge */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div
+              className={`inline-block px-4 py-2 rounded-full text-sm font-bold ${
+                isLost
+                  ? "bg-red-500/20 text-red-500 border border-red-500/50"
+                  : "bg-green-500/20 text-green-500 border border-green-500/50"
+              }`}
+            >
+              {isLost ? t.lostIcon : t.foundIcon}
+            </div>
+            {pet.userId && (
+              <div className="flex items-center gap-2 text-sm text-muted">
+                <span>
+                  {t.posted} {daysAgo} {t.daysAgo}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={handleSave}
+              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                isSaved
+                  ? "bg-primary text-white"
+                  : "bg-card-bg border-2 border-card-border hover:border-primary"
+              }`}
+              title={isSaved ? t.saved : t.save}
+            >
+              {isSaved ? "✓ " : ""}💾
+            </button>
+            <button
+              onClick={handleFollow}
+              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                isFollowing
+                  ? "bg-primary text-white"
+                  : "bg-card-bg border-2 border-card-border hover:border-primary"
+              }`}
+              title={isFollowing ? t.following : t.follow}
+            >
+              {isFollowing ? "✓ " : ""}👤
+            </button>
+            {isOwner && (
+              <>
+                <button className="px-4 py-2 bg-card-bg border-2 border-card-border hover:border-orange-500 rounded-lg font-semibold transition-all">
+                  ✏️
+                </button>
+                <button className="px-4 py-2 bg-card-bg border-2 border-card-border hover:border-red-500 rounded-lg font-semibold transition-all">
+                  🗑️
+                </button>
+              </>
+            )}
+          </div>
+        </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Image Section */}
           <div className="space-y-4">
-            <div className="relative aspect-square rounded-2xl overflow-hidden border border-card-border">
+            <div className="relative aspect-square rounded-2xl overflow-hidden border-4 border-gradient-to-br from-orange-500 to-rose-500 shadow-xl">
               <img
-                src={pet?.image}
-                alt={pet?.name}
-                className="object-cover w-full h-full"
+                src={pet.image}
+                alt={pet.name}
+                className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
               />
-              <div
-                className={`absolute top-4 left-4 px-4 py-2 rounded-full text-sm font-bold ${
-                  isLost ? "status-lost" : "status-found"
-                }`}
-              >
-                {isLost ? t.lostIcon : t.foundIcon}
+            </div>
+
+            {/* Location Map Preview */}
+            <div className="bg-card-bg rounded-2xl border border-card-border p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5 text-primary"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                    />
+                  </svg>
+                  {pet.location}
+                </h3>
+                <Link
+                  href={`/map?lat=${pet.lat || 47.9}&lng=${pet.lng || 106.9}`}
+                  className="text-sm text-primary hover:text-primary-dark font-semibold"
+                >
+                  {t.viewOnMap} →
+                </Link>
+              </div>
+              <div className="w-full h-40 bg-primary/10 rounded-lg flex items-center justify-center text-muted">
+                🗺️ Map Preview
               </div>
             </div>
           </div>
 
           {/* Details Section */}
           <div className="space-y-6">
-            {/* Name & Breed */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-card-bg rounded-xl p-4 border border-card-border">
-                <div className="text-sm text-muted mb-1">{t.name}</div>
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="font-bold">{pet?.name}</h1>
-                </div>
-              </div>
-              <div className="bg-card-bg rounded-xl p-4 border border-card-border">
-                <div className="text-sm text-muted mb-1">{t.breed}</div>
-                <p className="text-white font-bold">{pet?.breed}</p>
+            {/* Name & Key Info */}
+            <div className="space-y-4">
+              <div>
+                <h1 className="text-4xl md:text-5xl font-black mb-2 text-white bg-clip-text ">
+                  {pet.name}
+                </h1>
               </div>
             </div>
 
-            {/* Quick Info */}
+            {/* Quick Info Grid */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-card-bg rounded-xl p-4 border border-card-border">
-                <div className="text-sm text-muted mb-1">{t.status}</div>
-                <div
-                  className={`font-bold ${isLost ? "text-lost" : "text-found"}`}
+              <div className=" rounded-xl p-4 border border-primary/20">
+                <div className="text-xs text-muted font-semibold mb-1 uppercase">
+                  {t.breed}
+                </div>
+                <p className="text-lg font-bold">{pet.breed}</p>
+              </div>
+              <div className=" rounded-xl p-4 border border-orange-500/20">
+                <div className="text-xs text-muted font-semibold mb-1 uppercase">
+                  {t.status}
+                </div>
+                <p
+                  className={`text-lg font-bold ${
+                    isLost ? "text-red-500" : "text-green-500"
+                  }`}
                 >
                   {isLost ? t.lost : t.found}
+                </p>
+              </div>
+              <div className=" rounded-xl p-4 border border-orange-500/20">
+                <div className="text-xs text-muted font-semibold mb-1 uppercase">
+                  {t.type}
                 </div>
+                <p className="text-lg font-bold">{isDog ? t.dog : t.cat}</p>
               </div>
-              <div className="bg-card-bg rounded-xl p-4 border border-card-border">
-                <div className="text-sm text-muted mb-1">{t.type}</div>
-                <div className="font-bold">{isDog ? t.dog : t.cat}</div>
+              <div className=" rounded-xl p-4 border border-orange-500/20">
+                <div className="text-xs text-muted font-semibold mb-1 uppercase">
+                  {t.gender}
+                </div>
+                <p className="text-lg font-bold">
+                  {pet.gender === "Male" || pet.gender === "Эрэгтэй"
+                    ? "♂️ " + (language === "mn" ? "Эрэгтэй" : "Male")
+                    : "♀️ " + (language === "mn" ? "Эмэгтэй" : "Female")}
+                </p>
               </div>
-              <div className="bg-card-bg rounded-xl p-4 border border-card-border">
-                <div className="text-sm text-muted mb-1">{t.gender}</div>
-                <div className="font-bold">{pet?.gender}</div>
-              </div>
-              <div className="bg-card-bg rounded-xl p-4 border border-card-border">
-                <div className="text-sm text-muted mb-1">{t.date}</div>
-                <div className="font-bold">{pet?.Date?.slice(0, 10)}</div>
-              </div>
-            </div>
-
-            {/* Location */}
-            <div className="bg-card-bg rounded-xl p-4 border border-card-border">
-              <div className="flex items-center gap-2 mb-2">
-                <svg
-                  className="w-5 h-5 text-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-                <span className="text-sm text-muted">{t.location}</span>
-              </div>
-              <div className="font-bold text-lg">{pet?.location}</div>
             </div>
 
             {/* Description */}
-            <div className="bg-card-bg rounded-xl p-4 border border-card-border">
-              <h3 className="font-bold mb-2">{t.description}</h3>
-              <p className="text-muted leading-relaxed">{pet?.description}</p>
+            <div className="bg-card-bg rounded-xl p-6 border border-card-border">
+              <h3 className="font-bold text-lg mb-3">{t.description}</h3>
+              <p className="text-muted leading-relaxed">{pet.description}</p>
             </div>
 
             {/* Contact Section */}
-            <div className="bg-linear-to-br from-primary/10 to-secondary/10 rounded-xl p-6 border border-primary/20">
+            <div className=" rounded-xl p-6 border-2 border-orange-500/20 backdrop-blur-sm">
               <h3 className="font-bold text-lg mb-4">{t.contact}</h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                    <svg
-                      className="w-5 h-5 text-primary"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
+              <div className="space-y-4">
+                {/* Owner Card */}
+                <div className="flex items-center gap-4 p-4 bg-white/50 dark:bg-white/5 rounded-lg backdrop-blur-sm">
+                  <div className="w-12 h-12 rounded-full bg-linear-to-br from-orange-500 to-rose-500 flex items-center justify-center text-white font-bold text-lg shrink-0">
+                    {pet.userId?.name.charAt(0).toUpperCase()}
                   </div>
-                  <div>
-                    <div className="text-sm text-muted">{t.reportOwner}</div>
-                    <div className="font-medium">{pet?.userId?.name}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-lg">{pet.userId?.name}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted mt-1">
+                      <span> {t.verified}</span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+
+                {/* Contact Methods */}
+                <div className="space-y-2">
+                  <a
+                    href={`mailto:${pet.userId?.email}`}
+                    className="flex items-center gap-3 p-3 bg-white/50 dark:bg-white/5 rounded-lg hover:bg-white/70 dark:hover:bg-white/10 transition-all"
+                  >
                     <svg
-                      className="w-5 h-5 text-primary"
+                      className="w-5 h-5 text-primary shrink-0"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -465,21 +693,21 @@ export default function PetDetailPage() {
                         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                       />
                     </svg>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted">{t.email}</div>
-                    <a
-                      href={`mailto:${pet?.userId?.email}`}
-                      className="font-medium text-primary hover:text-primary-dark transition-colors"
-                    >
-                      {pet?.userId?.email}
-                    </a>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-muted">{t.email}</div>
+                      <div className="font-semibold truncate">
+                        {pet.userId?.email}
+                      </div>
+                    </div>
+                    <span className="text-primary text-sm">→</span>
+                  </a>
+
+                  <a
+                    href={`tel:${pet.phonenumber || pet.userId?.phonenumber}`}
+                    className="flex items-center gap-3 p-3 bg-white/50 dark:bg-white/5 rounded-lg hover:bg-white/70 dark:hover:bg-white/10 transition-all"
+                  >
                     <svg
-                      className="w-5 h-5 text-primary"
+                      className="w-5 h-5 text-primary shrink-0"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -491,66 +719,126 @@ export default function PetDetailPage() {
                         d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                       />
                     </svg>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted">{t.phone}</div>
-                    <a
-                      href={`tel:${pet?.phonenumber}`}
-                      className="font-medium text-primary hover:text-primary-dark transition-colors"
-                    >
-                      {pet?.phonenumber}
-                    </a>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-muted">{t.phone}</div>
+                      <div className="font-semibold">
+                        {pet.phonenumber || pet.userId?.phonenumber}
+                      </div>
+                    </div>
+                    <span className="text-primary text-sm">→</span>
+                  </a>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
               <a
-                href={`mailto:${pet?.userId?.email}?subject=${isLost ? t.lost : t.found} ${isDog ? t.dog : t.cat}: ${pet?.name}`}
-                className="flex-1 px-6 py-4 bg-primary hover:bg-primary-dark text-white rounded-full font-bold text-center transition-all hover:shadow-xl hover:shadow-primary/30"
+                href={`mailto:${pet.userId?.email}?subject=${isLost ? t.lost : t.found} ${isDog ? t.dog : t.cat}: ${pet.name}`}
+                className="flex gap-2 items-center px-6 py-4 bg-primary hover:shadow-lg hover:shadow-orange-500/30 text-white rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95"
               >
                 {t.emailContact}
+                <span>
+                  <EmailIcon />
+                </span>
               </a>
               <a
-                href={`tel:${pet?.phonenumber}`}
-                className="flex-1 px-6 py-4 bg-card-bg border-2 border-card-border hover:border-primary text-foreground rounded-full font-bold text-center transition-all"
+                href={`tel:${pet.phonenumber || pet.userId?.phonenumber}`}
+                className="flex items-center gap-2 px-6 py-4 bg-card-bg border-2 border-card-border hover:border-primary text-foreground rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95"
               >
                 {t.phoneContact}
+                <span>
+                  <PhoneIcon />
+                </span>
               </a>
             </div>
           </div>
         </div>
 
-        <div className="mt-12 bg-card-bg rounded-2xl border border-card-border p-6 text-center">
-          <h3 className="font-bold text-lg mb-3">{t.helpSpread}</h3>
-          <p className="text-muted mb-4">
+        {/* AI Match Suggestions */}
+        <div className="mt-12 bg-card-bg rounded-2xl border border-card-border p-8">
+          <MatchSuggestions
+            petId={pet._id}
+            petRole={pet.role}
+            allPets={allPets}
+          />
+        </div>
+
+        {/* Share Section */}
+        <div className="mt-12 bg-black-500/10 rounded-2xl border-2 border-orange-500/30 p-8 backdrop-blur-sm text-center">
+          <h3 className="font-bold text-2xl mb-3">{t.helpSpread}</h3>
+          <p className="text-muted mb-6 text-lg">
             {language === "mn" ? (
               <>
-                {t.shareDescription1} {pet?.userId?.name}
+                {t.shareDescription1}{" "}
+                <span className="font-bold">{pet.userId?.name}</span>
                 {t.shareDescription2} {isLost ? t.returnHome : t.findFamily}{" "}
                 {t.shareDescriptionEnd}
               </>
             ) : (
               <>
-                {t.shareDescription1} {pet?.userId?.name}{" "}
+                {t.shareDescription1}{" "}
+                <span className="font-bold">{pet.userId?.name}</span>{" "}
                 {isLost ? t.returnHome : t.findFamily}
               </>
             )}
           </p>
-          <div className="flex justify-center gap-4">
-            <button className="w-12 h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors">
+
+          <div className="flex flex-wrap justify-center gap-4 mb-6">
+            <button
+              onClick={() => handleShare("facebook")}
+              className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
+              title={t.shareFacebook}
+            >
               <Facebook />
+              Facebook
             </button>
-            <button className="w-12 h-12 bg-sky-500 hover:bg-sky-600 text-white rounded-full flex items-center justify-center transition-colors">
+            <button
+              onClick={() => handleShare("twitter")}
+              className="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
+              title={t.shareTwitter}
+            >
               <Twitter />
+              Twitter
             </button>
-            <button className="w-12 h-12 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center transition-colors">
+            <button
+              onClick={() => handleShare("whatsapp")}
+              className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
+              title={t.shareWhatsapp}
+            >
               <Whatsapp />
+              WhatsApp
             </button>
-            <button className="w-12 h-12 bg-gray-600 hover:bg-gray-700 text-white rounded-full flex items-center justify-center transition-colors">
+            <button
+              onClick={() => handleShare("copy")}
+              className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
+              title={t.copyLink}
+            >
               <Copy />
+              {t.copyLink}
             </button>
+          </div>
+
+          {/* Social Stats */}
+          <div className="grid grid-cols-3 gap-4 pt-6 border-t border-orange-500/20">
+            <div>
+              <p className="text-2xl font-bold text-orange-500">1.2K</p>
+              <p className="text-xs text-muted">
+                {language === "mn" ? "Харагдсан" : "Views"}
+              </p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-rose-500">48</p>
+              <p className="text-xs text-muted">
+                {language === "mn" ? "Хуваалцсан" : "Shares"}
+              </p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-primary">156</p>
+              <p className="text-xs text-muted">
+                {language === "mn" ? "Сэтгэгдэл" : "Comments"}
+              </p>
+            </div>
           </div>
         </div>
       </div>

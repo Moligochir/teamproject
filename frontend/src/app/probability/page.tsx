@@ -93,6 +93,69 @@ export default function ProbabilityPage() {
 
   const t = translations[language];
 
+  // Calculate match score from API data
+  const calculateMatchScore = (post: any) => {
+    if (!post) return 0;
+
+    // If matches array exists with score
+    if (post.matches && post.matches.length > 0 && post.matches[0].score) {
+      // Convert 0-100 scale to percentage
+      const score = post.matches[0].score;
+      // If score is already 0-100, use as is
+      if (score >= 0 && score <= 100) {
+        return Math.round(score);
+      }
+      // If score is 0-1 decimal, convert to percentage
+      if (score >= 0 && score <= 1) {
+        return Math.round(score * 100);
+      }
+      return Math.round(score);
+    }
+
+    // If direct matchScore exists
+    if (post.matchScore) {
+      if (post.matchScore >= 0 && post.matchScore <= 100) {
+        return Math.round(post.matchScore);
+      }
+      if (post.matchScore >= 0 && post.matchScore <= 1) {
+        return Math.round(post.matchScore * 100);
+      }
+      return Math.round(post.matchScore);
+    }
+
+    // Default calculation based on breed and location
+    let score = 50; // Base score
+
+    // Add to score if type matches
+    if (post.petType) {
+      score += 10;
+    }
+
+    // Add to score if breed matches
+    if (post.breed) {
+      score += 15;
+    }
+
+    // Add to score if gender matches
+    if (post.gender) {
+      score += 10;
+    }
+
+    // Add to score if location is close
+    if (post.location) {
+      score += 15;
+    }
+
+    return Math.min(Math.round(score), 100);
+  };
+
+  // Determine confidence level based on match score
+  const getConfidenceFromScore = (score: number): "HIGH" | "MEDIUM" | "LOW" => {
+    if (score >= 80) return "HIGH";
+    if (score >= 50) return "MEDIUM";
+    return "LOW";
+  };
+
   const getConfidenceColor = (confidence: string) => {
     switch (confidence) {
       case "HIGH":
@@ -154,7 +217,25 @@ export default function ProbabilityPage() {
 
       if (matchData) {
         const parsedMatches = JSON.parse(matchData);
-        setMatches(parsedMatches);
+
+        // Process matches with proper score calculation
+        const processedMatches = parsedMatches.map((match: any) => {
+          const calculatedScore = calculateMatchScore(match);
+          const confidence = getConfidenceFromScore(calculatedScore);
+
+          return {
+            ...match,
+            matchScore: calculatedScore,
+            confidence: confidence,
+          };
+        });
+
+        // Sort by matchScore descending
+        const sorted = processedMatches.sort(
+          (a: any, b: any) => b.matchScore - a.matchScore,
+        );
+
+        setMatches(sorted);
       } else {
         // If no data in session, try to fetch from API
         const response = await fetch("http://localhost:8000/lostFound", {
@@ -164,7 +245,23 @@ export default function ProbabilityPage() {
           },
         });
         const data = await response.json();
-        setMatches(data.slice(0, 10)); // Limit to 10 matches
+
+        // Process and limit to 10 matches
+        const processedMatches = data
+          .map((post: any) => {
+            const calculatedScore = calculateMatchScore(post);
+            const confidence = getConfidenceFromScore(calculatedScore);
+
+            return {
+              ...post,
+              matchScore: calculatedScore,
+              confidence: confidence,
+            };
+          })
+          .sort((a: any, b: any) => b.matchScore - a.matchScore)
+          .slice(0, 10);
+
+        setMatches(processedMatches);
       }
     } catch (error) {
       console.log("Error fetching matches:", error);
@@ -201,7 +298,6 @@ export default function ProbabilityPage() {
       </div>
     );
   }
-  console.log(matches, "matches");
 
   return (
     <div className="min-h-screen py-12 bg-linear-to-br from-background via-card-bg to-background">
@@ -235,11 +331,11 @@ export default function ProbabilityPage() {
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
 
-                {/* Score Badge */}
+                {/* Score Badge - FIXED */}
                 <div className="absolute top-4 right-4">
                   <div className="flex flex-col items-center gap-1 bg-white/95 backdrop-blur-sm rounded-xl p-3 shadow-lg">
                     <span className="text-2xl font-bold text-primary">
-                      {match.matchScore}%
+                      {match.matchScore || 0}%
                     </span>
                     <span className="text-xs font-semibold text-muted">
                       {t.matchScore}
@@ -393,7 +489,7 @@ export default function ProbabilityPage() {
                 />
               </div>
 
-              {/* Match Score */}
+              {/* Match Score - FIXED */}
               <div className="bg-primary/10 rounded-xl p-6 border border-primary/20">
                 <div className="flex items-center justify-between">
                   <div>

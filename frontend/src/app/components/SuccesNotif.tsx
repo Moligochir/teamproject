@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { SuccesIcon } from "./icons";
 
 type SuccessNotificationProps = {
   message: string;
@@ -40,17 +41,7 @@ export function SuccessNotification({
       <div className="bg-white dark:bg-card-bg rounded-2xl shadow-2xl p-8 border border-green-200 dark:border-green-800 max-w-sm w-full mx-auto">
         <div className="flex justify-center mb-4">
           <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center animate-bounce">
-            <svg
-              className="w-8 h-8 text-green-500"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
+            <SuccesIcon />
           </div>
         </div>
 
