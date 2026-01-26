@@ -123,7 +123,7 @@ export function Navbar() {
             {/* Home */}
             <Link
               href="/"
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 relative ${
+              className={`px-4 py-2 cursor-pointer rounded-lg font-medium transition-all duration-300 relative ${
                 isActive("home")
                   ? "text-primary"
                   : "text-muted hover:text-primary"

@@ -16,7 +16,6 @@ import {
 export function NotificationDropdown() {
   const { notifications, markAsRead, clearAll } = useNotification();
   const { language } = useLanguage();
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [groupedNotifications, setGroupedNotifications] = useState<{
     today: Notification[];
     yesterday: Notification[];
@@ -221,139 +220,143 @@ export function NotificationDropdown() {
 
     return (
       <div key={title} className="border-t border-card-border first:border-t-0">
-        <div className="sticky top-12 bg-card-bg px-4 py-2 border-b border-card-border">
+        <div className="bg-card-bg px-4 py-2 border-b border-card-border">
           <h4 className="text-xs font-bold text-muted uppercase tracking-wider">
             {title}
           </h4>
         </div>
-        {items.map((notification) => (
-          <div
-            key={notification.id}
-            className={`p-4 hover:bg-primary/5 transition-colors cursor-pointer border-l-4 ${
-              notification.type === "match"
-                ? "border-l-primary"
-                : notification.type === "success"
-                  ? "border-l-green-500"
-                  : notification.type === "error"
-                    ? "border-l-red-500"
-                    : "border-l-blue-500"
-            } ${!notification.read ? "bg-primary/5" : ""}`}
-            onClick={() => markAsRead(notification.id)}
-          >
-            <div className="flex gap-3">
-              {/* Icon */}
-              <div>{getNotificationIcon(notification.type)}</div>
+        <div className="divide-y divide-card-border">
+          {items.map((notification) => (
+            <div
+              key={notification.id}
+              className={`p-4 hover:bg-primary/5 transition-colors cursor-pointer border-l-4 ${
+                notification.type === "match"
+                  ? "border-l-primary"
+                  : notification.type === "success"
+                    ? "border-l-green-500"
+                    : notification.type === "error"
+                      ? "border-l-red-500"
+                      : "border-l-blue-500"
+              } ${!notification.read ? "bg-primary/5" : ""}`}
+              onClick={() => markAsRead(notification.id)}
+            >
+              <div className="flex gap-3">
+                {/* Icon */}
+                <div>{getNotificationIcon(notification.type)}</div>
 
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                {/* Title & Time */}
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h4 className="font-semibold text-foreground text-sm">
-                      {notification.title}
-                    </h4>
-                    <p className="text-xs text-muted mt-0.5">
-                      {formatTime(notification.timestamp)}
-                    </p>
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  {/* Title & Time */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h4 className="font-semibold text-foreground text-sm">
+                        {notification.title}
+                      </h4>
+                      <p className="text-xs text-muted mt-0.5">
+                        {formatTime(notification.timestamp)}
+                      </p>
+                    </div>
+                    {!notification.read && (
+                      <div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-2" />
+                    )}
                   </div>
-                  {!notification.read && (
-                    <div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-2" />
+
+                  {/* Message */}
+                  <p className="text-xs text-muted mt-2 line-clamp-2">
+                    {notification.message}
+                  </p>
+
+                  {/* Match Details */}
+                  {notification.type === "match" &&
+                    notification.matchData &&
+                    notification.matchData.matches && (
+                      <div className="mt-3 space-y-2">
+                        {/* Summary */}
+                        {notification.matchData.totalMatches && (
+                          <div className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded w-fit">
+                            🎯 {notification.matchData.totalMatches}{" "}
+                            {t.totalMatches}
+                          </div>
+                        )}
+
+                        {/* Top matches preview */}
+                        <div className="space-y-1 max-h-32 overflow-y-auto">
+                          {notification.matchData.matches
+                            .slice(0, 2)
+                            .map((match, idx) => (
+                              <div
+                                key={idx}
+                                className="flex items-center justify-between text-xs bg-background px-2 py-1.5 rounded border border-card-border"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span>
+                                    {getConfidenceColor(match.confidence)}
+                                  </span>
+                                  <div>
+                                    <p className="font-medium text-foreground">
+                                      Match #{idx + 1}
+                                    </p>
+                                    <p className="text-muted text-xs">
+                                      {getConfidenceText(match.confidence)}
+                                    </p>
+                                  </div>
+                                </div>
+                                <span className="font-bold text-primary">
+                                  {match.matchScore}%
+                                </span>
+                              </div>
+                            ))}
+                          {notification.matchData.matches.length > 2 && (
+                            <p className="text-xs text-muted text-center py-1">
+                              +{notification.matchData.matches.length - 2}{" "}
+                              {language === "mn" ? "илүү" : "more"}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                  {/* Single Match Details */}
+                  {notification.type === "match" &&
+                    notification.matchData &&
+                    notification.matchData.matchId && (
+                      <div className="mt-2 p-2 bg-primary/10 rounded flex items-center justify-between border border-primary/20">
+                        <div className="text-xs">
+                          <p className="font-medium text-foreground">
+                            {getConfidenceColor(
+                              notification.matchData.confidence,
+                            )}{" "}
+                            {getConfidenceText(
+                              notification.matchData.confidence,
+                            )}
+                          </p>
+                          <p className="text-muted">
+                            {t.matchScore}: {notification.matchData.matchScore}%
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                  {/* Action Button */}
+                  {notification.action && (
+                    <Link href={notification.action.href}>
+                      <button className="mt-2 text-xs px-3 py-1.5 rounded bg-primary/20 text-primary hover:bg-primary/30 transition-all font-medium cursor-pointer">
+                        {notification.action.label}
+                      </button>
+                    </Link>
                   )}
                 </div>
-
-                {/* Message */}
-                <p className="text-xs text-muted mt-2 line-clamp-2">
-                  {notification.message}
-                </p>
-
-                {/* Match Details */}
-                {notification.type === "match" &&
-                  notification.matchData &&
-                  notification.matchData.matches && (
-                    <div className="mt-3 space-y-2">
-                      {/* Summary */}
-                      {notification.matchData.totalMatches && (
-                        <div className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded w-fit">
-                          🎯 {notification.matchData.totalMatches}{" "}
-                          {t.totalMatches}
-                        </div>
-                      )}
-
-                      {/* Top matches preview */}
-                      <div className="space-y-1 max-h-32 overflow-y-auto">
-                        {notification.matchData.matches
-                          .slice(0, 2)
-                          .map((match, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-center justify-between text-xs bg-background px-2 py-1.5 rounded border border-card-border"
-                            >
-                              <div className="flex items-center gap-2">
-                                <span>
-                                  {getConfidenceColor(match.confidence)}
-                                </span>
-                                <div>
-                                  <p className="font-medium text-foreground">
-                                    Match #{idx + 1}
-                                  </p>
-                                  <p className="text-muted text-xs">
-                                    {getConfidenceText(match.confidence)}
-                                  </p>
-                                </div>
-                              </div>
-                              <span className="font-bold text-primary">
-                                {match.matchScore}%
-                              </span>
-                            </div>
-                          ))}
-                        {notification.matchData.matches.length > 2 && (
-                          <p className="text-xs text-muted text-center py-1">
-                            +{notification.matchData.matches.length - 2}{" "}
-                            {language === "mn" ? "илүү" : "more"}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {/* Single Match Details */}
-                {notification.type === "match" &&
-                  notification.matchData &&
-                  notification.matchData.matchId && (
-                    <div className="mt-2 p-2 bg-primary/10 rounded flex items-center justify-between border border-primary/20">
-                      <div className="text-xs">
-                        <p className="font-medium text-foreground">
-                          {getConfidenceColor(
-                            notification.matchData.confidence,
-                          )}{" "}
-                          {getConfidenceText(notification.matchData.confidence)}
-                        </p>
-                        <p className="text-muted">
-                          {t.matchScore}: {notification.matchData.matchScore}%
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                {/* Action Button */}
-                {notification.action && (
-                  <Link href={notification.action.href}>
-                    <button className="mt-2 text-xs px-3 py-1.5 rounded bg-primary/20 text-primary hover:bg-primary/30 transition-all font-medium cursor-pointer">
-                      {notification.action.label}
-                    </button>
-                  </Link>
-                )}
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     );
   };
 
   if (notifications.length === 0) {
     return (
-      <div className="p-8 text-center">
+      <div className="p-8 text-center min-h-64 flex flex-col items-center justify-center">
         <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
           <BellIcon className="w-8 h-8 text-muted" />
         </div>
@@ -363,9 +366,9 @@ export function NotificationDropdown() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full max-h-96">
       {/* Header */}
-      <div className="sticky top-0 bg-card-bg border-b border-card-border px-4 py-3 flex items-center justify-between z-10">
+      <div className="bg-card-bg border-b border-card-border px-4 py-3 flex flex-col gap-5 items-center justify-between z-10 shrink-0">
         <h3 className="font-semibold text-foreground text-sm">
           {t.notifications}
         </h3>
@@ -381,7 +384,9 @@ export function NotificationDropdown() {
               title={t.markAllAsRead}
             >
               <CheckIcon className="w-3 h-3" />
-              <span className="hidden sm:inline">{t.markAllAsRead}</span>
+              <span className="hidden sm:inline text-xs">
+                {t.markAllAsRead}
+              </span>
             </button>
           )}
           {notifications.length > 0 && (
@@ -391,7 +396,7 @@ export function NotificationDropdown() {
               title={t.clearAll}
             >
               <TrashIcon className="w-3 h-3" />
-              <span className="hidden sm:inline">{t.clearAll}</span>
+              <span className="hidden sm:inline text-xs">{t.clearAll}</span>
             </button>
           )}
         </div>

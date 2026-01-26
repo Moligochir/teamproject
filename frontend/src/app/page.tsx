@@ -19,6 +19,10 @@ import {
   SearchIcon,
   SearchIcon2,
   SearchIconn,
+  Stat1,
+  Stat2,
+  Stat3,
+  Stat4,
 } from "./components/icons";
 import { useEffect, useState } from "react";
 import { useLanguage } from "./contexts/Languagecontext";
@@ -104,6 +108,7 @@ export default function Home() {
         searchPet: "Төөрсөн амьтад хайх",
       },
       loginRequired: "Та нэвтрэх шаардлагатай",
+      nerguiii: "Нэр мэдэгдэхгүй",
     },
     en: {
       hero: {
@@ -161,6 +166,7 @@ export default function Home() {
         searchPet: "Search Lost Pets",
       },
       loginRequired: "You need to sign in",
+      nerguiii: "Unknown",
     },
   };
 
@@ -223,6 +229,7 @@ export default function Home() {
               <p className="text-xl text-muted mb-8 max-w-lg">
                 {t.hero.description}
               </p>
+
               <div className="flex flex-wrap gap-4">
                 <Link
                   href="/report"
@@ -276,84 +283,28 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard
-              icon={
-                <svg
-                  className="w-7 h-7 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                  />
-                </svg>
-              }
-              value="248"
+              icon={<Stat1 />}
+              value={`${animalData.length}`}
               label={t.stats.total}
               color="bg-primary"
             />
             <StatCard
-              icon={
-                <svg
-                  className="w-7 h-7 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              }
-              value="112"
+              icon={<Stat2 />}
+              value={`${animalData.filter((d) => d.role === "Lost" || d.role.toLowerCase() === "lost").length}`}
               label={t.stats.lost}
-              color="bg-lost"
+              color="bg-gradient-to-br from-red-500 to-rose-500"
             />
             <StatCard
-              icon={
-                <svg
-                  className="w-7 h-7 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              }
-              value="136"
+              icon={<Stat3 />}
+              value={`${animalData.filter((d) => d.role === "Found" || d.role.toLowerCase() === "found").length}`}
               label={t.stats.found}
-              color="bg-found"
+              color="bg-gradient-to-br from-green-500 to-emerald-500"
             />
             <StatCard
-              icon={
-                <svg
-                  className="w-7 h-7 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              }
+              icon={<Stat4 />}
               value="89"
               label={t.stats.reunited}
-              color="bg-secondary"
+              color="bg-gradient-to-br from-cyan-500 to-blue-500"
             />
           </div>
         </div>
@@ -371,28 +322,46 @@ export default function Home() {
             <CategoryCard
               icon={<DogIcon />}
               title={t.categories.dog}
-              count={142}
+              count={
+                animalData.filter(
+                  (d) =>
+                    d.petType === "Dog" || d.petType.toLowerCase() === "dog",
+                ).length
+              }
               href="/browse?type=dog"
               delay="stagger-1"
             />
             <CategoryCard
               icon={<CatIcon />}
               title={t.categories.cat}
-              count={106}
+              count={
+                animalData.filter(
+                  (d) =>
+                    d.petType === "Cat" || d.petType.toLowerCase() === "cat",
+                ).length
+              }
               href="/browse?type=cat"
               delay="stagger-2"
             />
             <CategoryCard
               icon={<SearchIconn />}
               title={t.categories.lost}
-              count={112}
+              count={
+                animalData.filter(
+                  (d) => d.role === "Lost" || d.role.toLowerCase() === "lost",
+                ).length
+              }
               href="/browse?status=lost"
               delay="stagger-3"
             />
             <CategoryCard
               icon={<FoundIcon />}
               title={t.categories.found}
-              count={136}
+              count={
+                animalData.filter(
+                  (d) => d.role === "Found" || d.role.toLowerCase() === "found",
+                ).length
+              }
               href="/browse?status=found"
               delay="stagger-4"
             />
@@ -423,7 +392,7 @@ export default function Home() {
               <PetCard
                 key={pet._id}
                 role={pet.role}
-                name={pet.name}
+                name={pet.name || t.nerguiii}
                 gender={pet.gender}
                 location={pet.location}
                 description={pet.description}

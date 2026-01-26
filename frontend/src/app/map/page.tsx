@@ -165,7 +165,7 @@ export default function UBMap() {
                 : lunaIcon
             }
           >
-            <Popup maxWidth={120} minWidth={80}>
+            <Popup maxWidth={120} minWidth={320}>
               <div className="w-[320px] bg-white rounded-xl overflow-hidden">
                 <div className="relative w-full aspect-4/3 overflow-hidden bg-gray-100">
                   <img
