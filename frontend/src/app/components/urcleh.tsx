@@ -145,7 +145,7 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
         {animalData.map((adopt) => (
           <div
             key={adopt._id}
-            onClick={() => router.push(`/pet/${adopt._id}`)}
+            // onClick={() => router.push(`/pet/${adopt._id}`)}
             className="bg-card-bg rounded-2xl border border-card-border overflow-hidden cursor-pointer hover:border-primary/50 hover:-translate-y-0.5 transition"
             role="button"
             tabIndex={0}
