@@ -101,7 +101,7 @@ export default function ReportPage() {
       email: "Имэйл",
       emailPlaceholder: "example@email.com",
       phone: "Утасны дугаар",
-      phonePlaceholder: "9911-2233",
+      phonePlaceholder: "+976 XXXX XXXX",
 
       // Buttons
       submit: "Мэдээлэл илгээх",
@@ -193,7 +193,7 @@ export default function ReportPage() {
       email: "Email",
       emailPlaceholder: "example@email.com",
       phone: "Phone Number",
-      phonePlaceholder: "9911-2233",
+      phonePlaceholder: "+976 XXXX XXXX",
 
       // Buttons
       submit: "Submit Report",

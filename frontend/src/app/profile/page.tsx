@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useLanguage } from "../contexts/Languagecontext";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { SuccessNotification } from "../components/SuccesNotif";
+import { FoundIcon } from "../components/icons";
+import { Loading } from "../components/profileLoading";
 
 type userType = {
   _id: string;
@@ -20,173 +23,54 @@ type PostType = {
   userId: string;
   name: string;
   petType: string;
+  breed?: string;
   description: string;
-  role: "Төөрсөн" | "Олдсон";
+  role: "Lost" | "Found";
   image: string;
   location: string;
   createdAt: string;
   updatedAt: string;
 };
 
+type ActivityType = {
+  _id: string;
+  userId: string;
+  action: "created" | "edited" | "deleted";
+  postId: string;
+  postName: string;
+  postImage: string;
+  details: string;
+  timestamp: string;
+};
+
 export default function ProfilePage() {
   const { user: clerkUser } = useUser();
+  const { language, toggleLanguage } = useLanguage();
   const [userData, setUserData] = useState<userType | null>(null);
   const [myPosts, setMyPosts] = useState<PostType[]>([]);
+  const [activities, setActivities] = useState<ActivityType[]>([]);
+  const [theme, setTheme] = useState<"auto" | "light" | "dark">("auto");
   const [loading, setLoading] = useState(true);
   const [deleteModal, setDeleteModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<PostType | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
   const router = useRouter();
+
   // Edit form states
   const [editForm, setEditForm] = useState({
     name: "",
     petType: "",
+    breed: "",
     description: "",
-    role: "Төөрсөн" as "Төөрсөн" | "Олдсон",
+    role: "Lost" as "Lost" | "Found",
     location: "",
   });
 
-  // Get current user data
-  const GetCurrentUser = async () => {
-    if (!clerkUser?.id) return;
-
-    try {
-      const res = await fetch(`http://localhost:8000/users`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
-        },
-      });
-      const data = await res.json();
-
-      const currentUser = data.find(
-        (u: userType) => u.clerkId === clerkUser.id,
-      );
-      if (currentUser) {
-        setUserData(currentUser);
-        GetUserPosts(currentUser._id);
-      }
-    } catch (err) {
-      console.log("Error fetching user:", err);
-    }
-  };
-
-  // Get user's posts
-  const GetUserPosts = async (userId: string) => {
-    try {
-      const res = await fetch(`http://localhost:8000/lostFound`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
-        },
-      });
-      const data = await res.json();
-      const userPosts = data.filter((post: PostType) => post.userId === userId);
-      setMyPosts(userPosts);
-    } catch (err) {
-      console.log("Error fetching posts:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Open Edit Modal
-  const openEditModal = (post: PostType) => {
-    setSelectedPost(post);
-    setEditForm({
-      name: post.name,
-      petType: post.petType,
-      description: post.description,
-      role: post.role,
-      location: post.location,
-    });
-    setEditModal(true);
-  };
-
-  // Handle Edit Submit
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedPost) return;
-
-    try {
-      const res = await fetch(
-        `http://localhost:8000/lostFound/${selectedPost._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(editForm),
-        },
-      );
-
-      if (res.ok) {
-        const updatedPost = await res.json();
-        setMyPosts(
-          myPosts.map((post) =>
-            post._id === selectedPost._id ? updatedPost : post,
-          ),
-        );
-        setEditModal(false);
-        setSelectedPost(null);
-      }
-    } catch (err) {
-      console.log("Error updating post:", err);
-      alert("Зар засахад алдаа гарлаа");
-    }
-  };
-
-  // Open Delete Modal
-  const openDeleteModal = (post: PostType) => {
-    setSelectedPost(post);
-    setDeleteModal(true);
-  };
-
-  // Handle Delete Confirm
-  const handleDeleteConfirm = async () => {
-    if (!selectedPost) return;
-
-    try {
-      const res = await fetch(
-        `http://localhost:8000/lostFound/${selectedPost._id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      if (res.ok) {
-        setMyPosts(myPosts.filter((post) => post._id !== selectedPost._id));
-        setDeleteModal(false);
-        setSelectedPost(null);
-      }
-    } catch (err) {
-      console.log("Error deleting post:", err);
-      alert("Зар устгахад алдаа гарлаа");
-    }
-  };
-
-  useEffect(() => {
-    if (clerkUser?.id) {
-      GetCurrentUser();
-    }
-  }, [clerkUser]);
-
-  const { language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<"posts" | "saved" | "settings">(
-    "posts",
-  );
-
-  const stats = {
-    totalPosts: myPosts.length,
-    reunited: myPosts.filter((post) => post.role === "Олдсон").length,
-    active: myPosts.filter((post) => post.role === "Төөрсөн").length,
-  };
-
+  // Translations
   const translations = {
     mn: {
       myProfile: "Миний профайл",
@@ -195,7 +79,8 @@ export default function ProfilePage() {
       reunited: "Олдсон",
       activePosts: "Төөрсөн",
       myPosts: "Миний зарлалууд",
-      savedPosts: "Хадгалсан",
+      activity: "Идэвхилэл",
+      matches: "Тохиролууд",
       settings: "Тохиргоо",
       edit: "Засах",
       delete: "Устгах",
@@ -228,12 +113,31 @@ export default function ProfilePage() {
       editPost: "Зар засах",
       petName: "Амьтны нэр",
       petType: "Төрөл",
+      breed: "Үүлдэр",
       description: "Тайлбар",
       location: "Байршил",
       status: "Төлөв",
       deleteConfirm: "Та энэ зарыг устгахдаа итгэлтэй байна уу?",
       deleteWarning: "Энэ үйлдлийг буцаах боломжгүй. Зар бүрмөсөн устах болно.",
       confirmDelete: "Тийм, устга",
+      saving: "Хадгалж байна...",
+      deleting: "Устгаж байна...",
+      editSuccess: "✓ Зар амжилттай засагдлаа",
+      deleteSuccess: "✓ Зар амжилттай устгагдлаа",
+      editError: "Зар засахад алдаа гарлаа",
+      deleteError: "Зар устгахад алдаа гарлаа",
+      type: "Төрөл:",
+      breedd: "Үүлдэр:",
+      locc: "Байршил:",
+      noActivity: "Идэвхилэл байхгүй байна",
+      noActivityDesc:
+        "Таны зарлалуудыг засах эсвэл устгах үйлдэлүүдийг энд харж болно",
+      noMatches: "Тохирсон зар байхгүй байна",
+      noMatchesDesc:
+        "Та амьтнаа сайтад оруулахад тохирсон зарлалууд энд гарч ирнэ",
+      created: "Үүсгэсэн",
+      edited: "Засагдсан",
+      deletedAct: "Устгасан",
     },
     en: {
       myProfile: "My Profile",
@@ -242,7 +146,8 @@ export default function ProfilePage() {
       reunited: "Found",
       activePosts: "Lost",
       myPosts: "My Posts",
-      savedPosts: "Saved",
+      activity: "Activity",
+      matches: "Matches",
       settings: "Settings",
       edit: "Edit",
       delete: "Delete",
@@ -275,6 +180,7 @@ export default function ProfilePage() {
       editPost: "Edit Post",
       petName: "Pet Name",
       petType: "Pet Type",
+      breed: "Breed",
       description: "Description",
       location: "Location",
       status: "Status",
@@ -282,54 +188,280 @@ export default function ProfilePage() {
       deleteWarning:
         "This action cannot be undone. The post will be permanently deleted.",
       confirmDelete: "Yes, Delete",
+      saving: "Saving...",
+      deleting: "Deleting...",
+      editSuccess: "✓ Post updated successfully",
+      deleteSuccess: "✓ Post deleted successfully",
+      editError: "Failed to update post",
+      deleteError: "Failed to delete post",
+      type: "Pet Type:",
+      breedd: "Pet Breed:",
+      locc: "Location:",
+      noActivity: "No activity yet",
+      noActivityDesc: "Your recent edits and deletions will appear here",
+      noMatches: "No matches yet",
+      noMatchesDesc:
+        "When you create a listing, potential matches will appear here",
+      created: "Created",
+      edited: "Edited",
+      deletedAct: "Deleted",
     },
   };
 
   const t = translations[language];
 
-  if (loading) {
-    return (
-      <div className="min-h-screen py-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Profile Header Skeleton */}
-          <div className="bg-card-bg rounded-2xl border border-card-border p-8 mb-8 animate-pulse">
-            <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
-              <div className="w-32 h-32 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
-              <div className="flex-1 space-y-3">
-                <div className="h-8 bg-gray-300 dark:bg-gray-700 rounded w-48"></div>
-                <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-64"></div>
-                <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-40"></div>
-              </div>
-              <div className="flex gap-6">
-                <div className="w-20 h-20 bg-gray-300 dark:bg-gray-700 rounded"></div>
-                <div className="w-20 h-20 bg-gray-300 dark:bg-gray-700 rounded"></div>
-                <div className="w-20 h-20 bg-gray-300 dark:bg-gray-700 rounded"></div>
-              </div>
-            </div>
-          </div>
+  // Get current user data
+  const GetCurrentUser = async () => {
+    if (!clerkUser?.id) return;
 
-          {/* Posts Grid Skeleton */}
-          <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="bg-gray-300 dark:bg-gray-700 rounded-xl h-48 mb-4"></div>
-                  <div className="space-y-3">
-                    <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-3/4"></div>
-                    <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-full"></div>
-                    <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-5/6"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    try {
+      const res = await fetch(`http://localhost:8000/users`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+      const data = await res.json();
+
+      const currentUser = data.find(
+        (u: userType) => u.clerkId === clerkUser.id,
+      );
+      if (currentUser) {
+        setUserData(currentUser);
+        GetUserPosts(currentUser._id);
+        LoadActivities(currentUser._id);
+      }
+    } catch (err) {
+      console.log("Error fetching user:", err);
+    }
+  };
+
+  // Get user's posts
+  const GetUserPosts = async (userId: string) => {
+    try {
+      const res = await fetch(`http://localhost:8000/lostFound`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+      const data = await res.json();
+      const userPosts = data.filter((post: PostType) => post.userId === userId);
+      setMyPosts(userPosts);
+    } catch (err) {
+      console.log("Error fetching posts:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load activities from localStorage
+  const LoadActivities = (userId: string) => {
+    try {
+      const stored = localStorage.getItem("pawfinder_activities");
+      if (stored) {
+        const allActivities = JSON.parse(stored) as ActivityType[];
+        const userActivities = allActivities
+          .filter((a) => a.userId === userId)
+          .sort(
+            (a, b) =>
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+          );
+        setActivities(userActivities);
+      }
+    } catch (err) {
+      console.log("Error loading activities:", err);
+    }
+  };
+
+  // Open Edit Modal
+  const openEditModal = (post: PostType) => {
+    setSelectedPost(post);
+    setEditForm({
+      name: post.name,
+      breed: post.breed || "",
+      petType: post.petType,
+      description: post.description,
+      role: post.role,
+      location: post.location,
+    });
+    setEditModal(true);
+  };
+
+  // Handle Edit Submit
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPost) return;
+
+    setIsSaving(true);
+
+    try {
+      const res = await fetch(
+        `http://localhost:8000/lostFound/${selectedPost._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(editForm),
+        },
+      );
+
+      if (res.ok) {
+        const updatedPost = await res.json();
+        setMyPosts(
+          myPosts.map((post) =>
+            post._id === selectedPost._id
+              ? updatedPost.data || updatedPost
+              : post,
+          ),
+        );
+        setEditModal(false);
+        setSelectedPost(null);
+
+        // Show success notification
+        setSuccessMessage(t.editSuccess);
+        setShowSuccess(true);
+      } else {
+        throw new Error("Failed to update");
+      }
+    } catch (err) {
+      console.log("Error updating post:", err);
+      alert(t.editError);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Open Delete Modal
+  const openDeleteModal = (post: PostType) => {
+    setSelectedPost(post);
+    setDeleteModal(true);
+  };
+
+  // Handle Delete Confirm
+  const handleDeleteConfirm = async () => {
+    if (!selectedPost) return;
+
+    setIsDeleting(true);
+
+    try {
+      const res = await fetch(
+        `http://localhost:8000/lostFound/${selectedPost._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (res.ok) {
+        setMyPosts(myPosts.filter((post) => post._id !== selectedPost._id));
+        setDeleteModal(false);
+        setSelectedPost(null);
+
+        // Show success notification
+        setSuccessMessage(t.deleteSuccess);
+        setShowSuccess(true);
+      } else {
+        throw new Error("Failed to delete");
+      }
+    } catch (err) {
+      console.log("Error deleting post:", err);
+      alert(t.deleteError);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Handle theme change
+  const handleThemeChange = (newTheme: "auto" | "light" | "dark") => {
+    setTheme(newTheme);
+    localStorage.setItem("pawfinder_theme", newTheme);
+
+    // Apply theme
+    if (newTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else if (newTheme === "light") {
+      document.documentElement.classList.remove("dark");
+    } else {
+      // Auto - check system preference
+      if (
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+      ) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
+  };
+
+  // Format activity message
+  const getActivityMessage = (action: string, postName: string) => {
+    const actions = {
+      created: `${t.created}`,
+      edited: `${t.edited}`,
+      deleted: `${t.deletedAct}`,
+    };
+    return `${actions[action as keyof typeof actions]} "${postName}"`;
+  };
+
+  // Format activity time
+  const formatActivityTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return "just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
+
+  useEffect(() => {
+    if (clerkUser?.id) {
+      GetCurrentUser();
+    }
+
+    // Load saved theme
+    const savedTheme =
+      (localStorage.getItem("pawfinder_theme") as "auto" | "light" | "dark") ||
+      "auto";
+    setTheme(savedTheme);
+  }, [clerkUser]);
+
+  const [activeTab, setActiveTab] = useState<
+    "posts" | "activity" | "matches" | "settings"
+  >("posts");
+
+  const stats = {
+    totalPosts: myPosts.length,
+    reunited: myPosts.filter((post) => post.role === "Found").length,
+    active: myPosts.filter((post) => post.role === "Lost").length,
+  };
+
+  if (loading) {
+    return <Loading />;
   }
 
   return (
     <div className="min-h-screen py-12">
+      {/* Success Notification */}
+      <SuccessNotification
+        message={successMessage}
+        isVisible={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        duration={3000}
+      />
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Profile Header */}
         <div className="bg-card-bg rounded-2xl border border-card-border p-8 mb-8">
@@ -368,13 +500,13 @@ export default function ProfilePage() {
                 <div className="text-sm text-muted">{t.totalPosts}</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-found">
+                <div className="text-2xl font-bold text-green-500">
                   {stats.reunited}
                 </div>
                 <div className="text-sm text-muted">{t.reunited}</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-lost">
+                <div className="text-2xl font-bold text-red-500">
                   {stats.active}
                 </div>
                 <div className="text-sm text-muted">{t.activePosts}</div>
@@ -384,33 +516,45 @@ export default function ProfilePage() {
         </div>
 
         <div className="bg-card-bg rounded-2xl border border-card-border overflow-hidden">
-          <div className="flex border-b border-card-border">
+          <div className="flex border-b border-card-border overflow-x-auto">
             <button
               onClick={() => setActiveTab("posts")}
-              className={`flex-1 px-6 py-4 font-semibold  cursor-pointer relative group hover:bg-primary/10 rounded-md transition-all duration-300   ${
+              className={`flex-1 px-4 sm:px-6 rounded-lg py-4 font-semibold cursor-pointer transition-all whitespace-nowrap ${
                 activeTab === "posts"
                   ? "bg-primary text-white"
-                  : "text-muted hover:bg-card-bg/50"
+                  : "text-muted hover:bg-primary/10"
               }`}
             >
               {t.myPosts}
             </button>
+
             <button
-              onClick={() => setActiveTab("saved")}
-              className={`flex-1 px-6 py-4 font-semibold  cursor-pointer relative group hover:bg-primary/10 rounded-md transition-all duration-300 hover:text-black ${
-                activeTab === "saved"
+              onClick={() => setActiveTab("activity")}
+              className={`flex-1 px-4 sm:px-6 py-4 font-semibold cursor-pointer transition-all whitespace-nowrap ${
+                activeTab === "activity"
                   ? "bg-primary text-white"
-                  : "text-muted hover:bg-card-bg/50"
+                  : "text-muted hover:bg-primary/10"
               }`}
             >
-              {t.savedPosts}
+              {t.activity}
+            </button>
+
+            <button
+              onClick={() => setActiveTab("matches")}
+              className={`flex-1 px-4 sm:px-6 py-4 font-semibold cursor-pointer transition-all whitespace-nowrap ${
+                activeTab === "matches"
+                  ? "bg-primary text-white"
+                  : "text-muted hover:bg-primary/10 "
+              }`}
+            >
+              {t.matches}
             </button>
             <button
               onClick={() => setActiveTab("settings")}
-              className={`flex-1 px-6 py-4 font-semibold  cursor-pointer relative group hover:bg-primary/10 rounded-md transition-all duration-300 hover:text-black ${
+              className={`flex-1 px-4 sm:px-6 py-4 font-semibold cursor-pointer transition-all whitespace-nowrap ${
                 activeTab === "settings"
                   ? "bg-primary text-white"
-                  : "text-muted hover:bg-card-bg/50"
+                  : "text-muted hover:bg-primary/10"
               }`}
             >
               {t.settings}
@@ -425,9 +569,9 @@ export default function ProfilePage() {
                     {myPosts.map((post) => (
                       <div
                         key={post._id}
-                        className="w-[320px] cursor-pointer bg-white dark:bg-card-bg rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                        className="w-[320px] pet-card block bg-white dark:bg-card-bg rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
                       >
-                        <div className="relative w-full aspect-4/3 overflow-hidden bg-gray-100">
+                        <div className="relative w-full aspect-4/3 overflow-hidden bg-gray-100 ">
                           <img
                             src={post.image}
                             alt={post.name}
@@ -435,15 +579,15 @@ export default function ProfilePage() {
                           />
                           <div className="absolute top-3 left-3">
                             <span
-                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm ${
-                                post.role === "Төөрсөн"
+                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm text-white ${
+                                post.role === "Lost"
                                   ? "status-lost"
                                   : "status-found"
                               }`}
                             >
-                              {post.role === "Төөрсөн"
-                                ? "🔍 Төөрсөн"
-                                : "✓ Олдсон"}
+                              {post.role === "Lost"
+                                ? "🔍 " + t.lost
+                                : "✓ " + t.found}
                             </span>
                           </div>
                         </div>
@@ -453,84 +597,38 @@ export default function ProfilePage() {
                             {post.name}
                           </h3>
 
-                          <div className="space-y-3">
-                            <div className="flex items-center gap-2">
-                              <svg
-                                className="w-5 h-5 text-blue-600 dark:text-primary shrink-0"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                                />
-                              </svg>
-                              <span className="text-sm text-gray-500 dark:text-muted min-w-11.25">
-                                Төрөл:
-                              </span>
-                              <span className="text-sm font-semibold text-gray-900 dark:text-foreground">
-                                {post.petType}
-                              </span>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <svg
-                                className="w-5 h-5 text-blue-600 dark:text-primary shrink-0"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                                />
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                                />
-                              </svg>
-                              <span className="text-sm text-gray-600 dark:text-muted">
-                                {post.location}
-                              </span>
-                            </div>
-
-                            <div className="flex gap-2">
-                              <svg
-                                className="w-5 h-5 text-blue-600 dark:text-primary shrink-0 mt-0.5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                              </svg>
-                              <p className="text-sm text-gray-600 dark:text-muted leading-relaxed line-clamp-3 flex-1">
-                                {post.description}
+                          <div className="space-y-2 text-sm">
+                            <p className="text-muted">
+                              <span className="font-semibold">{t.type}</span>
+                              {post.petType}
+                            </p>
+                            {post.breed && (
+                              <p className="text-muted">
+                                <span className="font-semibold">
+                                  {t.breedd}
+                                </span>{" "}
+                                {post.breed}
                               </p>
-                            </div>
+                            )}
+                            <p className="text-muted flex gap-2">
+                              <span className="font-semibold">{t.locc}</span>
+                              {post.location.slice(0, 20)}...
+                            </p>
+                            <p className="text-muted line-clamp-2">
+                              {post.description}
+                            </p>
                           </div>
 
                           <div className="flex gap-2 pt-2">
                             <button
                               onClick={() => openEditModal(post)}
-                              className="flex-1 px-4 py-2.5 bg-primary hover:bg-primary-dark cursor-pointer text-white rounded-lg font-semibold text-sm transition-colors duration-200"
+                              className="flex-1 cursor-pointer px-4 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold text-sm transition-colors"
                             >
                               {t.edit}
                             </button>
                             <button
                               onClick={() => openDeleteModal(post)}
-                              className="px-4 py-2.5 cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold text-sm transition-colors duration-200"
+                              className="px-4 py-2.5 cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold text-sm transition-colors"
                             >
                               {t.delete}
                             </button>
@@ -546,7 +644,7 @@ export default function ProfilePage() {
                     <p className="text-muted mb-6">{t.noPostsDesc}</p>
                     <Link
                       href="/report"
-                      className="inline-block px-6 py-3 bg-primary text-white rounded-full font-semibold hover:bg-primary-dark transition-all"
+                      className="inline-block px-6 py-3 bg-primary text-white rounded-full font-semibold hover:bg-primary-dark"
                     >
                       {t.createPost}
                     </Link>
@@ -555,127 +653,507 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {activeTab === "saved" && (
+            {activeTab === "activity" && (
+              <div>
+                {activities.length > 0 ? (
+                  <div className="space-y-4">
+                    {activities.map((activity) => (
+                      <div
+                        key={activity._id}
+                        className="flex gap-4 p-4 border border-card-border rounded-xl hover:bg-primary/5 transition-colors"
+                      >
+                        {/* Activity Image */}
+                        <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-gray-700">
+                          <img
+                            src={
+                              activity.postImage ||
+                              "https://via.placeholder.com/64"
+                            }
+                            alt={activity.postName}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+
+                        {/* Activity Details */}
+                        <div className="flex-1 min-w-0">
+                          {/* Action Icon & Message */}
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-lg">
+                              {activity.action === "created"
+                                ? "✨"
+                                : activity.action === "edited"
+                                  ? "✏️"
+                                  : "🗑️"}
+                            </span>
+                            <p className="font-semibold text-sm text-gray-900 dark:text-foreground">
+                              {getActivityMessage(
+                                activity.action,
+                                activity.postName,
+                              )}
+                            </p>
+                          </div>
+
+                          {/* Caption */}
+                          <p className="text-xs text-muted mb-2">
+                            {activity.details}
+                          </p>
+
+                          {/* Time */}
+                          <p className="text-xs text-muted">
+                            {formatActivityTime(activity.timestamp)}
+                          </p>
+                        </div>
+
+                        {/* Action Badge */}
+                        <div
+                          className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold text-white whitespace-nowrap ${
+                            activity.action === "created"
+                              ? "bg-green-500"
+                              : activity.action === "edited"
+                                ? "bg-blue-500"
+                                : "bg-red-500"
+                          }`}
+                        >
+                          {activity.action === "created"
+                            ? t.created
+                            : activity.action === "edited"
+                              ? t.edited
+                              : t.deletedAct}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">📊</div>
+                    <h3 className="text-xl font-bold mb-2">{t.noActivity}</h3>
+                    <p className="text-muted mb-6">{t.noActivityDesc}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "matches" && (
               <div className="text-center py-12">
-                <div className="text-6xl mb-4">🔖</div>
-                <h3 className="text-xl font-bold mb-2">
-                  {language === "mn"
-                    ? "Хадгалсан зар байхгүй"
-                    : "No Saved Posts"}
-                </h3>
-                <p className="text-muted">
-                  {language === "mn"
-                    ? "Дараа үзэх зарлалуудаа хадгална уу"
-                    : "Save posts to view them later"}
-                </p>
+                <div className="text-6xl mb-4 flex justify-center">
+                  <FoundIcon />
+                </div>
+                <h3 className="text-xl font-bold mb-2">{t.noMatches}</h3>
+                <p className="text-muted mb-6">{t.noMatchesDesc}</p>
+                <Link
+                  href="/report"
+                  className="inline-block px-6 py-3 bg-primary text-white rounded-full font-semibold hover:bg-primary-dark"
+                >
+                  {t.createPost}
+                </Link>
               </div>
             )}
 
             {activeTab === "settings" && (
-              <div className="space-y-8 max-w-2xl">
-                <div>
-                  <h3 className="text-xl font-bold mb-4">{t.personalInfo}</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        {t.name}
-                      </label>
-                      <input
-                        type="text"
-                        defaultValue={userData?.name}
-                        className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        {t.email}
-                      </label>
-                      <input
-                        type="email"
-                        defaultValue={userData?.email}
-                        className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        {t.phone}
-                      </label>
-                      <input
-                        type="tel"
-                        defaultValue={userData?.phonenumber}
-                        className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-bold mb-4">{t.password}</h3>
-                  <button className="px-6 py-3 bg-card-bg border border-card-border rounded-xl font-semibold hover:border-primary transition-all">
-                    {t.changePassword}
-                  </button>
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-bold mb-4">{t.notifications}</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-background border border-card-border rounded-xl">
+              <div className="  flex flex-col justify-center">
+                <div className="space-y-8 max-w-4xl">
+                  {/* Personal Information */}
+                  <div className="bg-background rounded-xl p-6 border border-card-border ">
+                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                      <span className="text-2xl">👤</span>
+                      {language === "mn"
+                        ? "Хувийн мэдээлэл"
+                        : "Personal Information"}
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <div className="font-semibold">{t.emailNotif}</div>
-                        <div className="text-sm text-muted">
-                          {t.emailNotifDesc}
-                        </div>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
+                        <label className="block text-sm font-medium mb-2">
+                          {t.name}
+                        </label>
                         <input
-                          type="checkbox"
-                          className="sr-only peer"
-                          defaultChecked
+                          type="text"
+                          defaultValue={userData?.name}
+                          className="w-full px-4 py-3 bg-white dark:bg-card-bg border border-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                          placeholder={
+                            language === "mn"
+                              ? "Нэрээ оруулна уу"
+                              : "Enter your name"
+                          }
                         />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                      </label>
-                    </div>
-                    <div className="flex items-center justify-between p-4 bg-background border border-card-border rounded-xl">
-                      <div>
-                        <div className="font-semibold">{t.pushNotif}</div>
-                        <div className="text-sm text-muted">
-                          {t.pushNotifDesc}
-                        </div>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                      </label>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          {t.email}
+                        </label>
+                        <input
+                          type="email"
+                          defaultValue={userData?.email}
+                          className="w-full px-4 py-3 bg-white dark:bg-card-bg border border-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                          placeholder="your@email.com"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          {t.phone}
+                        </label>
+                        <input
+                          type="tel"
+                          defaultValue={userData?.phonenumber}
+                          className="w-full px-4 py-3 bg-white dark:bg-card-bg border border-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                          placeholder="+976 XXXX XXXX"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          {language === "mn" ? "Хүйс" : "Gender"}
+                        </label>
+                        <select className="w-full px-4 py-3 bg-white dark:bg-card-bg border border-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer">
+                          <option value="">
+                            {language === "mn" ? "Сонго" : "Select"}
+                          </option>
+                          <option value="male">
+                            {language === "mn" ? "Эрэгтэй" : "Male"}
+                          </option>
+                          <option value="female">
+                            {language === "mn" ? "Эмэгтэй" : "Female"}
+                          </option>
+                          <option value="other">
+                            {language === "mn" ? "Бусад" : "Other"}
+                          </option>
+                        </select>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex gap-4">
-                  <button className="px-8 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-all">
-                    {t.saveChanges}
-                  </button>
-                  <button className="px-8 py-3 bg-card-bg border border-card-border rounded-xl font-semibold hover:border-primary transition-all">
-                    {t.cancel}
-                  </button>
-                </div>
-
-                <div className="border-t border-card-border pt-8">
-                  <h3 className="text-xl font-bold mb-4 text-red-500">
-                    {t.accountSettings}
-                  </h3>
-                  <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                    <div className="flex items-start justify-between">
+                  {/* Password & Security */}
+                  <div className="bg-background rounded-xl p-6 border border-card-border">
+                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                      <span className="text-2xl">🔒</span>
+                      {language === "mn" ? "Аюулгүй байдал" : "Security"}
+                    </h3>
+                    <div className="space-y-4">
                       <div>
-                        <div className="font-semibold text-red-600 dark:text-red-400">
-                          {t.deleteAccount}
-                        </div>
-                        <div className="text-sm text-red-600/80 dark:text-red-400/80 mt-1">
-                          {t.deleteAccountDesc}
+                        <label className="block text-sm font-medium mb-2">
+                          {t.password}
+                        </label>
+                        <div className="flex gap-3">
+                          <input
+                            type="password"
+                            className="flex-1 px-4 py-3 bg-white dark:bg-card-bg border border-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                            placeholder="••••••••"
+                            disabled
+                          />
+                          <button className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold transition-all">
+                            {t.changePassword}
+                          </button>
                         </div>
                       </div>
-                      <button className="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-all">
-                        {t.deleteBtn}
-                      </button>
+                      <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <p className="text-sm text-blue-600 dark:text-blue-400">
+                          {language === "mn"
+                            ? "Нууц үг өөрчлөх үед нэмэлт аюулгүй байдлын шалгалт хийгдэнэ"
+                            : "You'll need to verify your email to change your password"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Notification Preferences */}
+                  <div className="bg-background rounded-xl p-6 border border-card-border">
+                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                      <span className="text-2xl">🔔</span>
+                      {t.notifications}
+                    </h3>
+                    <div className="space-y-4">
+                      {/* Email Notifications */}
+                      <div className="flex items-center justify-between p-4 bg-white dark:bg-card-bg rounded-lg border border-card-border hover:border-primary transition-all">
+                        <div className="flex-1">
+                          <div className="font-semibold">{t.emailNotif}</div>
+                          <div className="text-sm text-muted">
+                            {t.emailNotifDesc}
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            defaultChecked
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                      </div>
+
+                      {/* Push Notifications */}
+                      <div className="flex items-center justify-between p-4 bg-white dark:bg-card-bg rounded-lg border border-card-border hover:border-primary transition-all">
+                        <div className="flex-1">
+                          <div className="font-semibold">{t.pushNotif}</div>
+                          <div className="text-sm text-muted">
+                            {t.pushNotifDesc}
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            defaultChecked
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                      </div>
+
+                      {/* Match Notifications */}
+                      <div className="flex items-center justify-between p-4 bg-white dark:bg-card-bg rounded-lg border border-card-border hover:border-primary transition-all">
+                        <div className="flex-1">
+                          <div className="font-semibold">
+                            {language === "mn"
+                              ? "Тохирсон мэдэгдэл"
+                              : "Match Notifications"}
+                          </div>
+                          <div className="text-sm text-muted">
+                            {language === "mn"
+                              ? "Амьтан олдоход мэдэгдэл авах"
+                              : "Get notified when a match is found"}
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            defaultChecked
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                      </div>
+
+                      {/* Message Notifications */}
+                      <div className="flex items-center justify-between p-4 bg-white dark:bg-card-bg rounded-lg border border-card-border hover:border-primary transition-all">
+                        <div className="flex-1">
+                          <div className="font-semibold">
+                            {language === "mn"
+                              ? "Мессеж мэдэгдэл"
+                              : "Message Notifications"}
+                          </div>
+                          <div className="text-sm text-muted">
+                            {language === "mn"
+                              ? "Шинэ мессеж ирэхэд мэдэгдэл авах"
+                              : "Get notified about new messages"}
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            defaultChecked
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Privacy Settings */}
+                  <div className="bg-background rounded-xl p-6 border border-card-border">
+                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                      <span className="text-2xl">🔐</span>
+                      {language === "mn"
+                        ? "Нууцлалын тохиргоо"
+                        : "Privacy Settings"}
+                    </h3>
+                    <div className="space-y-4">
+                      {/* Public Profile */}
+                      <div className="flex items-center justify-between p-4 bg-white dark:bg-card-bg rounded-lg border border-card-border hover:border-primary transition-all">
+                        <div className="flex-1">
+                          <div className="font-semibold">
+                            {language === "mn"
+                              ? "Нээлттэй профайл"
+                              : "Public Profile"}
+                          </div>
+                          <div className="text-sm text-muted">
+                            {language === "mn"
+                              ? "Бусад хэрэглэгчид таны профайлыг харж болно"
+                              : "Other users can view your profile"}
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            defaultChecked
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                      </div>
+
+                      {/* Show Location */}
+                      <div className="flex items-center justify-between p-4 bg-white dark:bg-card-bg rounded-lg border border-card-border hover:border-primary transition-all">
+                        <div className="flex-1">
+                          <div className="font-semibold">
+                            {language === "mn"
+                              ? "Байршилыг харуулах"
+                              : "Show Location"}
+                          </div>
+                          <div className="text-sm text-muted">
+                            {language === "mn"
+                              ? "Таны байршилыг бусад ашигладаг харж болно"
+                              : "Allow users to see your location"}
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            defaultChecked
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* App Preferences */}
+                  <div className="bg-background rounded-xl p-6 border border-card-border">
+                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                      <span className="text-2xl">⚙️</span>
+                      {language === "mn"
+                        ? "Аппликэйшн сонголт"
+                        : "App Preferences"}
+                    </h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          {language === "mn"
+                            ? "Үзүүлэх хэл"
+                            : "Display Language"}
+                        </label>
+                        <select
+                          value={language}
+                          onChange={(e) => {
+                            if (e.target.value !== language) {
+                              toggleLanguage();
+                            }
+                          }}
+                          className="w-full px-4 py-3 bg-white dark:bg-card-bg border border-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer"
+                        >
+                          <option value="mn">
+                            {language === "mn" ? "Монгол" : "Mongolian"}
+                          </option>
+                          <option value="en">
+                            {language === "mn" ? "Англи" : "English"}
+                          </option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          {language === "mn" ? "Өнгөний схем" : "Color Theme"}
+                        </label>
+                        <select
+                          value={theme}
+                          onChange={(e) =>
+                            handleThemeChange(
+                              e.target.value as "auto" | "light" | "dark",
+                            )
+                          }
+                          className="w-full px-4 py-3 bg-white dark:bg-card-bg border border-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer"
+                        >
+                          <option value="auto">
+                            {language === "mn" ? "🔄 Автомат" : "🔄 Auto"}
+                          </option>
+                          <option value="light">
+                            {language === "mn" ? "☀️ Цагаан" : "☀️ Light"}
+                          </option>
+                          <option value="dark">
+                            {language === "mn" ? "🌙 Хар" : "🌙 Dark"}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <button className="flex-1 px-8 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-all flex items-center justify-center gap-2">
+                      <span>💾</span>
+                      {t.saveChanges}
+                    </button>
+                    <button className="flex-1 px-8 py-3 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-700 transition-all flex items-center justify-center gap-2">
+                      <span>↩️</span>
+                      {t.cancel}
+                    </button>
+                  </div>
+
+                  {/* Danger Zone */}
+                  <div className="border-t-2 border-red-200 dark:border-red-800 pt-8">
+                    <h3 className="text-xl font-bold mb-6 text-red-600 dark:text-red-400 flex items-center gap-2">
+                      <span className="text-2xl">⚠️</span>
+                      {language === "mn" ? "Опасан үйлдлүүд" : "Danger Zone"}
+                    </h3>
+
+                    {/* Delete Account */}
+                    <div className="p-6 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="text-lg font-bold text-red-600 dark:text-red-400 mb-2">
+                            {t.deleteAccount}
+                          </div>
+                          <p className="text-sm text-red-600/80 dark:text-red-400/80 mb-4">
+                            {t.deleteAccountDesc}
+                          </p>
+                          <ul className="text-sm text-red-600/80 dark:text-red-400/80 list-disc list-inside space-y-1">
+                            <li>
+                              {language === "mn"
+                                ? "Бүх зарлалуудаа устах болно"
+                                : "All your posts will be deleted"}
+                            </li>
+                            <li>
+                              {language === "mn"
+                                ? "Бүх мессеж устах болно"
+                                : "All messages will be erased"}
+                            </li>
+                            <li>
+                              {language === "mn"
+                                ? "Энэ үйлдлийг буцаах боломжгүй"
+                                : "This action cannot be undone"}
+                            </li>
+                          </ul>
+                        </div>
+                        <button className="ml-4 px-6 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-all whitespace-nowrap shrink-0">
+                          {t.deleteBtn}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Account Info */}
+                    <div className="mt-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                      <p className="text-xs text-muted mb-3 font-semibold">
+                        {language === "mn"
+                          ? "📊 Акаунтын мэдээлэл"
+                          : "📊 Account Information"}
+                      </p>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+                        <div className="p-3 bg-white dark:bg-gray-900 rounded-lg">
+                          <p className="text-muted text-xs mb-1">
+                            {language === "mn" ? "📅 Үүссэн" : "📅 Created"}
+                          </p>
+                          <p className="font-semibold">
+                            {clerkUser?.createdAt
+                              ? new Date(
+                                  clerkUser.createdAt,
+                                ).toLocaleDateString()
+                              : "-"}
+                          </p>
+                        </div>
+                        <div className="p-3 bg-white dark:bg-gray-900 rounded-lg">
+                          <p className="text-muted text-xs mb-1">
+                            {language === "mn"
+                              ? "📝 Нийт зар"
+                              : "📝 Total Posts"}
+                          </p>
+                          <p className="font-semibold">{stats.totalPosts}</p>
+                        </div>
+                        <div className="p-3 bg-white dark:bg-gray-900 rounded-lg">
+                          <p className="text-muted text-xs mb-1">
+                            {language === "mn"
+                              ? "⚡ Идэвхилэл"
+                              : "⚡ Activities"}
+                          </p>
+                          <p className="font-semibold">{activities.length}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -689,11 +1167,11 @@ export default function ProfilePage() {
       {editModal && selectedPost && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-card-bg rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-card-border">
+            <div className="p-6 border-b border-card-border sticky top-0">
               <h2 className="text-2xl font-bold">{t.editPost}</h2>
             </div>
 
-            <form onSubmit={handleEditSubmit} className="p-6 space-y-6">
+            <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">
                   {t.petName}
@@ -704,7 +1182,7 @@ export default function ProfilePage() {
                   onChange={(e) =>
                     setEditForm({ ...editForm, name: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2 bg-background border border-card-border rounded-lg focus:ring-2 focus:ring-primary outline-none"
                   required
                 />
               </div>
@@ -713,14 +1191,30 @@ export default function ProfilePage() {
                 <label className="block text-sm font-medium mb-2">
                   {t.petType}
                 </label>
-                <input
-                  type="text"
+                <select
                   value={editForm.petType}
                   onChange={(e) =>
                     setEditForm({ ...editForm, petType: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full cursor-pointer px-4 py-2 bg-background border border-card-border rounded-lg focus:ring-2 focus:ring-primary outline-none"
                   required
+                >
+                  <option value="Dog">{t.dog}</option>
+                  <option value="Cat">{t.cat}</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t.breed}
+                </label>
+                <input
+                  type="text"
+                  value={editForm.breed}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, breed: e.target.value })
+                  }
+                  className="w-full px-4 py-2 bg-background border border-card-border rounded-lg focus:ring-2 focus:ring-primary outline-none"
                 />
               </div>
 
@@ -733,13 +1227,13 @@ export default function ProfilePage() {
                   onChange={(e) =>
                     setEditForm({
                       ...editForm,
-                      role: e.target.value as "Төөрсөн" | "Олдсон",
+                      role: e.target.value as "Lost" | "Found",
                     })
                   }
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 cursor-pointer py-2 bg-background border border-card-border rounded-lg focus:ring-2 focus:ring-primary outline-none"
                 >
-                  <option value="Төөрсөн">{t.lost}</option>
-                  <option value="Олдсон">{t.found}</option>
+                  <option value="Lost">{t.lost}</option>
+                  <option value="Found">{t.found}</option>
                 </select>
               </div>
 
@@ -753,7 +1247,7 @@ export default function ProfilePage() {
                   onChange={(e) =>
                     setEditForm({ ...editForm, location: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2 bg-background border border-card-border rounded-lg focus:ring-2 focus:ring-primary outline-none"
                   required
                 />
               </div>
@@ -767,18 +1261,19 @@ export default function ProfilePage() {
                   onChange={(e) =>
                     setEditForm({ ...editForm, description: e.target.value })
                   }
-                  rows={4}
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                  rows={3}
+                  className="w-full px-4 py-2 bg-background border border-card-border rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none"
                   required
                 />
               </div>
 
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 cursor-pointer px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-all"
+                  disabled={isSaving}
+                  className="flex-1 cursor-pointer px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed transition-all"
                 >
-                  {t.saveChanges}
+                  {isSaving ? t.saving : t.saveChanges}
                 </button>
                 <button
                   type="button"
@@ -786,7 +1281,8 @@ export default function ProfilePage() {
                     setEditModal(false);
                     setSelectedPost(null);
                   }}
-                  className="flex-1 cursor-pointer px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
+                  disabled={isSaving}
+                  className="flex-1 cursor-pointer px-6 py-2 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 disabled:opacity-60 transition-all"
                 >
                   {t.cancel}
                 </button>
@@ -796,59 +1292,42 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       {deleteModal && selectedPost && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-card-bg rounded-2xl max-w-md w-full p-6">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-8 h-8 text-red-600 dark:text-red-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold mb-2">{t.deleteConfirm}</h3>
-              <p className="text-muted text-sm">{t.deleteWarning}</p>
-            </div>
-
-            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 mb-6">
+          <div className="bg-white dark:bg-card-bg rounded-2xl max-w-md w-full p-6 text-center">
+            <h3 className="text-xl font-bold mb-4">{t.deleteConfirm}</h3>
+            <p className="text-muted mb-6 text-sm">{t.deleteWarning}</p>
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 mb-6">
               <div className="flex items-center gap-3">
                 <img
                   src={selectedPost.image}
                   alt={selectedPost.name}
                   className="w-16 h-16 rounded-lg object-cover"
                 />
-                <div className="flex-1">
+                <div className="flex-1 text-left">
                   <p className="font-semibold">{selectedPost.name}</p>
                   <p className="text-sm text-muted">{selectedPost.petType}</p>
                 </div>
               </div>
             </div>
-
             <div className="flex gap-3">
               <button
                 onClick={() => {
                   setDeleteModal(false);
                   setSelectedPost(null);
                 }}
-                className="flex-1 px-6 cursor-pointer py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
+                disabled={isDeleting}
+                className="flex-1 px-6 py-2 cursor-pointer bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 disabled:opacity-60 transition-all"
               >
                 {t.cancel}
               </button>
               <button
                 onClick={handleDeleteConfirm}
-                className="flex-1 px-6 py-3 cursor-pointer bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-all"
+                disabled={isDeleting}
+                className="flex-1 px-6 py-2 cursor-pointer bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 disabled:opacity-60 transition-all"
               >
-                {t.confirmDelete}
+                {isDeleting ? t.deleting : t.confirmDelete}
               </button>
             </div>
           </div>
