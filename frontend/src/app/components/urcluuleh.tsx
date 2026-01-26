@@ -60,7 +60,7 @@ export function UrcluulehPage() {
       email: "Имэйл",
       emailPlaceholder: "example@email.com",
       phone: "Утасны дугаар",
-      phonePlaceholder: "9911-2233",
+      phonePlaceholder: "+976 XXXX XXXX",
 
       // Buttons
       submit: "Мэдээлэл илгээх",
@@ -99,7 +99,7 @@ export function UrcluulehPage() {
       email: "Email",
       emailPlaceholder: "example@email.com",
       phone: "Phone Number",
-      phonePlaceholder: "555-1234",
+      phonePlaceholder: "+976 XXXX XXXX",
 
       // Buttons
       submit: "Submit Information",

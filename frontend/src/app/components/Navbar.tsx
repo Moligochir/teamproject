@@ -81,7 +81,7 @@ export function Navbar() {
       login: "Sign In",
       report: "Report",
       loginRequired: "You need to sign in",
-      langButton: "МОН",
+      langButton: "МON",
       aboutUs: "About Us",
       toto: "Adopter side",
       toto2: "Provider side",
@@ -477,7 +477,6 @@ export function Navbar() {
                 <button
                   onClick={() => {
                     toggleLanguage();
-                    setMobileMenuOpen(false);
                   }}
                   className="flex-1 px-4 py-2 bg-primary/20 text-primary rounded-lg font-semibold hover:bg-primary/30 transition-all"
                 >

@@ -61,13 +61,13 @@ export default function RootLayout({
           className={`${nunito.variable} ${nunitoSans.variable} antialiased `}
         >
           <ThemeProvider>
-            <LanguageProvider>
-              <NotificationProvider>
+            <NotificationProvider>
+              <LanguageProvider>
                 <Navbar />
                 <main className="pt-16">{children}</main>
                 <Footer />
-              </NotificationProvider>
-            </LanguageProvider>
+              </LanguageProvider>
+            </NotificationProvider>
           </ThemeProvider>
         </body>
       </html>

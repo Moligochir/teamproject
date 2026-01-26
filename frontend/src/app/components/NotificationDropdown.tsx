@@ -1,14 +1,33 @@
 "use client";
 
-import React, { useState } from "react";
-import { useNotification } from "../contexts/Notificationcontext";
+import React, { useState, useEffect } from "react";
+import { useNotification, Notification } from "../contexts/Notificationcontext";
 import Link from "next/link";
 import { useLanguage } from "../contexts/Languagecontext";
+import {
+  CheckCircleIcon,
+  XCircleIcon,
+  InfoIcon,
+  BellIcon,
+  TrashIcon,
+  CheckIcon,
+} from "lucide-react";
 
 export function NotificationDropdown() {
   const { notifications, markAsRead, clearAll } = useNotification();
   const { language } = useLanguage();
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [groupedNotifications, setGroupedNotifications] = useState<{
+    today: Notification[];
+    yesterday: Notification[];
+    lastWeek: Notification[];
+    older: Notification[];
+  }>({
+    today: [],
+    yesterday: [],
+    lastWeek: [],
+    older: [],
+  });
 
   const translations = {
     mn: {
@@ -21,6 +40,12 @@ export function NotificationDropdown() {
       lowConfidence: "Нам итгэлцүүрийн",
       matchScore: "Тохирлын оноо",
       totalMatches: "нийт тохирол олдлоо",
+      notifications: "Мэдэгдлүүд",
+      today: "Өнөөдөр",
+      yesterday: "Өчигдөр",
+      lastWeek: "Энэ долоо хоног",
+      older: "Хуучин",
+      noOlderNotifications: "Хуучин мэдэгдэл байхгүй",
     },
     en: {
       noNotifications: "No notifications",
@@ -32,10 +57,124 @@ export function NotificationDropdown() {
       lowConfidence: "Low confidence",
       matchScore: "Match score",
       totalMatches: "total matches found",
+      notifications: "Notifications",
+      today: "Today",
+      yesterday: "Yesterday",
+      lastWeek: "This week",
+      older: "Older",
+      noOlderNotifications: "No older notifications",
     },
   };
 
   const t = translations[language];
+
+  // Get time category
+  const getTimeCategory = (timestamp: Date) => {
+    const now = new Date();
+    const notificationDate = new Date(timestamp);
+
+    // Reset times for comparison
+    now.setHours(0, 0, 0, 0);
+    notificationDate.setHours(0, 0, 0, 0);
+
+    const diffTime = now.getTime() - notificationDate.getTime();
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+    if (diffDays === 0) return "today";
+    if (diffDays === 1) return "yesterday";
+    if (diffDays < 7) return "lastWeek";
+    return "older";
+  };
+
+  // Format time
+  const formatTime = (timestamp: Date) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+
+    const sameDay = date.toDateString() === now.toDateString();
+
+    if (sameDay) {
+      return date.toLocaleTimeString(language === "mn" ? "mn-MN" : "en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
+    return date.toLocaleDateString(language === "mn" ? "mn-MN" : "en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // Sort and group notifications
+  useEffect(() => {
+    if (notifications.length === 0) {
+      setGroupedNotifications({
+        today: [],
+        yesterday: [],
+        lastWeek: [],
+        older: [],
+      });
+      return;
+    }
+
+    // Sort by timestamp (newest first)
+    const sorted = [...notifications].sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+    );
+
+    // Group by time
+    const grouped = {
+      today: sorted.filter((n) => getTimeCategory(n.timestamp) === "today"),
+      yesterday: sorted.filter(
+        (n) => getTimeCategory(n.timestamp) === "yesterday",
+      ),
+      lastWeek: sorted.filter(
+        (n) => getTimeCategory(n.timestamp) === "lastWeek",
+      ),
+      older: sorted.filter((n) => getTimeCategory(n.timestamp) === "older"),
+    };
+
+    setGroupedNotifications(grouped);
+  }, [notifications, language]);
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "match":
+        return (
+          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
+            <BellIcon className="w-4 h-4" />
+          </div>
+        );
+      case "success":
+        return (
+          <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-600 shrink-0">
+            <CheckCircleIcon className="w-4 h-4" />
+          </div>
+        );
+      case "error":
+        return (
+          <div className="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center text-red-600 shrink-0">
+            <XCircleIcon className="w-4 h-4" />
+          </div>
+        );
+      case "info":
+        return (
+          <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-600 shrink-0">
+            <InfoIcon className="w-4 h-4" />
+          </div>
+        );
+      default:
+        return (
+          <div className="w-6 h-6 rounded-full bg-gray-500/20 flex items-center justify-center text-gray-600 shrink-0">
+            <BellIcon className="w-4 h-4" />
+          </div>
+        );
+    }
+  };
 
   const getConfidenceColor = (confidence?: string) => {
     switch (confidence) {
@@ -63,96 +202,67 @@ export function NotificationDropdown() {
     }
   };
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case "match":
-        return "🎉";
-      case "success":
-        return "✅";
-      case "error":
-        return "❌";
-      case "info":
-        return "ℹ️";
-      default:
-        return "📢";
-    }
-  };
-
-  if (notifications.length === 0) {
-    return (
-      <div className="p-6 text-center">
-        <p className="text-muted text-sm">{t.noNotifications}</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col">
-      {/* Header */}
-      <div className="sticky top-0 bg-card-bg border-b border-card-border px-4 py-3 flex items-center justify-between">
-        <h3 className="font-semibold text-foreground">
-          {language === "mn" ? "Мэдэгдэл" : "Notifications"}
-        </h3>
-        <div className="flex gap-2">
-          {notifications.some((n) => !n.read) && (
-            <button
-              onClick={() => {
-                notifications.forEach((n) => {
-                  if (!n.read) markAsRead(n.id);
-                });
-              }}
-              className="text-xs cursor-pointer px-2 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-all"
-            >
-              {t.markAllAsRead}
-            </button>
-          )}
-          {notifications.length > 0 && (
-            <button
-              onClick={clearAll}
-              className="text-xs cursor-pointer px-2 py-1 rounded bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-all"
-            >
-              {t.clearAll}
-            </button>
-          )}
+  const renderNotificationGroup = (
+    title: string,
+    items: Notification[],
+    isEmpty: boolean = false,
+  ) => {
+    if (items.length === 0 && isEmpty) {
+      return (
+        <div key={title} className="p-4 text-center text-muted text-sm">
+          <p>{t.noOlderNotifications}</p>
         </div>
-      </div>
+      );
+    }
 
-      {/* Notifications List */}
-      <div className="divide-y divide-card-border">
-        {notifications.map((notification) => (
+    if (items.length === 0) {
+      return null;
+    }
+
+    return (
+      <div key={title} className="border-t border-card-border first:border-t-0">
+        <div className="sticky top-12 bg-card-bg px-4 py-2 border-b border-card-border">
+          <h4 className="text-xs font-bold text-muted uppercase tracking-wider">
+            {title}
+          </h4>
+        </div>
+        {items.map((notification) => (
           <div
             key={notification.id}
             className={`p-4 hover:bg-primary/5 transition-colors cursor-pointer border-l-4 ${
               notification.type === "match"
                 ? "border-l-primary"
                 : notification.type === "success"
-                  ? "border-l-found"
+                  ? "border-l-green-500"
                   : notification.type === "error"
-                    ? "border-l-lost"
-                    : "border-l-muted"
+                    ? "border-l-red-500"
+                    : "border-l-blue-500"
             } ${!notification.read ? "bg-primary/5" : ""}`}
             onClick={() => markAsRead(notification.id)}
           >
             <div className="flex gap-3">
               {/* Icon */}
-              <div className="text-2xl shrink-0">
-                {getNotificationIcon(notification.type)}
-              </div>
+              <div>{getNotificationIcon(notification.type)}</div>
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                {/* Title */}
+                {/* Title & Time */}
                 <div className="flex items-start justify-between gap-2">
-                  <h4 className="font-semibold text-foreground text-sm">
-                    {notification.title}
-                  </h4>
+                  <div>
+                    <h4 className="font-semibold text-foreground text-sm">
+                      {notification.title}
+                    </h4>
+                    <p className="text-xs text-muted mt-0.5">
+                      {formatTime(notification.timestamp)}
+                    </p>
+                  </div>
                   {!notification.read && (
-                    <div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1.5" />
+                    <div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-2" />
                   )}
                 </div>
 
                 {/* Message */}
-                <p className="text-xs text-muted mt-1 line-clamp-2">
+                <p className="text-xs text-muted mt-2 line-clamp-2">
                   {notification.message}
                 </p>
 
@@ -176,10 +286,10 @@ export function NotificationDropdown() {
                           .map((match, idx) => (
                             <div
                               key={idx}
-                              className="flex items-center justify-between text-xs bg-background px-2 py-1.5 rounded"
+                              className="flex items-center justify-between text-xs bg-background px-2 py-1.5 rounded border border-card-border"
                             >
                               <div className="flex items-center gap-2">
-                                <span className="text-lg">
+                                <span>
                                   {getConfidenceColor(match.confidence)}
                                 </span>
                                 <div>
@@ -198,7 +308,8 @@ export function NotificationDropdown() {
                           ))}
                         {notification.matchData.matches.length > 2 && (
                           <p className="text-xs text-muted text-center py-1">
-                            +{notification.matchData.matches.length - 2} more
+                            +{notification.matchData.matches.length - 2}{" "}
+                            {language === "mn" ? "илүү" : "more"}
                           </p>
                         )}
                       </div>
@@ -209,7 +320,7 @@ export function NotificationDropdown() {
                 {notification.type === "match" &&
                   notification.matchData &&
                   notification.matchData.matchId && (
-                    <div className="mt-2 p-2 bg-primary/10 rounded flex items-center justify-between">
+                    <div className="mt-2 p-2 bg-primary/10 rounded flex items-center justify-between border border-primary/20">
                       <div className="text-xs">
                         <p className="font-medium text-foreground">
                           {getConfidenceColor(
@@ -227,7 +338,7 @@ export function NotificationDropdown() {
                 {/* Action Button */}
                 {notification.action && (
                   <Link href={notification.action.href}>
-                    <button className="mt-2 text-xs px-3 py-1.5 rounded bg-primary/20 text-primary hover:bg-primary/30 transition-all font-medium">
+                    <button className="mt-2 text-xs px-3 py-1.5 rounded bg-primary/20 text-primary hover:bg-primary/30 transition-all font-medium cursor-pointer">
                       {notification.action.label}
                     </button>
                   </Link>
@@ -236,6 +347,62 @@ export function NotificationDropdown() {
             </div>
           </div>
         ))}
+      </div>
+    );
+  };
+
+  if (notifications.length === 0) {
+    return (
+      <div className="p-8 text-center">
+        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+          <BellIcon className="w-8 h-8 text-muted" />
+        </div>
+        <p className="text-muted text-sm">{t.noNotifications}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="sticky top-0 bg-card-bg border-b border-card-border px-4 py-3 flex items-center justify-between z-10">
+        <h3 className="font-semibold text-foreground text-sm">
+          {t.notifications}
+        </h3>
+        <div className="flex gap-2">
+          {notifications.some((n) => !n.read) && (
+            <button
+              onClick={() => {
+                notifications.forEach((n) => {
+                  if (!n.read) markAsRead(n.id);
+                });
+              }}
+              className="text-xs cursor-pointer px-2 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-all flex items-center gap-1"
+              title={t.markAllAsRead}
+            >
+              <CheckIcon className="w-3 h-3" />
+              <span className="hidden sm:inline">{t.markAllAsRead}</span>
+            </button>
+          )}
+          {notifications.length > 0 && (
+            <button
+              onClick={clearAll}
+              className="text-xs cursor-pointer px-2 py-1 rounded bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-all flex items-center gap-1"
+              title={t.clearAll}
+            >
+              <TrashIcon className="w-3 h-3" />
+              <span className="hidden sm:inline">{t.clearAll}</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Notifications List - Grouped by Time */}
+      <div className="flex-1 overflow-y-auto divide-y divide-card-border">
+        {renderNotificationGroup(t.today, groupedNotifications.today)}
+        {renderNotificationGroup(t.yesterday, groupedNotifications.yesterday)}
+        {renderNotificationGroup(t.lastWeek, groupedNotifications.lastWeek)}
+        {renderNotificationGroup(t.older, groupedNotifications.older, true)}
       </div>
     </div>
   );
