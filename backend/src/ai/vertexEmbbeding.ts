@@ -1,11 +1,27 @@
-import { GoogleAuth } from "google-auth-library";
+import axios from "axios";
 
-async function fetchAsBase64(imageUrl: string): Promise<string> {
-  const r = await fetch(imageUrl);
-  if (!r.ok)
-    throw new Error(`Failed to fetch image: ${r.status} ${r.statusText}`);
-  const arr = await r.arrayBuffer();
-  return Buffer.from(arr).toString("base64");
+const FEATURE_LABELS = [
+  "Dog",
+  "Cat",
+  "Mammal",
+  "Pet",
+  "Animal",
+  "Canidae",
+  "Feline",
+  "Puppy",
+  "Kitten",
+  "Street",
+  "Collar",
+  "Leash",
+  "Brown",
+  "Black",
+  "White",
+  "Gray",
+  "Red",
+];
+
+function buildVector(scores: Record<string, number>) {
+  return FEATURE_LABELS.map((l) => scores[l] ?? 0);
 }
 
 export async function getImageEmbedding(imageUrl: string): Promise<number[]> {
