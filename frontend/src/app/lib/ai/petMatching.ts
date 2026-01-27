@@ -134,13 +134,13 @@ const extractKeywords = (description: string): string[] => {
     "ulaan",
     "tsagaan",
     "saaral",
+    "har",
   ];
   return words
     .filter((w) => w.length > 3 && !commonWords.includes(w))
     .slice(0, 5);
 };
 
-// Calculate keyword similarity
 const calculateDescriptionSimilarity = (
   desc1: string,
   desc2: string,
