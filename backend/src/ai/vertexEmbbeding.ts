@@ -17,6 +17,7 @@ const FEATURE_LABELS = [
   "Black",
   "White",
   "Gray",
+  "Red",
 ];
 
 function buildVector(scores: Record<string, number>) {
