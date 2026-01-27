@@ -3,7 +3,7 @@ console.log("Using key:", process.env.GOOGLE_API_KEY?.slice(0, 6));
 const client = new vision.ImageAnnotatorClient({
   apiKey: process.env.GOOGLE_API_KEY,
 });
-
+ 
 export async function analyzeImage(imageUrl: string) {
   const [result] = await client.annotateImage({
     image: { source: { imageUri: imageUrl } },
@@ -12,9 +12,10 @@ export async function analyzeImage(imageUrl: string) {
       { type: "OBJECT_LOCALIZATION", maxResults: 10 },
     ],
   });
-
+ 
   return {
     labels: result.labelAnnotations,
     objects: result.localizedObjectAnnotations,
   };
 }
+ 
