@@ -132,12 +132,7 @@ export default function AdminPetsPage() {
           >
             Хэрэглэгчид
           </Link>
-          <Link
-            href="#"
-            className="block px-4 py-3 rounded-xl hover:bg-card-border"
-          >
-            Тайлан
-          </Link>
+
           <Link
             href="#"
             className="block px-4 py-3 rounded-xl hover:bg-card-border"
@@ -351,7 +346,9 @@ export default function AdminPetsPage() {
                           />
                         </div>
                       </td>
-                      <td className="px-4 py-3 font-semibold">{pet.name}</td>
+                      <td className="px-4 py-3 font-semibold">
+                        {pet.name || "Нэргүй Мэдээллэгдсэн"}
+                      </td>
                       <td className="px-4 py-3">{pet.petType}</td>
                       <td className="px-4 py-3 text-muted">
                         {pet.breed || "-"}
