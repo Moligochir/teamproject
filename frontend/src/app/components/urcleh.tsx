@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useLanguage } from "../contexts/Languagecontext";
 import PetCard from "./petcard";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 type PetFiltersProps = {
   onChange: (filters: {
@@ -27,18 +28,18 @@ type adopt = {
   phonenumber: number;
 };
 export function UrclehPage({ onChange }: PetFiltersProps) {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "dog" | "cat">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "lost" | "found">(
     "all",
   );
   const { language } = useLanguage();
-
-  const [adoptData, setAdoptData] = useState<adopt[]>([]);
   const [animalData, setAnimalData] = useState<adopt[]>([]);
+
   const GetAdopts = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/adopts`, {
+      const res = await fetch(`http://localhost:8000/adopt`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -46,8 +47,8 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
         },
       });
       const data = await res.json();
-      console.log("User data:", data);
-      setAdoptData(data);
+      setAnimalData(data);
+      console.log("data avyaa", data);
     } catch (err) {
       console.log(err);
     }
@@ -55,8 +56,6 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
   useEffect(() => {
     GetAdopts();
   }, []);
-
-  const filteredPets = animalData;
 
   const translations = {
     mn: {
@@ -66,6 +65,8 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
       allTypes: "Бүх төрөл",
       dog: "🐕 Нохой",
       cat: "🐱 Муур",
+      lost: "🔍 Төөрсөн",
+      found: "✓ Олдсон",
     },
     en: {
       search: "Search",
@@ -74,6 +75,8 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
       allTypes: "All Types",
       dog: "🐕 Dog",
       cat: "🐱 Cat",
+      lost: "🔍 Lost",
+      found: "✓ Found",
     },
   };
 
@@ -138,22 +141,75 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
           </div>
         </div>
       </div>
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mt-40">
-        {filteredPets.map((pet) => (
-          <PetCard
-            key={pet._id}
-            role={pet.role}
-            name={pet.name}
-            gender={pet.gender}
-            location={pet.location}
-            description={pet.description}
-            Date={pet.Date}
-            petType={pet.petType}
-            image={pet.image}
-            breed={pet.breed}
-            _id={pet._id}
-            phonenumber={pet.phonenumber}
-          />
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mt-10">
+        {animalData.map((adopt) => (
+          <div
+            key={adopt._id}
+            // onClick={() => router.push(`/pet/${adopt._id}`)}
+            className="bg-card-bg rounded-2xl border border-card-border overflow-hidden cursor-pointer hover:border-primary/50 hover:-translate-y-0.5 transition"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") router.push(`/pet/${adopt._id}`);
+            }}
+          >
+            <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
+              <img
+                src={adopt.image || "/default-pet.jpg"}
+                alt={adopt.name}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-linear-to-t from-black/45 via-transparent to-black/10" />
+
+              <div className="absolute top-4 left-4">
+                <span
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold shadow-xl backdrop-blur-md ${
+                    adopt.role === "Lost" ? "status-lost" : "status-found"
+                  }`}
+                >
+                  {adopt.role === "Lost" ? t.lost : t.found}
+                </span>
+              </div>
+
+              <div className="absolute top-4 right-4">
+                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-black/40 text-white backdrop-blur-md">
+                  {adopt.petType === "Dog"
+                    ? "🐕 Dog"
+                    : adopt.petType === "Cat"
+                      ? "🐱 Cat"
+                      : "🐾 Pet"}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 space-y-2">
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="font-bold text-lg leading-snug">{adopt.name}</h3>
+                <p className="text-muted text-sm whitespace-nowrap">
+                  {adopt.breed}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 text-sm text-muted">
+                {adopt.gender ? <span>{adopt.gender}</span> : null}
+                {adopt.Date ? (
+                  <span>• {new Date(adopt.Date).toLocaleDateString()}</span>
+                ) : null}
+              </div>
+
+              {adopt.description ? (
+                <p className="text-sm text-muted line-clamp-3">
+                  {adopt.description}
+                </p>
+              ) : null}
+
+              {/* <div className="pt-2">
+                <span className="inline-flex items-center text-sm font-semibold text-primary">
+                  {language === "mn" ? "Дэлгэрэнгүй харах →" : "View details →"}
+                </span>
+              </div> */}
+            </div>
+          </div>
         ))}
       </div>
     </div>

@@ -1,7 +1,5 @@
 export function cosineSimilarity(a: number[], b: number[]) {
-  if (a.length !== b.length) {
-    throw new Error(`Vector length mismatch: ${a.length} vs ${b.length}`);
-  }
+  if (a.length !== b.length || a.length === 0) return 0;
 
   let dot = 0;
   let normA = 0;
@@ -13,11 +11,9 @@ export function cosineSimilarity(a: number[], b: number[]) {
     normB += b[i] * b[i];
   }
 
-  if (normA === 0 || normB === 0) return 0;
-  return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+  return dot / (Math.sqrt(normA) * Math.sqrt(normB) || 1);
 }
 
-/** 0..1 → 0..100 */
 export function toPercent(sim01: number) {
-  return Math.round(Math.max(0, Math.min(1, sim01)) * 100);
+  return Math.round(sim01 * 100);
 }

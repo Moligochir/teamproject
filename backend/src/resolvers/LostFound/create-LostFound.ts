@@ -1,99 +1,101 @@
 import { Request, Response } from "express";
 import { LostFoundModel } from "../../models/LostFoundModel";
 import { sendPostNotification } from "../../server";
-import { getImageEmbedding } from "../../ai/vertexEmbbeding";
-import { cosineSimilarity } from "../../ai/similarity";
+import { cosineSimilarity, toPercent } from "../../ai/similarity";
+
+type Confidence = "HIGH" | "MEDIUM" | "LOW";
 
 export const createLostFound = async (req: Request, res: Response) => {
   const newLostFound = req.body;
 
   try {
-    const send = await sendPostNotification(
-      newLostFound.name,
-      newLostFound.description,
-    );
-    if (send) {
-      console.log("Admin notified!");
-    } else {
-      console.log("Failed to send email");
+    // ✅ image URL шалгана
+    if (typeof newLostFound?.image !== "string" || !newLostFound.image.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "image must be a URL string (Cloudinary secure_url)",
+      });
     }
-    // 1) Шинэ постын embedding
-    const newEmbedding = await getImageEmbedding(newLostFound.image);
 
-    // 2) DB дээрх эсрэг төрлийн post-уудыг авч харьцуулна
-    //    (lost бол found-уудтай, found бол lost-уудтай)
+    // ✅ embedding frontend-ээс ирэх ёстой
+    const newEmbedding = newLostFound?.imageEmbedding;
+
+    if (
+      !Array.isArray(newEmbedding) ||
+      newEmbedding.length === 0 ||
+      typeof newEmbedding[0] !== "number"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "imageEmbedding (number[]) is required from frontend",
+      });
+    }
+
+    // (optional) email
+    try {
+      const send = await sendPostNotification(
+        newLostFound.name,
+        newLostFound.description,
+      );
+      console.log(send ? "Admin notified!" : "Failed to send email");
+    } catch (e) {
+      console.log("Email error (ignored):", e);
+    }
+
     const oppositeRole = newLostFound.role === "Lost" ? "Found" : "Lost";
 
-    const candidates = await LostFoundModel.find({ role: oppositeRole })
-      .select("image _id name description") // хэрэгтэй талбарууд
+    const candidates = await LostFoundModel.find({
+      role: oppositeRole,
+      petType: newLostFound.petType,
+      imageEmbedding: { $exists: true, $type: "array", $ne: [] },
+    })
+      .select("_id name description image imageEmbedding")
       .lean();
 
-    // 3) Threshold тавина (жишээ нь 0.75 = 75%)
-    const threshold = 0.5;
+    const THRESHOLD = 0.75;
 
-    // 5️⃣ MAP + PROMISE.ALL
-    // ===============================
-    const results = await Promise.all(
-      candidates.map(async (c) => {
-        if (!c.image) return null;
+    const matches = candidates
+      .map((c: any) => {
+        const emb = Array.isArray(c.imageEmbedding) ? c.imageEmbedding : [];
+        if (emb.length === 0) return null;
 
-        const candEmbedding = await getImageEmbedding(c.image);
+        const sim01 = cosineSimilarity(newEmbedding, emb);
+        if (sim01 < THRESHOLD) return null;
 
-        const similarity = cosineSimilarity(newEmbedding, candEmbedding); // 0 → 1
+        const score = toPercent(sim01);
 
-        if (similarity < threshold) return null;
+        const confidence: Confidence =
+          score >= 90 ? "HIGH" : score >= 80 ? "MEDIUM" : "LOW";
+
         return {
           matchId: String(c._id),
-          matchScore: Math.round(similarity * 100),
+          matchScore: score,
+          confidence,
           image: c.image,
           name: c.name,
           description: c.description,
         };
-      }),
-    );
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null)
+      .sort((a, b) => b.matchScore - a.matchScore);
 
-    // null-уудыг цэвэрлэнэ
-    const matches = results
-      .filter(Boolean)
-      .sort((a: any, b: any) => b.matchScore - a.matchScore);
-
-    await LostFoundModel.create({
-      role: newLostFound.role,
-      petType: newLostFound.petType,
-      name: newLostFound.name,
-      breed: newLostFound.breed,
-      location: newLostFound.location,
-      lat: newLostFound.lat,
-      lng: newLostFound.lng,
-      description: newLostFound.description,
-      image: newLostFound.image,
-      userId: newLostFound.userId,
-      gender: newLostFound.gender,
-      Date: newLostFound.Date,
-      phonenumber: newLostFound.phonenumber,
-      matches: matches.map((m: any) => ({
-        postId: m.matchId,
-        score: m.matchScore,
-      })),
+    const created = await LostFoundModel.create({
+      ...newLostFound,
+      imageEmbedding: newEmbedding, // ✅ frontend-ээс ирсэн embedding хадгална
+      matches: matches.map((m) => ({ postId: m.matchId, score: m.matchScore })),
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      data: matches.map((m: any) => ({
-        ...m,
-        confidence:
-          m.matchScore >= 85
-            ? "HIGH"
-            : m.matchScore >= 70
-              ? "MEDIUM"
-              : m.matchScore <= 50
-                ? "LOW"
-                : "NULL",
-      })),
+      postId: String(created._id),
+      data: matches,
       dataLength: matches.length,
     });
-  } catch (e: unknown) {
-    res.status(500).json({ message: (e as Error).message });
+  } catch (e: any) {
     console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: e?.message || "Server error",
+    });
   }
 };

@@ -1,18 +1,5 @@
 import mongoose, { mongo } from "mongoose";
-const MatchSchema = new mongoose.Schema(
-  {
-    postId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "LostFound",
-      required: true,
-    },
-    score: {
-      type: Number, // 0–100
-      required: true,
-    },
-  },
-  { _id: false },
-);
+
 const LostFoundSchema = new mongoose.Schema(
   {
     id: mongoose.Schema.Types.ObjectId,
@@ -33,7 +20,25 @@ const LostFoundSchema = new mongoose.Schema(
     Date: Date,
     breed: { type: String },
     phonenumber: Number,
-    matches: { type: [MatchSchema], default: [] },
+    imageEmbedding: {
+      type: [Number],
+      default: [],
+    },
+    matchScore: Number,
+    matchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LostFound",
+      default: null,
+    },
+    matches: {
+      type: [
+        {
+          postId: { type: mongoose.Schema.Types.ObjectId, ref: "LostFound" },
+          score: Number,
+        },
+      ],
+      default: [],
+    },
   },
   { timestamps: true },
 );
