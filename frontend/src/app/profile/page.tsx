@@ -46,13 +46,12 @@ type ActivityType = {
   postImage: string;
   details: string;
   timestamp: string;
-  targetUserId?: string; // For contact action
-  targetUserName?: string; // For contact action
+  targetUserId?: string;
+  targetUserName?: string;
 };
 
 // Activity tracking service
 export const ActivityService = {
-  // Log activity to localStorage
   logActivity: (activity: Omit<ActivityType, "_id">) => {
     try {
       const stored = localStorage.getItem("pawfinder_activities");
@@ -64,7 +63,7 @@ export const ActivityService = {
         timestamp: new Date().toISOString(),
       };
 
-      const updated = [newActivity, ...allActivities].slice(0, 200); // Keep 200 activities
+      const updated = [newActivity, ...allActivities].slice(0, 200);
       localStorage.setItem("pawfinder_activities", JSON.stringify(updated));
 
       return newActivity;
@@ -74,7 +73,6 @@ export const ActivityService = {
     }
   },
 
-  // Get user's activities
   getUserActivities: (userId: string): ActivityType[] => {
     try {
       const stored = localStorage.getItem("pawfinder_activities");
@@ -93,7 +91,6 @@ export const ActivityService = {
     }
   },
 
-  // Clear all activities for user
   clearUserActivities: (userId: string) => {
     try {
       const stored = localStorage.getItem("pawfinder_activities");
@@ -109,7 +106,7 @@ export const ActivityService = {
 };
 
 export default function ProfilePage() {
-  const { user: clerkUser } = useUser();
+  const { user: clerkUser, isLoaded: clerkLoaded } = useUser();
   const { language, toggleLanguage } = useLanguage();
   const [userData, setUserData] = useState<userType | null>(null);
   const [myPosts, setMyPosts] = useState<PostType[]>([]);
@@ -126,7 +123,6 @@ export default function ProfilePage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const router = useRouter();
 
-  // Edit form states
   const [editForm, setEditForm] = useState({
     name: "",
     petType: "",
@@ -136,13 +132,11 @@ export default function ProfilePage() {
     location: "",
   });
 
-  // Contact form states
   const [contactForm, setContactForm] = useState({
     message: "",
     phone: "",
   });
 
-  // Translations
   const translations = {
     mn: {
       myProfile: "Миний профайл",
@@ -326,10 +320,14 @@ export default function ProfilePage() {
       );
       if (currentUser) {
         setUserData(currentUser);
-        GetUserPosts(currentUser._id);
+        await GetUserPosts(currentUser._id);
+      } else {
+        // New user - create profile
+        setUserData(null);
       }
     } catch (err) {
       console.log("Error fetching user:", err);
+      setLoading(false);
     }
   };
 
@@ -408,7 +406,6 @@ export default function ProfilePage() {
           ),
         );
 
-        // Log activity
         ActivityService.logActivity({
           userId: userData._id,
           timestamp: userData.role,
@@ -422,10 +419,8 @@ export default function ProfilePage() {
         setEditModal(false);
         setSelectedPost(null);
 
-        // Refresh activities
         LoadActivities(userData._id);
 
-        // Show success notification
         setSuccessMessage(t.editSuccess);
         setShowSuccess(true);
       } else {
@@ -466,7 +461,6 @@ export default function ProfilePage() {
         const deletedPost = selectedPost;
         setMyPosts(myPosts.filter((post) => post._id !== selectedPost._id));
 
-        // Log activity
         ActivityService.logActivity({
           userId: userData._id,
           timestamp: userData.role,
@@ -480,10 +474,8 @@ export default function ProfilePage() {
         setDeleteModal(false);
         setSelectedPost(null);
 
-        // Refresh activities
         LoadActivities(userData._id);
 
-        // Show success notification
         setSuccessMessage(t.deleteSuccess);
         setShowSuccess(true);
       } else {
@@ -505,10 +497,6 @@ export default function ProfilePage() {
     setIsSaving(true);
 
     try {
-      // Here you would send the contact message to backend
-      // For now, we'll just log the activity
-
-      // Log activity
       ActivityService.logActivity({
         userId: userData._id,
         timestamp: userData.role,
@@ -524,10 +512,8 @@ export default function ProfilePage() {
       setContactModal(false);
       setSelectedPost(null);
 
-      // Refresh activities
       LoadActivities(userData._id);
 
-      // Show success notification
       setSuccessMessage(t.contactSuccess);
       setShowSuccess(true);
     } catch (err) {
@@ -605,17 +591,35 @@ export default function ProfilePage() {
     }
   };
 
+  // Main initialization effect - only run when Clerk is loaded
   useEffect(() => {
-    if (clerkUser?.id) {
-      GetCurrentUser();
+    if (!clerkLoaded) {
+      return; // Wait for Clerk to load
     }
+
+    const initProfile = async () => {
+      try {
+        if (!clerkUser?.id) {
+          setLoading(false);
+          return;
+        }
+
+        await GetCurrentUser();
+      } catch (err) {
+        console.log("Error initializing profile:", err);
+        setLoading(false);
+      }
+    };
+
+    initProfile();
 
     const savedTheme =
       (localStorage.getItem("pawfinder_theme") as "auto" | "light" | "dark") ||
       "auto";
     setTheme(savedTheme);
-  }, [clerkUser]);
+  }, [clerkLoaded, clerkUser?.id]);
 
+  // Load activities when userData changes
   useEffect(() => {
     if (userData?._id) {
       LoadActivities(userData._id);
@@ -632,7 +636,8 @@ export default function ProfilePage() {
     active: myPosts.filter((post) => post.role === "Lost").length,
   };
 
-  if (loading) {
+  // Show loading only if Clerk is not loaded OR data is loading
+  if (!clerkLoaded || loading) {
     return <Loading />;
   }
 
@@ -837,7 +842,6 @@ export default function ProfilePage() {
                           key={activity._id}
                           className="flex items-center gap-4 p-4 border border-card-border rounded-xl hover:bg-primary/5 transition-colors"
                         >
-                          {/* Activity Image */}
                           <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-gray-200 dark:bg-gray-700">
                             <img
                               src={
@@ -849,9 +853,7 @@ export default function ProfilePage() {
                             />
                           </div>
 
-                          {/* Activity Details */}
                           <div className="flex-1 min-w-0 items-center">
-                            {/* Action Icon & Message */}
                             <div className="flex items-center gap-2 mb-1">
                               <span className="text-lg">{icon}</span>
                               <p className="font-semibold text-sm text-gray-900 dark:text-foreground">
@@ -862,18 +864,15 @@ export default function ProfilePage() {
                               </p>
                             </div>
 
-                            {/* Caption */}
                             <p className="text-xs text-muted mb-2">
                               {activity.details}
                             </p>
 
-                            {/* Time */}
                             <p className="text-xs text-muted">
                               {formatActivityTime(activity.timestamp)}
                             </p>
                           </div>
 
-                          {/* Action Badge */}
                           <div
                             className={`shrink-0 w-[8%] h-10 rounded-xl text-xs flex justify-center items-center font-semibold text-white whitespace-nowrap ${color}`}
                           >
@@ -902,10 +901,10 @@ export default function ProfilePage() {
             )}
 
             {activeTab === "settings" && (
-              <div className="  flex flex-col justify-center">
+              <div className="flex flex-col justify-center">
                 <div className="space-y-8 max-w-4xl">
                   {/* Personal Information */}
-                  <div className="bg-background rounded-xl p-6 border border-card-border ">
+                  <div className="bg-background rounded-xl p-6 border border-card-border">
                     <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                       <span className="text-2xl">👤</span>
                       {language === "mn"
@@ -919,7 +918,7 @@ export default function ProfilePage() {
                         </label>
                         <input
                           type="text"
-                          defaultValue={userData?.name}
+                          defaultValue={userData?.name || ""}
                           className="w-full px-4 py-3 bg-white dark:bg-card-bg border border-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                           placeholder={
                             language === "mn"
@@ -934,7 +933,7 @@ export default function ProfilePage() {
                         </label>
                         <input
                           type="email"
-                          defaultValue={userData?.email}
+                          defaultValue={userData?.email || ""}
                           className="w-full px-4 py-3 bg-white dark:bg-card-bg border border-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                           placeholder="your@email.com"
                         />
@@ -945,7 +944,7 @@ export default function ProfilePage() {
                         </label>
                         <input
                           type="tel"
-                          defaultValue={userData?.phonenumber}
+                          defaultValue={userData?.phonenumber || ""}
                           className="w-full px-4 py-3 bg-white dark:bg-card-bg border border-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                           placeholder="+976 XXXX XXXX"
                         />
@@ -1012,7 +1011,6 @@ export default function ProfilePage() {
                       {t.notifications}
                     </h3>
                     <div className="space-y-4">
-                      {/* Email Notifications */}
                       <div className="flex items-center justify-between p-4 bg-white dark:bg-card-bg rounded-lg border border-card-border hover:border-primary transition-all">
                         <div className="flex-1">
                           <div className="font-semibold">{t.emailNotif}</div>
@@ -1030,7 +1028,6 @@ export default function ProfilePage() {
                         </label>
                       </div>
 
-                      {/* Push Notifications */}
                       <div className="flex items-center justify-between p-4 bg-white dark:bg-card-bg rounded-lg border border-card-border hover:border-primary transition-all">
                         <div className="flex-1">
                           <div className="font-semibold">{t.pushNotif}</div>
@@ -1048,7 +1045,6 @@ export default function ProfilePage() {
                         </label>
                       </div>
 
-                      {/* Match Notifications */}
                       <div className="flex items-center justify-between p-4 bg-white dark:bg-card-bg rounded-lg border border-card-border hover:border-primary transition-all">
                         <div className="flex-1">
                           <div className="font-semibold">
@@ -1072,7 +1068,6 @@ export default function ProfilePage() {
                         </label>
                       </div>
 
-                      {/* Message Notifications */}
                       <div className="flex items-center justify-between p-4 bg-white dark:bg-card-bg rounded-lg border border-card-border hover:border-primary transition-all">
                         <div className="flex-1">
                           <div className="font-semibold">
@@ -1107,7 +1102,6 @@ export default function ProfilePage() {
                         : "Privacy Settings"}
                     </h3>
                     <div className="space-y-4">
-                      {/* Public Profile */}
                       <div className="flex items-center justify-between p-4 bg-white dark:bg-card-bg rounded-lg border border-card-border hover:border-primary transition-all">
                         <div className="flex-1">
                           <div className="font-semibold">
@@ -1131,7 +1125,6 @@ export default function ProfilePage() {
                         </label>
                       </div>
 
-                      {/* Show Location */}
                       <div className="flex items-center justify-between p-4 bg-white dark:bg-card-bg rounded-lg border border-card-border hover:border-primary transition-all">
                         <div className="flex-1">
                           <div className="font-semibold">
@@ -1235,7 +1228,6 @@ export default function ProfilePage() {
                       {language === "mn" ? "Опасан үйлдлүүд" : "Danger Zone"}
                     </h3>
 
-                    {/* Delete Account */}
                     <div className="p-6 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -1269,7 +1261,6 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    {/* Account Info */}
                     <div className="mt-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
                       <p className="text-xs text-muted mb-3 font-semibold">
                         {language === "mn"

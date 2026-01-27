@@ -1,11 +1,12 @@
 "use client";
 
-// Enhanced AI Pet Matching Service with Detailed Reasoning
+// Enhanced AI Pet Matching Service with Pet Type Filtering
+// Dogs match only with Dogs, Cats match only with Cats
 
 export interface PetForMatching {
   _id: string;
   name: string;
-  petType: string;
+  petType: string; // "Dog" or "Cat" (must match!)
   breed: string;
   image: string;
   location: string;
@@ -62,7 +63,7 @@ const reasonTranslations = {
     "location.very_close": "Маш ойрын байршил",
     "location.close": "Ойрын байршил",
     "location.same_area": "Ойрын байж болохуйц байршил",
-    "location.nearby": "Oйр",
+    "location.nearby": "Ойр",
 
     // Time matching
     "time.same_day": "Нэг өдрийн дотор",
@@ -71,6 +72,8 @@ const reasonTranslations = {
 
     // Pet type matching
     "type.match": "Адилхан амьтны төрөл",
+    "type.dog": "Нохойтой нохойн тохирол",
+    "type.cat": "Муурттай муурны тохирол",
 
     // Description analysis
     "description.keywords": "Тайлбарт үг сүлжээ давхцаж байна",
@@ -99,6 +102,8 @@ const reasonTranslations = {
 
     // Pet type matching
     "type.match": "Same pet type",
+    "type.dog": "Dog matches with dog",
+    "type.cat": "Cat matches with cat",
 
     // Description analysis
     "description.keywords": "Description keywords match",
@@ -353,19 +358,32 @@ const calculateTimeSimilarity = (
   };
 };
 
-// Main matching function with detailed reasons
+// Main matching function with detailed reasons and PET TYPE FILTERING
 export const findPetMatches = async (
   queryPet: PetForMatching,
   candidatePets: PetForMatching[],
 ): Promise<PossibleMatch> => {
   const matches: MatchResult[] = [];
 
+  // ⚠️ CRITICAL FILTER: Same pet type ONLY!
+  // Lost Dog matches ONLY with Found Dogs
+  // Lost Cat matches ONLY with Found Cats
+  // Found Dog matches ONLY with Lost Dogs
+  // Found Cat matches ONLY with Lost Cats
   const validCandidates = candidatePets.filter(
     (p) =>
-      p.role !== queryPet.role &&
-      p.petType === queryPet.petType &&
-      p._id !== queryPet._id,
+      p.role !== queryPet.role && // Opposite status (Lost vs Found)
+      p.petType === queryPet.petType && // SAME PET TYPE (Dog/Cat) - THIS IS CRITICAL!
+      p._id !== queryPet._id, // Not the same pet
   );
+
+  // If no candidates found with same pet type, return empty
+  if (validCandidates.length === 0) {
+    return {
+      pet: queryPet,
+      matches: [],
+    };
+  }
 
   for (const candidate of validCandidates) {
     const reasons: MatchReason[] = [];
@@ -408,11 +426,13 @@ export const findPetMatches = async (
       reasons.push(timeData.reason);
     }
 
-    // Pet type match (always true if we got here)
+    // Pet type match - Always add because we filtered by it
+    // Specify whether it's dog or cat
+    const petTypeKey = queryPet.petType === "Dog" ? "type.dog" : "type.cat";
     reasons.push({
       type: "type",
       score: 100,
-      messageKey: "type.match",
+      messageKey: petTypeKey,
     });
 
     // Description keyword matching
@@ -470,6 +490,7 @@ export const findAllMatches = async (
 ): Promise<PossibleMatch[]> => {
   const results: PossibleMatch[] = [];
 
+  // Only match Lost pets with Found pets (and same pet type)
   const lostPets = allPets.filter((p) => p.role === "Lost");
   const foundPets = allPets.filter((p) => p.role === "Found");
 

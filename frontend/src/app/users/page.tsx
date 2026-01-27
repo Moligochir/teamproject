@@ -83,12 +83,7 @@ export default function AdminUsersPage() {
           >
             Хэрэглэгчид
           </Link>
-          <Link
-            href="#"
-            className="block px-4 py-3 rounded-xl hover:bg-card-border transition"
-          >
-            Тайлан
-          </Link>
+
           <Link
             href="/settings"
             className="block px-4 py-3 rounded-xl hover:bg-card-border transition"

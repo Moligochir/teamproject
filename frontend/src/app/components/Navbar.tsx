@@ -156,7 +156,7 @@ export function Navbar() {
                 <div className="py-2">
                   <Link
                     href="/dog"
-                    className="flex items-center gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all"
+                    className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all"
                   >
                     <span className="text-lg">✓</span>
                     <div>
@@ -166,7 +166,7 @@ export function Navbar() {
                   </Link>
                   <Link
                     href="/dog"
-                    className="flex items-center gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all"
+                    className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all"
                   >
                     <span className="text-lg">🔍</span>
                     <div>
@@ -178,7 +178,7 @@ export function Navbar() {
                   </Link>
                   <Link
                     href="/browse"
-                    className="flex items-center gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all border-t border-card-border"
+                    className="flex cursor-pointer items-center gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all border-t border-card-border"
                   >
                     <span className="text-lg">🐾</span>
                     <div>
