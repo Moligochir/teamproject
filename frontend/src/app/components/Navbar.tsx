@@ -70,6 +70,9 @@ export function Navbar() {
       aboutUs: "Бидний тухай",
       toto: "Үрчлэх",
       toto2: "Үрчлүүлэх",
+      Others: "Бусад",
+      Shop:"Дэлгүүр"
+
     },
     en: {
       home: "Home",
@@ -85,6 +88,8 @@ export function Navbar() {
       aboutUs: "About Us",
       toto: "Adopt",
       toto2: "Provider",
+      Others: "Others",
+      Shop: "Shop",
     },
   };
 
@@ -215,23 +220,53 @@ export function Navbar() {
                 <div className="absolute bottom-0 left-4 right-4 h-1 bg-primary rounded-t-lg"></div>
               )}
             </Link>
+            <div className="relative group">
+              <button
+                className={`px-4 py-2 rounded-lg cursor-pointer font-medium transition-all duration-300 relative flex items-center gap-1 ${
+                  isActive("browse")
+                    ? "text-primary"
+                    : "text-muted hover:text-primary"
+                }`}
+              >
+                {t.Others}
+                <div className="w-6 h-5 flex justify-center items-end">
+                  <FaAngleDown />
+                </div>
 
-            {/* About */}
-            <Link
-              href="/about"
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 relative ${
-                isActive("about")
-                  ? "text-primary"
-                  : "text-muted hover:text-primary"
-              }`}
-            >
-              {t.about}
-              {isActive("about") && (
-                <div className="absolute bottom-0 left-4 right-4 h-1 bg-primary rounded-t-lg"></div>
-              )}
-            </Link>
+                {isActive("browse") && (
+                  <div className="absolute bottom-0 left-4 right-4 h-1 bg-primary rounded-t-lg"></div>
+                )}
+              </button>
+
+              {/* Browse Dropdown Menu */}
+              <div className="absolute left-0 mt-0 w-56 rounded-xl bg-card-bg border border-card-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="py-2">
+                  
+                  <Link
+                    href="/shop"
+                    className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all"
+                  >
+                    <span className="text-lg">🛒</span>
+                    <div>
+                      <p className="font-semibold text-sm">
+                        {t.Shop}
+                      </p>
+                    
+                    </div>
+                  </Link>
+                  <Link
+                 href="/about"
+              className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all "
+              >
+                <span className="text-lg">📋</span>
+                <div>
+                    <p className="font-semibold text-sm cursor-pointer">{t.about}</p>
+                  </div>
+                </Link>
+                </div>
+                </div>
+            </div>
           </div>
-
           {/* Right side */}
           <div className="flex items-center gap-3">
             <ThemeToggle />
