@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
 import React, { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-
+import { FaAngleDown } from "react-icons/fa6";
 import {
   SignedIn,
   SignedOut,
@@ -68,8 +68,8 @@ export function Navbar() {
       loginRequired: "Та нэвтрэх шаардлагатай",
       langButton: "EN",
       aboutUs: "Бидний тухай",
-      toto: "Үрчлэгч тал",
-      toto2: "Үрчлүүлэгч тал",
+      toto: "Үрчлэх",
+      toto2: "Үрчлүүлэх",
     },
     en: {
       home: "Home",
@@ -83,8 +83,8 @@ export function Navbar() {
       loginRequired: "You need to sign in",
       langButton: "МON",
       aboutUs: "About Us",
-      toto: "Adopter side",
-      toto2: "Provider side",
+      toto: "Adopt",
+      toto2: "Provider",
     },
   };
 
@@ -145,7 +145,10 @@ export function Navbar() {
                 }`}
               >
                 {t.browse}
-                <Arrow />
+                <div className="w-6 h-5 flex justify-center items-end">
+                  <FaAngleDown />
+                </div>
+
                 {isActive("browse") && (
                   <div className="absolute bottom-0 left-4 right-4 h-1 bg-primary rounded-t-lg"></div>
                 )}
@@ -154,7 +157,7 @@ export function Navbar() {
               {/* Browse Dropdown Menu */}
               <div className="absolute left-0 mt-0 w-56 rounded-xl bg-card-bg border border-card-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div className="py-2">
-                  <Link
+                  {/* <Link
                     href="/dog"
                     className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all"
                   >
@@ -163,7 +166,7 @@ export function Navbar() {
                       <p className="font-semibold text-sm">{t.browseSubLost}</p>
                       <p className="text-xs text-muted">{t.toto2}</p>
                     </div>
-                  </Link>
+                  </Link> */}
                   <Link
                     href="/dog"
                     className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all"
@@ -173,7 +176,9 @@ export function Navbar() {
                       <p className="font-semibold text-sm">
                         {t.browseSubFound}
                       </p>
-                      <p className="text-xs text-muted">{t.toto}</p>
+                      <p className="text-xs text-muted">
+                        {t.toto} / {t.toto2}
+                      </p>
                     </div>
                   </Link>
                   <Link
