@@ -110,6 +110,7 @@ export default function ProfilePage() {
   const { language, toggleLanguage } = useLanguage();
   const [userData, setUserData] = useState<userType | null>(null);
   const [myPosts, setMyPosts] = useState<PostType[]>([]);
+  const [matchedPosts, setMatchedPosts] = useState<PostType[]>([]);
   const [activities, setActivities] = useState<ActivityType[]>([]);
   const [theme, setTheme] = useState<"auto" | "light" | "dark">("auto");
   const [loading, setLoading] = useState(true);
@@ -216,6 +217,7 @@ export default function ProfilePage() {
       send: "Илгээх",
       sending: "Илгээж байна...",
       justnow: "Дөнгөж сая",
+      viewMatch: "Тохирлыг үзэх",
     },
     en: {
       myProfile: "My Profile",
@@ -296,6 +298,7 @@ export default function ProfilePage() {
       send: "Send",
       sending: "Sending...",
       justnow: "Just now",
+      viewMatch: "View Match",
     },
   };
 
@@ -322,7 +325,6 @@ export default function ProfilePage() {
         setUserData(currentUser);
         await GetUserPosts(currentUser._id);
       } else {
-        // New user - create profile
         setUserData(null);
       }
     } catch (err) {
@@ -344,6 +346,14 @@ export default function ProfilePage() {
       const data = await res.json();
       const userPosts = data.filter((post: PostType) => post.userId === userId);
       setMyPosts(userPosts);
+
+      // ✅ Get matched posts (opposite role)
+      const matchedPosts = data.filter(
+        (post: PostType) =>
+          post.userId !== userId &&
+          post.role !== (userPosts.length > 0 ? userPosts[0].role : "Lost"),
+      );
+      setMatchedPosts(matchedPosts.slice(0, 12)); // Limit to 12 for display
     } catch (err) {
       console.log("Error fetching posts:", err);
     } finally {
@@ -591,10 +601,10 @@ export default function ProfilePage() {
     }
   };
 
-  // Main initialization effect - only run when Clerk is loaded
+  // Main initialization effect
   useEffect(() => {
     if (!clerkLoaded) {
-      return; // Wait for Clerk to load
+      return;
     }
 
     const initProfile = async () => {
@@ -626,9 +636,9 @@ export default function ProfilePage() {
     }
   }, [userData]);
 
-  const [activeTab, setActiveTab] = useState<"posts" | "activity" | "settings">(
-    "posts",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "posts" | "matches" | "activity" | "settings"
+  >("posts");
 
   const stats = {
     totalPosts: myPosts.length,
@@ -636,7 +646,6 @@ export default function ProfilePage() {
     active: myPosts.filter((post) => post.role === "Lost").length,
   };
 
-  // Show loading only if Clerk is not loaded OR data is loading
   if (!clerkLoaded || loading) {
     return <Loading />;
   }
@@ -714,6 +723,17 @@ export default function ProfilePage() {
               }`}
             >
               {t.myPosts}
+            </button>
+
+            <button
+              onClick={() => setActiveTab("matches")}
+              className={`flex-1 px-4 sm:px-6 py-4 font-semibold cursor-pointer transition-all whitespace-nowrap ${
+                activeTab === "matches"
+                  ? "bg-primary text-white"
+                  : "text-muted hover:bg-primary/10"
+              }`}
+            >
+              {t.matches}
             </button>
 
             <button
@@ -826,6 +846,85 @@ export default function ProfilePage() {
                     >
                       {t.createPost}
                     </Link>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "matches" && (
+              <div>
+                {matchedPosts.length > 0 ? (
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {matchedPosts.map((post) => (
+                      <div
+                        key={post._id}
+                        className="w-[320px] pet-card block bg-white dark:bg-card-bg rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+                      >
+                        <div className="relative w-full aspect-4/3 overflow-hidden bg-gray-100">
+                          <img
+                            src={post.image}
+                            alt={post.name}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute top-3 left-3">
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm text-white ${
+                                post.role === "Lost"
+                                  ? "status-lost"
+                                  : "status-found"
+                              }`}
+                            >
+                              {post.role === "Lost"
+                                ? "🔍 " + t.lost
+                                : "✓ " + t.found}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-5 space-y-4">
+                          <h3 className="font-bold text-xl text-gray-900 dark:text-foreground leading-tight line-clamp-2">
+                            {post?.name || t.nerguiii}
+                          </h3>
+
+                          <div className="space-y-2 text-sm">
+                            <p className="text-muted">
+                              <span className="font-semibold">{t.type}</span>
+                              {post.petType}
+                            </p>
+                            {post.breed && (
+                              <p className="text-muted">
+                                <span className="font-semibold">
+                                  {t.breedd}
+                                </span>{" "}
+                                {post.breed}
+                              </p>
+                            )}
+                            <p className="text-muted flex gap-2">
+                              <span className="font-semibold">{t.locc}</span>
+                              {post.location.slice(0, 20)}...
+                            </p>
+                            <p className="text-muted line-clamp-2">
+                              {post.description}
+                            </p>
+                          </div>
+
+                          <div className="flex gap-2 pt-2">
+                            <button
+                              onClick={() => router.push(`/pet/${post._id}`)}
+                              className="flex-1 cursor-pointer px-4 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold text-sm transition-colors"
+                            >
+                              {t.viewMatch}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">🔍</div>
+                    <h3 className="text-xl font-bold mb-2">{t.noMatches}</h3>
+                    <p className="text-muted mb-6">{t.noMatchesDesc}</p>
                   </div>
                 )}
               </div>
@@ -1478,66 +1577,6 @@ export default function ProfilePage() {
       )}
 
       {/* Contact Modal */}
-      {contactModal && selectedPost && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-card-bg rounded-2xl max-w-md w-full p-6">
-            <h2 className="text-2xl font-bold mb-4">{t.contactOwner}</h2>
-
-            <form onSubmit={handleContactSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t.contactMessage}
-                </label>
-                <textarea
-                  value={contactForm.message}
-                  onChange={(e) =>
-                    setContactForm({ ...contactForm, message: e.target.value })
-                  }
-                  rows={4}
-                  className="w-full px-4 py-2 bg-background border border-card-border rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t.contactPhone}
-                </label>
-                <input
-                  type="tel"
-                  value={contactForm.phone}
-                  onChange={(e) =>
-                    setContactForm({ ...contactForm, phone: e.target.value })
-                  }
-                  className="w-full px-4 py-2 bg-background border border-card-border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-                  required
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="flex-1 cursor-pointer px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed transition-all"
-                >
-                  {isSaving ? t.sending : t.send}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setContactModal(false);
-                    setSelectedPost(null);
-                  }}
-                  disabled={isSaving}
-                  className="flex-1 cursor-pointer px-6 py-2 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 disabled:opacity-60 transition-all"
-                >
-                  {t.cancel}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
