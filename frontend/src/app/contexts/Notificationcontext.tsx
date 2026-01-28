@@ -8,152 +8,121 @@ import React, {
   useEffect,
 } from "react";
 
-export interface MatchData {
-  matchId?: string;
-  matchScore?: number;
-  confidence?: "HIGH" | "MEDIUM" | "LOW";
-  totalMatches?: number;
-  matches?: Array<{
-    matchId: string;
-    matchScore: number;
-    confidence: "HIGH" | "MEDIUM" | "LOW";
-  }>;
-}
-
-export interface NotificationAction {
-  label: string;
-  href: string;
-}
-
 export interface Notification {
   id: string;
-  type: "success" | "error" | "info" | "match";
+  type: "match" | "post" | "contact" | "message" | "system";
   title: string;
-  message: string;
-  matchData?: MatchData;
-  action?: NotificationAction;
-  timestamp: Date;
+  description: string;
+  icon: string;
   read: boolean;
+  createdAt: Date;
+  actionUrl?: string;
+  actionLabel?: string;
+  petId?: string;
+  petImage?: string;
+  matchScore?: number;
+  message?: string;
 }
 
 interface NotificationContextType {
   notifications: Notification[];
-  addNotification: (
-    notification: Omit<Notification, "id" | "timestamp" | "read">,
-  ) => void;
-  removeNotification: (id: string) => void;
-  markAsRead: (id: string) => void;
-  clearAll: () => void;
   unreadCount: number;
+  addNotification: (
+    notification: Omit<Notification, "id" | "createdAt" | "read">,
+  ) => void;
+  markAsRead: (id: string) => void;
+  markAllAsRead: () => void;
+  deleteNotification: (id: string) => void;
+  clearAll: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
   undefined,
 );
 
-const STORAGE_KEY = "pawfinder_notifications";
-const MAX_NOTIFICATIONS = 50;
-
-export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
+export function NotificationProvider({
   children,
-}) => {
+}: {
+  children: React.ReactNode;
+}) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
 
   // Load notifications from localStorage on mount
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
+    const stored = localStorage.getItem("pawfinder_notifications");
+    if (stored) {
+      try {
         const parsed = JSON.parse(stored);
-        // Convert timestamp strings back to Date objects
-        const notificationsWithDates = parsed.map((n: any) => ({
-          ...n,
-          timestamp: new Date(n.timestamp),
-        }));
-        setNotifications(notificationsWithDates);
+        setNotifications(parsed);
+      } catch (err) {
+        console.log("Error loading notifications:", err);
       }
-    } catch (err) {
-      console.log("Error loading notifications from localStorage:", err);
     }
-    setIsLoaded(true);
   }, []);
 
   // Save notifications to localStorage whenever they change
   useEffect(() => {
-    if (!isLoaded) return;
+    localStorage.setItem(
+      "pawfinder_notifications",
+      JSON.stringify(notifications),
+    );
+  }, [notifications]);
 
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
-    } catch (err) {
-      console.log("Error saving notifications to localStorage:", err);
-    }
-  }, [notifications, isLoaded]);
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const addNotification = useCallback(
-    (notification: Omit<Notification, "id" | "timestamp" | "read">) => {
-      const id = Date.now().toString();
+    (notification: Omit<Notification, "id" | "createdAt" | "read">) => {
       const newNotification: Notification = {
         ...notification,
-        id,
-        timestamp: new Date(),
+        id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        createdAt: new Date(),
         read: false,
       };
 
-      setNotifications((prev) => {
-        // Add new notification and keep only latest MAX_NOTIFICATIONS
-        const updated = [newNotification, ...prev].slice(0, MAX_NOTIFICATIONS);
-        return updated;
-      });
-
-      // Auto remove after 5 seconds (for non-match notifications)
-      if (notification.type !== "match") {
-        setTimeout(() => {
-          removeNotification(id);
-        }, 5000);
-      }
-
-      return id;
+      setNotifications((prev) => [newNotification, ...prev].slice(0, 50)); // Keep last 50
     },
     [],
   );
 
-  const removeNotification = useCallback((id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  }, []);
-
   const markAsRead = useCallback((id: string) => {
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
+      prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif)),
     );
+  }, []);
+
+  const markAllAsRead = useCallback(() => {
+    setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })));
+  }, []);
+
+  const deleteNotification = useCallback((id: string) => {
+    setNotifications((prev) => prev.filter((notif) => notif.id !== id));
   }, []);
 
   const clearAll = useCallback(() => {
     setNotifications([]);
   }, []);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
   return (
     <NotificationContext.Provider
       value={{
         notifications,
-        addNotification,
-        removeNotification,
-        markAsRead,
-        clearAll,
         unreadCount,
+        addNotification,
+        markAsRead,
+        markAllAsRead,
+        deleteNotification,
+        clearAll,
       }}
     >
       {children}
     </NotificationContext.Provider>
   );
-};
+}
 
-export const useNotification = () => {
+export function useNotification() {
   const context = useContext(NotificationContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error("useNotification must be used within NotificationProvider");
   }
   return context;
-};
+}
