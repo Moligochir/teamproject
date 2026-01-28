@@ -101,7 +101,7 @@ export default function PetDetailPage() {
       follow: "👤 Дагах",
       following: "✓ Дагаж байна",
       viewSuggestions: "Санал болгосон тохирол үзэх",
-      myPost: " Миний зар",
+      myPost: "Миний зар",
       linkCopied: "Холбоос хуулагдсан!",
       posted: "нийтлэгдсэн",
       daysAgo: "өдрийн өмнө",
@@ -160,8 +160,8 @@ export default function PetDetailPage() {
       deletePost: "🗑️ Delete Post",
       follow: "👤 Follow",
       following: "✓ Following",
-      viewSuggestions: "View AI Suggestions",
-      myPost: "My Post",
+      viewSuggestions: "🤖 View AI Suggestions",
+      myPost: "👤 My Post",
       linkCopied: "Link copied to clipboard!",
       posted: "Posted",
       daysAgo: "days ago",
@@ -279,10 +279,52 @@ export default function PetDetailPage() {
     }
   };
 
-  const handleViewSuggestions = () => {
-    if (!pet) return;
-    sessionStorage.setItem("queryPet", JSON.stringify(pet));
-    router.push(`/probability?petId=${pet._id}`);
+  const handleViewSuggestions = async () => {
+    if (!pet) {
+      console.log("❌ Pet data missing");
+      return;
+    }
+
+    try {
+      console.log("📤 Storing pet data to sessionStorage:", pet);
+
+      // ✅ Бүтэн pet объектыг JSON string болгон хадгалах
+      sessionStorage.setItem(
+        "queryPet",
+        JSON.stringify({
+          _id: pet._id,
+          name: pet.name,
+          breed: pet.breed,
+          gender: pet.gender,
+          petType: pet.petType,
+          role: pet.role,
+          location: pet.location,
+          description: pet.description,
+          image: pet.image,
+          userId: pet.userId,
+          lat: pet.lat,
+          lng: pet.lng,
+          Date: pet.Date,
+          phonenumber: pet.phonenumber,
+        }),
+      );
+
+      // ✅ Хадгалагдсан дата шалгах
+      const storedData = sessionStorage.getItem("queryPet");
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        console.log("✅ Data stored successfully:", parsedData);
+        console.log("✅ Navigating to probability page...");
+
+        // ✅ URL параметртэй болон sessionStorage-тэй хоёуланг нь ашиглах
+        router.push(`/probability?petId=${pet._id}`);
+      } else {
+        console.log("❌ Failed to store data");
+      }
+    } catch (error) {
+      console.error("❌ Error storing pet data:", error);
+      toast.error(language === "mn" ? "Алдаа гарлаа" : "Error occurred");
+    }
   };
 
   const handleShare = (platform: string) => {
@@ -362,10 +404,6 @@ export default function PetDetailPage() {
   const isLost = pet.role === "Lost";
   const isDog = pet.petType === "Dog";
   const isOwner = userData?._id === pet.userId?._id;
-
-  console.log("Rendering with isOwner:", isOwner);
-  console.log("userData:", userData);
-  console.log("pet.userId:", pet.userId);
 
   const today = new Date();
   const petDate = new Date(pet.Date);
@@ -593,12 +631,12 @@ export default function PetDetailPage() {
 
             {/* Owner Section */}
             {isOwner && (
-              <div className="rounded-xl p-6 border border-orange-500/20">
+              <div className="rounded-xl p-6 border-2 border-orange-500/20 bg-orange-500/5">
                 <h3 className="font-bold text-lg mb-4">{t.myPost}</h3>
                 <p className="text-muted mb-6">{t.myPostMessage}</p>
                 <Link
                   href="/profile"
-                  className="inline-block px-6 py-2 border border-orange-500/20 text-white rounded-lg font-semibold transition-all"
+                  className="inline-block px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all"
                 >
                   {t.goToProfile}
                 </Link>
@@ -651,7 +689,7 @@ export default function PetDetailPage() {
               <>
                 {t.shareDescription1}{" "}
                 <span className="font-bold">
-                  {pet?.userId?.name || "amьtan"}
+                  {pet?.userId?.name || "амьтан"}
                 </span>
                 {t.shareDescription2} {isLost ? t.returnHome : t.findFamily}{" "}
                 {t.shareDescriptionEnd}
