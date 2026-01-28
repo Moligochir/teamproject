@@ -476,9 +476,6 @@ export default function PetDetailPage() {
   const isLost = pet.role === "Lost";
   const isDog = pet.petType === "Dog";
 
-  const today = new Date();
-  const petDate = new Date(pet.Date);
-
   today.setHours(0, 0, 0, 0);
   petDate.setHours(0, 0, 0, 0);
 
