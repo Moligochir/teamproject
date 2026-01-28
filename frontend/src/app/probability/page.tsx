@@ -53,6 +53,9 @@ export default function ProbabilityPage() {
       found: "Олдсон",
       loading: "Уншиж байна...",
       yourReport: "Таны мэдээлэл",
+      findingMatches: "Тохирлыг хайж байна...",
+      analyzing: "Мэдээлэл шинжилж байна...",
+      searching: "Сүлжээнээс хайж байна...",
     },
     en: {
       title: "AI Matches",
@@ -75,6 +78,9 @@ export default function ProbabilityPage() {
       found: "Found",
       loading: "Loading...",
       yourReport: "Your Report",
+      findingMatches: "Finding matches...",
+      analyzing: "Analyzing data...",
+      searching: "Searching network...",
     },
   };
 
@@ -149,10 +155,132 @@ export default function ProbabilityPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="text-5xl animate-bounce mb-4">🤖</div>
-          <p className="text-muted">{t.loading}</p>
+      <div className="min-h-screen bg-background py-8 px-4 sm:px-6 lg:px-8 pt-24">
+        <div className="max-w-6xl mx-auto">
+          {/* Header Skeleton */}
+          <div className="mb-12">
+            <div className="h-10 w-48 bg-gray-300 dark:bg-gray-700 rounded-lg mb-3 animate-pulse"></div>
+            <div className="h-5 w-96 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+          </div>
+
+          {/* Your Report Section Skeleton */}
+          <div className="mb-12">
+            <div className="h-8 w-32 bg-gray-300 dark:bg-gray-700 rounded-lg mb-6 animate-pulse"></div>
+            <div className="bg-card-bg rounded-xl border border-card-border p-6">
+              <div className="flex flex-col sm:flex-row gap-6">
+                {/* Image Skeleton */}
+                <div className="w-full sm:w-48 h-48 rounded-lg bg-gray-300 dark:bg-gray-700 shrink-0 animate-pulse"></div>
+
+                {/* Info Skeleton */}
+                <div className="flex-1 space-y-4">
+                  {/* Name */}
+                  <div className="space-y-2">
+                    <div className="h-8 w-40 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+                    <div className="h-5 w-24 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+                  </div>
+
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="h-4 w-16 bg-gray-200 dark:bg-gray-800 rounded mb-2 animate-pulse"></div>
+                      <div className="h-5 w-24 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+                    </div>
+                    <div>
+                      <div className="h-4 w-16 bg-gray-200 dark:bg-gray-800 rounded mb-2 animate-pulse"></div>
+                      <div className="h-5 w-24 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+                    </div>
+                    <div>
+                      <div className="h-4 w-16 bg-gray-200 dark:bg-gray-800 rounded mb-2 animate-pulse"></div>
+                      <div className="h-5 w-24 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+                    </div>
+                    <div>
+                      <div className="h-4 w-16 bg-gray-200 dark:bg-gray-800 rounded mb-2 animate-pulse"></div>
+                      <div className="h-5 w-24 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="space-y-2 pt-2">
+                    <div className="h-4 w-20 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+                    <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+                    <div className="h-4 w-5/6 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Match Suggestions Section Skeleton */}
+          <div>
+            {/* Header */}
+            <div className="mb-6 space-y-2">
+              <div className="h-8 w-48 bg-gray-300 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+              <div className="h-4 w-64 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+            </div>
+
+            {/* Match Cards Skeleton - 3 cards */}
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="mb-6 bg-card-bg border border-card-border rounded-xl overflow-hidden animate-pulse"
+              >
+                {/* Header Skeleton */}
+                <div className="bg-gray-300 dark:bg-gray-700 p-6 h-24"></div>
+
+                {/* Details Skeleton */}
+                <div className="p-6 space-y-6">
+                  {/* Score Breakdown Grid */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {[1, 2, 3, 4].map((j) => (
+                      <div
+                        key={j}
+                        className="h-24 bg-gray-200 dark:bg-gray-800 rounded-lg"
+                      ></div>
+                    ))}
+                  </div>
+
+                  {/* Assessment Box */}
+                  <div className="bg-gray-100 dark:bg-gray-900/30 rounded-lg p-4 space-y-3">
+                    <div className="h-4 w-24 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                    <div className="space-y-2">
+                      <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                      <div className="h-3 w-5/6 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                      <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                      <div className="h-3 w-5/6 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                    </div>
+                  </div>
+
+                  {/* Reasons Button */}
+                  <div className="h-12 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+
+                  {/* Action Buttons */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="h-12 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+                    <div className="h-12 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Loading Message with Animation */}
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-primary text-white px-6 py-4 rounded-full shadow-lg flex items-center gap-3 z-50">
+            <div className="flex gap-1.5">
+              <div
+                className="w-2 h-2 bg-white rounded-full animate-bounce"
+                style={{ animationDelay: "0ms" }}
+              ></div>
+              <div
+                className="w-2 h-2 bg-white rounded-full animate-bounce"
+                style={{ animationDelay: "150ms" }}
+              ></div>
+              <div
+                className="w-2 h-2 bg-white rounded-full animate-bounce"
+                style={{ animationDelay: "300ms" }}
+              ></div>
+            </div>
+            <span className="text-sm font-semibold">{t.findingMatches}</span>
+          </div>
         </div>
       </div>
     );
@@ -261,6 +389,7 @@ export default function ProbabilityPage() {
           <MatchSuggestions
             petId={queryPet._id}
             petRole={queryPet.role as "Lost" | "Found"}
+            petName={queryPet.name}
             allPets={allPets}
           />
         </div>
