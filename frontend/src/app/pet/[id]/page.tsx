@@ -485,6 +485,7 @@ export default function PetDetailPage() {
   const daysAgo = Math.floor(
     (today.getTime() - petDate.getTime()) / (1000 * 60 * 60 * 24),
   );
+  console.log("usergruyefwdgufrkwgfik", pet.userId);
 
   return (
     <div className="min-h-screen py-12 bg-linear-to-b from-background to-card-bg/50">
