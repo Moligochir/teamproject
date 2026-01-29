@@ -5,9 +5,10 @@ import Link from "next/link";
 import { useLanguage } from "@/app/contexts/Languagecontext";
 import { useNotification } from "@/app/contexts/Notificationcontext";
 import { NotificationIcon, NotificationIcon2 } from "./icons";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export function NotificationDropdown() {
+  const router = useRouter();
   const { language } = useLanguage();
   const {
     notifications,
@@ -89,7 +90,7 @@ export function NotificationDropdown() {
       </div>
     );
   }
-  const router = useRouter();
+
   console.log(notifications, "notiff");
 
   return (
@@ -122,7 +123,6 @@ export function NotificationDropdown() {
         {notifications.map((notif) => (
           <div
             key={notif.id}
-            onClick={() => router.push(`/probability/${notif.petId}`)}
             className={`p-4 hover:bg-muted/5 transition-colors ${
               !notif.read ? "bg-primary/5" : ""
             } ${getNotificationColor(notif.type)}`}
@@ -161,16 +161,6 @@ export function NotificationDropdown() {
                     </div>
                     {!notif.read && (
                       <div className="shrink-0 w-2 h-2 rounded-full bg-primary mt-1"></div>
-                    )}
-                  </div>
-
-                  {/* Time & Action */}
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs text-muted">{notif.message}</span>
-                    {notif.actionLabel && (
-                      <span className="text-xs font-semibold text-primary">
-                        {notif.actionLabel} →
-                      </span>
                     )}
                   </div>
                 </div>

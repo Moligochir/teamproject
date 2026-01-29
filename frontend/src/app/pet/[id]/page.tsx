@@ -359,7 +359,7 @@ export default function PetDetailPage() {
 
   if (loading || !clerkLoaded) {
     return (
-      <div className="min-h-screen py-12 bg-gradient-to-b from-background to-card-bg/50 flex items-center justify-center">
+      <div className="min-h-screen py-12 bg-linear-to-b from-background to-card-bg/50 flex items-center justify-center">
         <div className="text-center">
           <div className="relative w-24 h-24 mx-auto mb-6">
             <div className="absolute inset-0 flex items-center justify-center animate-pulse">
@@ -385,14 +385,14 @@ export default function PetDetailPage() {
 
   if (!pet) {
     return (
-      <div className="min-h-screen py-12 flex items-center justify-center bg-gradient-to-b from-background to-card-bg/50">
+      <div className="min-h-screen py-12 flex items-center justify-center bg-linear-to-b from-background to-card-bg/50">
         <div className="text-center">
           <div className="text-6xl mb-4">🐾</div>
           <h1 className="text-3xl font-bold mb-4">{t.notFoundTitle}</h1>
           <p className="text-muted mb-6">{t.notFoundDescription}</p>
           <Link
             href="/browse"
-            className="px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-500 hover:shadow-lg text-white rounded-full font-semibold transition-all inline-block"
+            className="px-6 py-3 bg-linear-to-r from-orange-500 to-rose-500 hover:shadow-lg text-white rounded-full font-semibold transition-all inline-block"
           >
             {t.viewAllPets}
           </Link>
