@@ -10,7 +10,7 @@ import React, {
 
 export interface Notification {
   id: string;
-  type: "match" | "post" | "contact" | "message" | "system";
+  type: "match" | "post" | "contact" | "message" | "system" | "info";
   title: string;
   description: string;
   icon: string;

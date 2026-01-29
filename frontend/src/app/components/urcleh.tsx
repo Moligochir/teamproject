@@ -153,7 +153,7 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
               if (e.key === "Enter") router.push(`/adopt/${adopt._id}`);
             }}
           >
-            <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
+            <div className="relative w-full aspect-4/3 overflow-hidden bg-gray-100">
               <img
                 src={adopt.image || "/default-pet.jpg"}
                 alt={adopt.name}

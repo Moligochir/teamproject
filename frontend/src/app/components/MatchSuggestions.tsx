@@ -32,6 +32,7 @@ interface MatchSuggestionsProps {
   petId: string;
   petRole: "Lost" | "Found";
   allPets?: any[];
+  petName?: string;
 }
 
 export default function MatchSuggestions({
@@ -478,7 +479,7 @@ export default function MatchSuggestions({
           >
             {/* Score Header */}
             <div
-              className={`bg-gradient-to-r ${colorClass} text-white p-6 relative overflow-hidden`}
+              className={`bg-linear-to-r ${colorClass} text-white p-6 relative overflow-hidden`}
             >
               <div className="flex items-start justify-between relative z-10">
                 <div>

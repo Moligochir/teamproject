@@ -7,6 +7,7 @@ import { useUser } from "@clerk/nextjs";
 import * as React from "react";
 import { useLanguage } from "../contexts/Languagecontext";
 import { useNotification } from "../contexts/Notificationcontext";
+import { useRouter } from "next/navigation";
 
 type User = {
   _id: string;
@@ -34,6 +35,7 @@ const UPLOAD_PRESET = "Pawpew";
 const CLOUD_NAME = "dyduodw7q";
 
 export default function ReportPage() {
+  const router = useRouter();
   const [usersdata, setUsersData] = useState<User[]>([]);
   const { user } = useUser();
   const { language } = useLanguage();
@@ -134,6 +136,7 @@ export default function ReportPage() {
       viewMatches: "Тохирлуудыг үзэх",
       noMatches: "Төөрөлтгүй тохирол олдсонгүй",
       matchesFound: "{count} тохирол олдлоо",
+      redirecting: "Тохирлын хуудас руу шилжиж байна...",
     },
     en: {
       // Success page
@@ -226,6 +229,7 @@ export default function ReportPage() {
       viewMatches: "View Matches",
       noMatches: "No matches found",
       matchesFound: "{count} matches found",
+      redirecting: "Redirecting to matches...",
     },
   };
 
@@ -310,6 +314,9 @@ export default function ReportPage() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [quit, setQuit] = useState(false);
+  const [match, setMatch] = useState<MatchData[] | null>(null);
+  const [redirecting, setRedirecting] = useState(false);
+  const [createdPetId, setCreatedPetId] = useState<string | null>(null);
 
   const uploadToCloudinary = async (file: File) => {
     const formData = new FormData();
@@ -353,7 +360,6 @@ export default function ReportPage() {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [match, setMatch] = useState<MatchData[] | null>(null);
 
   const handleEdit = () => {
     inputRef.current?.click();
@@ -503,7 +509,10 @@ export default function ReportPage() {
       console.log("LostFound create hariu:", result.data);
 
       const matchesData = result.data || [];
+      const petId = result._id;
+
       setMatch(matchesData);
+      setCreatedPetId(petId);
 
       // Send notifications for matches
       if (matchesData && Array.isArray(matchesData) && matchesData.length > 0) {
@@ -511,21 +520,16 @@ export default function ReportPage() {
         addNotification({
           type: "match",
           title: t.matchFound,
-          message: t.matchesFound.replace(
+          description: t.matchesFound.replace(
             "{count}",
             matchesData.length.toString(),
           ),
-          matchData: {
-            totalMatches: matchesData.length,
-            matches: matchesData,
-          },
-          action: {
-            label: t.viewMatches,
-            href: "/probability",
-          },
+          icon: "🎯",
+          actionUrl: `/probability?petId=${petId}`,
+          actionLabel: language === "mn" ? "Үзэх" : "View",
         });
 
-        // Individual notifications for each match (optional - can be commented out if too many)
+        // Individual notifications for top 3 matches
         matchesData
           .slice(0, 3)
           .forEach((matchItem: MatchData, index: number) => {
@@ -534,60 +538,104 @@ export default function ReportPage() {
                 addNotification({
                   type: "match",
                   title: `${t.matchFound} #${index + 1}`,
-                  message: t.matchFoundDesc
+                  description: t.matchFoundDesc
                     .replace("{breed}", formData.breed)
                     .replace("{score}", matchItem.matchScore.toString()),
-                  matchData: {
-                    matchId: matchItem.matchId,
-                    matchScore: matchItem.matchScore,
-                    confidence: matchItem.confidence,
-                  },
-                  action: {
-                    label: t.viewMatches,
-                    href: "/probability",
-                  },
+                  icon:
+                    matchItem.matchScore >= 80
+                      ? "🎯"
+                      : matchItem.matchScore >= 60
+                        ? "⭐"
+                        : "👀",
+                  actionUrl: `/pet/${matchItem.matchId}`,
+                  actionLabel: language === "mn" ? "Үзэх" : "View",
+                  matchScore: matchItem.matchScore,
                 });
               },
               (index + 1) * 500,
-            ); // Stagger notifications
+            );
           });
+
+        // ✅ Auto-redirect to probability page after 2 seconds
+        setTimeout(() => {
+          setRedirecting(true);
+          setTimeout(() => {
+            router.push(`/probability?petId=${petId}`);
+          }, 1500);
+        }, 1000);
       } else {
-        // No matches found notification
+        // No matches found - show success page
+        setTimeout(() => {
+          setSubmitted(true);
+          setIsSubmitting(false);
+        }, 1000);
+
+        // No matches notification
         addNotification({
           type: "info",
           title:
             "📝 " +
             (language === "mn" ? "Мэдээлэл илгээгдлээ" : "Report Submitted"),
-          message: t.noMatches,
+          description: t.noMatches,
+          icon: "✓",
         });
       }
-
-      // Show success page after a delay
-      setTimeout(() => {
-        setSubmitted(true);
-        setIsSubmitting(false);
-      }, 1000);
     } catch (err) {
       console.log(err);
       setIsSubmitting(false);
       addNotification({
-        type: "error",
+        type: "system",
         title: language === "mn" ? "❌ Алдаа" : "❌ Error",
-        message:
+        description:
           language === "mn"
             ? "Мэдээлэл илгээхэд алдаа гарлаа"
             : "Failed to submit report",
+        icon: "❌",
       });
     }
   };
+
+  // ✅ Show redirecting screen
+  if (redirecting) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-6">
+          <div className="flex justify-center">
+            <div className="relative w-20 h-20">
+              <div className="absolute inset-0 rounded-full border-4 border-primary/20"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary animate-spin"></div>
+            </div>
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold mb-2">{t.matchFound}</h2>
+            <p className="text-muted">{t.redirecting}</p>
+          </div>
+          <div className="flex gap-2 justify-center">
+            <div
+              className="w-2 h-2 bg-primary rounded-full animate-bounce"
+              style={{ animationDelay: "0ms" }}
+            ></div>
+            <div
+              className="w-2 h-2 bg-primary rounded-full animate-bounce"
+              style={{ animationDelay: "150ms" }}
+            ></div>
+            <div
+              className="w-2 h-2 bg-primary rounded-full animate-bounce"
+              style={{ animationDelay: "300ms" }}
+            ></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (submitted) {
     return (
       <div className="min-h-screen py-12 flex items-center justify-center">
         <div className="max-w-md mx-auto text-center px-4">
-          <div className="w-24 h-24 bg-found/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-scale-in">
+          <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg
-              className="w-12 h-12 text-found"
+              className="w-12 h-12 text-green-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -605,7 +653,7 @@ export default function ReportPage() {
           {match && match.length > 0 && (
             <div className="mb-8 p-4 bg-primary/10 rounded-xl border border-primary/20">
               <p className="text-sm font-semibold text-primary mb-2">
-                🎉 {t.matchesFound.replace("{count}", match.length.toString())}
+                {t.matchesFound.replace("{count}", match.length.toString())}
               </p>
               <div className="space-y-2">
                 {match.slice(0, 3).map((m, idx) => (
@@ -619,20 +667,20 @@ export default function ReportPage() {
               </div>
             </div>
           )}
-          <div className="flex justify-center gap-4">
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link
               href="/browse"
-              className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all items-center justify-center flex"
+              className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all"
             >
               {t.viewListings}
             </Link>
 
-            {match && match.length > 0 && (
+            {createdPetId && (
               <Link
-                href="/probability"
-                className="px-8 py-4 bg-card-bg border border-card-border rounded-full font-bold text-lg text-center hover:border-primary transition cursor-pointer"
+                href={`/probability?petId=${createdPetId}`}
+                className="px-8 py-3 bg-card-bg border border-card-border rounded-full font-semibold text-center hover:border-primary transition"
               >
-                {t.viewMatches}
+                {t.viewProbability}
               </Link>
             )}
           </div>
@@ -665,8 +713,8 @@ export default function ReportPage() {
                 }
                 className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
                   formData.status === "lost"
-                    ? "border-lost bg-lost/10"
-                    : "border-card-border hover:border-lost/50"
+                    ? "border-red-500 bg-red-500/10"
+                    : "border-card-border hover:border-red-500/50"
                 }`}
               >
                 <div className="text-4xl mb-2">🔍</div>
@@ -680,8 +728,8 @@ export default function ReportPage() {
                 }
                 className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
                   formData.status === "found"
-                    ? "border-found bg-found/10"
-                    : "border-card-border hover:border-found/50"
+                    ? "border-green-500 bg-green-500/10"
+                    : "border-card-border hover:border-green-500/50"
                 }`}
               >
                 <div className="text-4xl mb-2">✓</div>
@@ -1049,20 +1097,20 @@ export default function ReportPage() {
             </button>
             {quit && (
               <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-9999 flex justify-center items-center">
-                <div className="bg-black rounded-lg shadow-lg w-90 h-40">
+                <div className="bg-card-bg rounded-lg shadow-lg w-90 h-40 border border-card-border">
                   <div className="p-5 flex flex-col justify-center gap-10">
-                    <p className="text-white text-[20px] font-semibold">
+                    <p className="text-foreground text-[20px] font-semibold">
                       {t.quitTitle}
                     </p>
                     <div className="flex gap-8 justify-center">
                       <button
                         onClick={() => setQuit(false)}
-                        className="px-6 py-3 rounded-lg shadow-lg cursor-pointer bg-[#e47a3d]"
+                        className="px-6 py-3 rounded-lg shadow-lg cursor-pointer bg-primary hover:bg-primary-dark text-white"
                       >
                         {t.continueReport}
                       </button>
                       <Link href={"/"}>
-                        <button className="px-6 py-3 rounded-lg shadow-lg cursor-pointer bg-red-500">
+                        <button className="px-6 py-3 rounded-lg shadow-lg cursor-pointer bg-red-500 hover:bg-red-600 text-white">
                           {t.quit}
                         </button>
                       </Link>
