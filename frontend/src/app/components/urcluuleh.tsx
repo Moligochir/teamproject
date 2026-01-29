@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { useParams, useRouter } from "next/navigation";
 import { DeleteIcon, EditIcon } from "./icons";
 import { useLanguage } from "../contexts/Languagecontext";
+import toast from "react-hot-toast";
 
 const UPLOAD_PRESET = "Pawpew";
 const CLOUD_NAME = "dyduodw7q";
@@ -31,12 +32,11 @@ export function UrcluulehPage() {
   const params = useParams();
   const router = useRouter();
 
-  // Edit хийх үед URL-аас id авч болно (route: /adopt/edit/[id])
   const id = (params as any)?.id as string | undefined;
   const isEdit = Boolean(id);
 
   const [formData, setFormData] = useState({
-    petType: "dog", // UI дээр dog/cat гэж барина
+    petType: "dog",
     name: "",
     age: "",
     gender: "",
@@ -47,12 +47,12 @@ export function UrcluulehPage() {
     contactPhone: "",
   });
 
-  const [preview, setPreview] = useState<string | null>(null); // Cloudinary image URL
+  const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // ====== Translations ======
   const translations = {
     mn: {
       petTypeTitle: "Амьтны төрөл",
@@ -70,14 +70,14 @@ export function UrcluulehPage() {
       male: "Эр",
       female: "Эм",
       description: "Тайлбар",
-      descriptionPlaceholder: "Амьтныг таних нэмэлт мэдээлэл...",
+      descriptionPlaceholder: "Амьтаны тухай нэмэлт мэдээлэл...",
       photoTitle: "Зураг",
       uploadPhoto: "Зураг оруулахын тулд дарна уу",
       uploadingPhoto: "Зураг ачааллаж байна...",
       imageFormats: "PNG, JPG",
       contactTitle: "Таны холбоо барих мэдээлэл",
       yourName: "Таны нэр",
-      namePlaceholder: "Sunduibazrr",
+      namePlaceholder: "Нэр",
       email: "Имэйл",
       emailPlaceholder: "example@email.com",
       phone: "Утасны дугаар",
@@ -85,8 +85,21 @@ export function UrcluulehPage() {
       submit: "Мэдээлэл илгээх",
       submitting: "Илгээж байна...",
       cancel: "Цуцлах",
-      imageRequired: "Зураг заавал оруулна уу",
       loadFail: "Мэдээлэл ачаалж чадсангүй",
+      submittedSuccess: "✅ Мэдээлэл амжилттай илгээгдлээ",
+      submitError: "❌ Мэдээлэл илгээхэд алдаа гарлаа",
+      // Error messages
+      nameRequired: "Амьтны нэр заавал оруулна уу",
+      breedRequired: "Үүлдэр заавал оруулна уу",
+      ageRequired: "Нас заавал оруулна уу",
+      genderRequired: "Хүйс заавал сонгоно уу",
+      descriptionRequired: "Тайлбар заавал оруулна уу",
+      imageRequired: "Зураг заавал оруулна уу",
+      contactNameRequired: "Таны нэр заавал оруулна уу",
+      emailRequired: "Имэйл заавал оруулна уу",
+      emailInvalid: "Зөв имэйл оруулна уу",
+      phoneRequired: "Утасны дугаар заавал оруулна уу",
+      phoneInvalid: "Утасны дугаар 8 оронтой байх ёстой",
     },
     en: {
       petTypeTitle: "Pet Type",
@@ -111,7 +124,7 @@ export function UrcluulehPage() {
       imageFormats: "PNG, JPG",
       contactTitle: "Your Contact Information",
       yourName: "Your Name",
-      namePlaceholder: "John Doe",
+      namePlaceholder: "Name",
       email: "Email",
       emailPlaceholder: "example@email.com",
       phone: "Phone Number",
@@ -119,8 +132,21 @@ export function UrcluulehPage() {
       submit: "Submit",
       submitting: "Submitting...",
       cancel: "Cancel",
-      imageRequired: "Photo is required",
       loadFail: "Failed to load data",
+      submittedSuccess: "✅ Data submitted successfully",
+      submitError: "❌ Error submitting data",
+      // Error messages
+      nameRequired: "Pet name is required",
+      breedRequired: "Breed is required",
+      ageRequired: "Age is required",
+      genderRequired: "Gender is required",
+      descriptionRequired: "Description is required",
+      imageRequired: "Photo is required",
+      contactNameRequired: "Your name is required",
+      emailRequired: "Email is required",
+      emailInvalid: "Invalid email address",
+      phoneRequired: "Phone number is required",
+      phoneInvalid: "Phone number must be exactly 8 digits",
     },
   };
 
@@ -149,12 +175,13 @@ export function UrcluulehPage() {
     setUploading(true);
     try {
       const url = await uploadToCloudinary(file);
-      setPreview(url); // ✅ Cloudinary URL
+      setPreview(url);
+      setErrors((prev) => ({ ...prev, image: "" }));
     } catch (err) {
       console.log(err);
       setPreview(null);
       if (inputRef.current) inputRef.current.value = "";
-      alert(t.imageRequired);
+      setErrors((prev) => ({ ...prev, image: t.imageRequired }));
     } finally {
       setUploading(false);
     }
@@ -164,6 +191,7 @@ export function UrcluulehPage() {
 
   const handleDeleteImage = () => {
     setPreview(null);
+    setErrors((prev) => ({ ...prev, image: "" }));
     if (inputRef.current) inputRef.current.value = "";
   };
 
@@ -179,7 +207,7 @@ export function UrcluulehPage() {
         });
 
         const json = await res.json();
-        const item: AdoptItem = json?.data ?? json; // backend чинь data дотор хийдэг бол
+        const item: AdoptItem = json?.data ?? json;
 
         setFormData((prev) => ({
           ...prev,
@@ -197,16 +225,79 @@ export function UrcluulehPage() {
         setPreview(item.image || null);
       } catch (err) {
         console.log(err);
-        alert(t.loadFail);
+        toast.error(t.loadFail);
       }
     })();
   }, [isEdit, id]);
 
+  // ====== Complete Validation ======
+  const validateForm = (): boolean => {
+    const newErrors: { [key: string]: string } = {};
+
+    // Pet name
+    if (!formData.name.trim()) {
+      newErrors.name = t.nameRequired;
+    }
+
+    // Breed
+    if (!formData.breed.trim()) {
+      newErrors.breed = t.breedRequired;
+    }
+
+    // Age
+    if (!formData.age.trim()) {
+      newErrors.age = t.ageRequired;
+    }
+
+    // Gender
+    if (!formData.gender) {
+      newErrors.gender = t.genderRequired;
+    }
+
+    // Description
+    if (!formData.description.trim()) {
+      newErrors.description = t.descriptionRequired;
+    }
+
+    // Image
+    if (!preview) {
+      newErrors.image = t.imageRequired;
+    }
+
+    // Contact name
+    if (!formData.contactName.trim()) {
+      newErrors.contactName = t.contactNameRequired;
+    }
+
+    // Email
+    if (!formData.contactEmail.trim()) {
+      newErrors.contactEmail = t.emailRequired;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
+      newErrors.contactEmail = t.emailInvalid;
+    }
+
+    // Phone
+    if (!formData.contactPhone.trim()) {
+      newErrors.contactPhone = t.phoneRequired;
+    } else {
+      const phoneDigits = formData.contactPhone.replace(/\D/g, "");
+      if (phoneDigits.length !== 8) {
+        newErrors.contactPhone = t.phoneInvalid;
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   // ====== Submit (POST or PUT) ======
   const handleSubmit = async () => {
-    // Create үед зураг заавал; Edit үед зураг байхгүй бол бас алдаа
-    if (!preview) {
-      alert(t.imageRequired);
+    if (!validateForm()) {
+      const firstErrorKey = Object.keys(errors)[0];
+      const element = document.getElementsByName(firstErrorKey)[0];
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
       return;
     }
 
@@ -219,7 +310,7 @@ export function UrcluulehPage() {
         gender: formData.gender,
         breed: formData.breed,
         description: formData.description,
-        image: preview, // ✅ Cloudinary URL
+        image: preview,
         contactName: formData.contactName,
         contactEmail: formData.contactEmail,
         contactPhone: formData.contactPhone,
@@ -230,7 +321,7 @@ export function UrcluulehPage() {
         ? `http://localhost:8000/adopt/${id}`
         : `http://localhost:8000/adopt`;
 
-      const method = isEdit ? "PUT" : "POST"; // эсвэл PATCH
+      const method = isEdit ? "PUT" : "POST";
 
       const res = await fetch(url, {
         method,
@@ -241,13 +332,45 @@ export function UrcluulehPage() {
         body: JSON.stringify(payload),
       });
 
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
       const data = await res.json();
       console.log("Saved:", data);
 
-      // хүсвэл амжилтын хуудас руу
-      router.push("/browse"); // эсвэл router.back()
+      // ✅ Show success toast and redirect
+      toast.success(t.submittedSuccess, {
+        duration: 2000,
+        position: "top-center",
+        style: {
+          background: "#10b981",
+          color: "#fff",
+          padding: "16px",
+          borderRadius: "8px",
+          fontSize: "16px",
+          fontWeight: "bold",
+        },
+      });
+
+      // Redirect after toast
+      setTimeout(() => {
+        router.push("/dog");
+      }, 2000);
     } catch (err) {
       console.log(err);
+      toast.error(t.submitError, {
+        duration: 2000,
+        position: "top-center",
+        style: {
+          background: "#ef4444",
+          color: "#fff",
+          padding: "16px",
+          borderRadius: "8px",
+          fontSize: "16px",
+          fontWeight: "bold",
+        },
+      });
     } finally {
       setSubmitting(false);
     }
@@ -260,6 +383,9 @@ export function UrcluulehPage() {
   ) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   return (
@@ -300,18 +426,29 @@ export function UrcluulehPage() {
       <div className="bg-card-bg rounded-2xl border border-card-border p-6">
         <h2 className="text-xl font-bold mb-4">{t.petInfoTitle}</h2>
         <div className="grid md:grid-cols-2 gap-4">
+          {/* Pet Name */}
           <div>
-            <label className="block text-sm font-medium mb-2">{t.petName}</label>
+            <label className="block text-sm font-medium mb-2">
+              {t.petName}
+            </label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
               placeholder={t.petNamePlaceholder}
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+              className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary transition-all ${
+                errors.name ? "border-red-500" : "border-card-border"
+              }`}
             />
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                {errors.name}
+              </p>
+            )}
           </div>
 
+          {/* Breed */}
           <div>
             <label className="block text-sm font-medium mb-2">{t.breed}</label>
             <input
@@ -320,35 +457,60 @@ export function UrcluulehPage() {
               value={formData.breed}
               onChange={handleChange}
               placeholder={t.breedPlaceholder}
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+              className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary transition-all ${
+                errors.breed ? "border-red-500" : "border-card-border"
+              }`}
             />
+            {errors.breed && (
+              <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                {errors.breed}
+              </p>
+            )}
           </div>
 
+          {/* Age */}
           <div>
             <label className="block text-sm font-medium mb-2">{t.age}</label>
             <input
+              type="text"
               name="age"
               value={formData.age}
               onChange={handleChange}
               placeholder={t.agePlaceholder}
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+              className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary transition-all ${
+                errors.age ? "border-red-500" : "border-card-border"
+              }`}
             />
+            {errors.age && (
+              <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                {errors.age}
+              </p>
+            )}
           </div>
 
+          {/* Gender */}
           <div>
             <label className="block text-sm font-medium mb-2">{t.gender}</label>
             <select
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              className="w-full h-12 cursor-pointer px-4 pr-10 bg-background border border-card-border rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary"
+              className={`w-full h-12 cursor-pointer px-4 pr-10 bg-background border rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary transition-all ${
+                errors.gender ? "border-red-500" : "border-card-border"
+              }`}
             >
               <option value="">{t.selectGender}</option>
               <option value="Male">{t.male}</option>
               <option value="Female">{t.female}</option>
             </select>
+            {errors.gender && (
+              <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                {errors.gender}
+              </p>
+            )}
           </div>
 
+          {/* Description */}
           <div className="md:col-span-2">
             <label className="block text-sm font-medium mb-2">
               {t.description}
@@ -359,8 +521,15 @@ export function UrcluulehPage() {
               onChange={handleChange}
               rows={4}
               placeholder={t.descriptionPlaceholder}
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary resize-none transition-all ${
+                errors.description ? "border-red-500" : "border-card-border"
+              }`}
             />
+            {errors.description && (
+              <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                {errors.description}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -373,7 +542,11 @@ export function UrcluulehPage() {
           {!preview ? (
             <label
               htmlFor="image-upload"
-              className="border-2 border-dashed border-card-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer block"
+              className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer block ${
+                errors.image
+                  ? "border-red-500 hover:border-red-600"
+                  : "border-card-border hover:border-primary/50"
+              }`}
             >
               {!uploading ? (
                 <>
@@ -406,7 +579,7 @@ export function UrcluulehPage() {
                 <button
                   type="button"
                   onClick={handleEditImage}
-                  className="bg-white p-2 rounded-full hover:bg-gray-100 transition"
+                  className="bg-white p-2 cursor-pointer rounded-full hover:bg-gray-100 transition"
                 >
                   <EditIcon />
                 </button>
@@ -414,7 +587,7 @@ export function UrcluulehPage() {
                 <button
                   type="button"
                   onClick={handleDeleteImage}
-                  className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
+                  className="bg-red-500 cursor-pointer text-white p-2 rounded-full hover:bg-red-600 transition"
                 >
                   <DeleteIcon />
                 </button>
@@ -429,6 +602,12 @@ export function UrcluulehPage() {
               />
             </div>
           )}
+
+          {errors.image && (
+            <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+              {errors.image}
+            </p>
+          )}
         </div>
       </div>
 
@@ -436,17 +615,29 @@ export function UrcluulehPage() {
       <div className="bg-card-bg rounded-2xl border border-card-border p-6">
         <h2 className="text-xl font-bold mb-4">{t.contactTitle}</h2>
         <div className="grid md:grid-cols-2 gap-4">
+          {/* Contact Name */}
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-2">{t.yourName}</label>
+            <label className="block text-sm font-medium mb-2">
+              {t.yourName}
+            </label>
             <input
               type="text"
               name="contactName"
               value={formData.contactName}
               onChange={handleChange}
               placeholder={t.namePlaceholder}
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+              className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary transition-all ${
+                errors.contactName ? "border-red-500" : "border-card-border"
+              }`}
             />
+            {errors.contactName && (
+              <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                {errors.contactName}
+              </p>
+            )}
           </div>
+
+          {/* Email */}
           <div>
             <label className="block text-sm font-medium mb-2">{t.email}</label>
             <input
@@ -455,9 +646,18 @@ export function UrcluulehPage() {
               value={formData.contactEmail}
               onChange={handleChange}
               placeholder={t.emailPlaceholder}
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+              className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary transition-all ${
+                errors.contactEmail ? "border-red-500" : "border-card-border"
+              }`}
             />
+            {errors.contactEmail && (
+              <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                {errors.contactEmail}
+              </p>
+            )}
           </div>
+
+          {/* Phone */}
           <div>
             <label className="block text-sm font-medium mb-2">{t.phone}</label>
             <input
@@ -466,8 +666,15 @@ export function UrcluulehPage() {
               value={formData.contactPhone}
               onChange={handleChange}
               placeholder={t.phonePlaceholder}
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+              className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary transition-all ${
+                errors.contactPhone ? "border-red-500" : "border-card-border"
+              }`}
             />
+            {errors.contactPhone && (
+              <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                {errors.contactPhone}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -478,18 +685,21 @@ export function UrcluulehPage() {
           type="button"
           onClick={handleSubmit}
           disabled={uploading || submitting}
-          className={`flex-1 px-8 py-4 text-white rounded-full font-bold text-lg transition ${
+          className={`flex-1 px-8 py-4 text-white rounded-full font-bold text-lg transition-all flex items-center justify-center gap-2 ${
             uploading || submitting
               ? "bg-gray-400 cursor-not-allowed opacity-60"
-              : "bg-primary hover:bg-primary-dark cursor-pointer"
+              : "bg-primary hover:bg-primary-dark cursor-pointer hover:shadow-lg hover:shadow-primary/30 active:scale-95"
           }`}
         >
+          {submitting && (
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          )}
           {submitting ? t.submitting : t.submit}
         </button>
 
         <Link
-          href="/"
-          className="px-8 py-4 bg-card-bg border border-card-border rounded-full font-bold text-lg text-center hover:border-primary transition cursor-pointer"
+          href="/dog"
+          className="px-8 py-4 bg-card-bg border border-card-border rounded-full font-bold text-lg text-center hover:border-primary transition-all cursor-pointer active:scale-95"
         >
           {t.cancel}
         </Link>
