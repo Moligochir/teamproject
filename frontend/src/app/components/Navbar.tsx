@@ -149,7 +149,7 @@ export function Navbar() {
             >
               <button
                 className={`px-4 py-2 rounded-lg cursor-pointer font-medium transition-all duration-300 relative flex items-center gap-1 ${
-                  isActive("browse")
+                  isActive("browse") 
                     ? "text-primary"
                     : "text-muted hover:text-primary"
                 }`}
@@ -175,7 +175,7 @@ export function Navbar() {
                   </svg>
                 </div>
 
-                {isActive("browse") && (
+                {isActive("browse")  && (
                   <div className="absolute bottom-0 left-4 right-4 h-1 bg-primary rounded-t-lg"></div>
                 )}
               </button>
@@ -240,7 +240,7 @@ export function Navbar() {
             >
               <button
                 className={`px-4 py-2 rounded-lg cursor-pointer font-medium transition-all duration-300 relative flex items-center gap-1 ${
-                  isActive("browse")
+                  isActive("shop")
                     ? "text-primary"
                     : "text-muted hover:text-primary"
                 }`}
@@ -266,7 +266,7 @@ export function Navbar() {
                   </svg>
                 </div>
 
-                {isActive("browse") && (
+                {isActive("shop") && (
                   <div className="absolute bottom-0 left-4 right-4 h-1 bg-primary rounded-t-lg"></div>
                 )}
               </button>

@@ -25,12 +25,13 @@ type AdoptItem = {
   contactPhone?: string;
   userId?: string;
 };
-
-export function UrcluulehPage() {
+type ResultType = {
+  Result: React.Dispatch<React.SetStateAction<boolean>>
+};
+export function UrcluulehPage({ Result }: ResultType) {
   const { user } = useUser();
   const { language } = useLanguage();
   const params = useParams();
-  const router = useRouter();
 
   const id = (params as any)?.id as string | undefined;
   const isEdit = Boolean(id);
@@ -289,7 +290,7 @@ export function UrcluulehPage() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+ const [Data, setData] = useState<any>(null);
   // ====== Submit (POST or PUT) ======
   const handleSubmit = async () => {
     if (!validateForm()) {
@@ -338,8 +339,7 @@ export function UrcluulehPage() {
 
       const data = await res.json();
       console.log("Saved:", data);
-
-      // ✅ Show success toast and redirect
+      // ✅ Show success toast
       toast.success(t.submittedSuccess, {
         duration: 2000,
         position: "top-center",
@@ -353,10 +353,11 @@ export function UrcluulehPage() {
         },
       });
 
-      // Redirect after toast
-      setTimeout(() => {
-        router.push("/dog");
-      }, 2000);
+      // ✅ Wait for toast to show, then redirect
+      // setTimeout(() => {
+      //   router.push(`/`);
+      // }, 2000); // Wait 2 seconds to show the toast
+     
     } catch (err) {
       console.log(err);
       toast.error(t.submitError, {
@@ -373,6 +374,7 @@ export function UrcluulehPage() {
       });
     } finally {
       setSubmitting(false);
+      Result(true);
     }
   };
 
@@ -388,8 +390,9 @@ export function UrcluulehPage() {
     }
   };
 
-  return (
+  return ( 
     <div className="space-y-6">
+      
       {/* Animal Type */}
       <div className="bg-card-bg rounded-2xl border border-card-border p-6">
         <h2 className="text-xl font-bold mb-4">{t.petTypeTitle}</h2>
@@ -680,6 +683,7 @@ export function UrcluulehPage() {
       </div>
 
       {/* Actions */}
+     
       <div className="flex flex-col sm:flex-row gap-4">
         <button
           type="button"
@@ -704,6 +708,7 @@ export function UrcluulehPage() {
           {t.cancel}
         </Link>
       </div>
-    </div>
-  );
+    </div> 
+  
+ )   
 }
