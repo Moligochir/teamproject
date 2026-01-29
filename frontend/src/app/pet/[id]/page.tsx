@@ -733,27 +733,6 @@ export default function PetDetailPage() {
               {t.copyLink}
             </button>
           </div>
-
-          <div className="grid grid-cols-3 gap-4 pt-6 border-t border-orange-500/20">
-            <div>
-              <p className="text-2xl font-bold text-orange-500">1.2K</p>
-              <p className="text-xs text-muted">
-                {language === "mn" ? "Харагдсан" : "Views"}
-              </p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-rose-500">48</p>
-              <p className="text-xs text-muted">
-                {language === "mn" ? "Хуваалцсан" : "Shares"}
-              </p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-primary">156</p>
-              <p className="text-xs text-muted">
-                {language === "mn" ? "Сэтгэгдэл" : "Comments"}
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </div>

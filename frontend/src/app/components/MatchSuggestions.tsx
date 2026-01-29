@@ -412,10 +412,10 @@ export default function MatchSuggestions({
   };
 
   const getQualityColor = (score: number) => {
-    if (score >= 80) return "from-green-900 to-green-600";
-    if (score >= 60) return "from-orange-900 to-orange-600";
-    if (score >= 40) return "from-yellow-900 to-yellow-600";
-    return "from-red-900 to-red-600";
+    if (score >= 80) return "from-green-900 to-green-600 animate-pulse";
+    if (score >= 60) return "from-orange-900 to-orange-600 animate-pulse";
+    if (score >= 40) return "from-yellow-900 to-yellow-600 animate-pulse";
+    return "from-red-900 to-red-600 animate-pulse";
   };
 
   const handleDismiss = (matchId: string) => {

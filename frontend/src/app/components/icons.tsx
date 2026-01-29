@@ -1298,3 +1298,59 @@ export const DotIcon = () => {
     </svg>
   );
 };
+
+export const LostPin = () => {
+  return (
+    <svg
+      width="125px"
+      height="125px"
+      viewBox="0 0 24.00 24.00"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="#ff0000"
+      stroke="#ff0000"
+      transform="matrix(-1, 0, 0, 1, 0, 0)"
+      stroke-width="0.00024000000000000003"
+    >
+      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+      <g
+        id="SVGRepo_tracerCarrier"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke="#CCCCCC"
+        stroke-width="0.336"
+      ></g>
+      <g id="SVGRepo_iconCarrier">
+        <path d="M12 1.1a6.847 6.847 0 0 0-6.9 6.932c0 3.882 3.789 9.01 6.9 14.968 3.111-5.957 6.9-11.086 6.9-14.968A6.847 6.847 0 0 0 12 1.1zm0 9.9a3 3 0 1 1 3-3 3 3 0 0 1-3 3z"></path>
+        <path fill="none" d="M0 0h24v24H0z"></path>
+      </g>
+    </svg>
+  );
+};
+
+export const FoundPin = () => {
+  return (
+    <svg
+      width="125px"
+      height="125px"
+      viewBox="0 0 24.00 24.00"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="#31963d"
+      stroke="#31963d"
+      transform="matrix(-1, 0, 0, 1, 0, 0)"
+      stroke-width="0.00024000000000000003"
+    >
+      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+      <g
+        id="SVGRepo_tracerCarrier"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke="#CCCCCC"
+        stroke-width="0.336"
+      ></g>
+      <g id="SVGRepo_iconCarrier">
+        <path d="M12 1.1a6.847 6.847 0 0 0-6.9 6.932c0 3.882 3.789 9.01 6.9 14.968 3.111-5.957 6.9-11.086 6.9-14.968A6.847 6.847 0 0 0 12 1.1zm0 9.9a3 3 0 1 1 3-3 3 3 0 0 1-3 3z"></path>
+        <path fill="none" d="M0 0h24v24H0z"></path>
+      </g>
+    </svg>
+  );
+};

@@ -31,6 +31,8 @@ export function Navbar() {
   const [browseDropdownOpen, setBrowseDropdownOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("");
+  const [browseHovered, setBrowseHovered] = useState(false);
+  const [othersHovered, setOthersHovered] = useState(false);
 
   const { language, toggleLanguage } = useLanguage();
   const { user } = useUser();
@@ -71,8 +73,7 @@ export function Navbar() {
       toto: "Үрчлэх",
       toto2: "Үрчлүүлэх",
       Others: "Бусад",
-      Shop:"Дэлгүүр"
-
+      Shop: "Дэлгүүр",
     },
     en: {
       home: "Home",
@@ -141,7 +142,11 @@ export function Navbar() {
             </Link>
 
             {/* Browse with Dropdown */}
-            <div className="relative group">
+            <div
+              className="relative group"
+              onMouseEnter={() => setBrowseHovered(true)}
+              onMouseLeave={() => setBrowseHovered(false)}
+            >
               <button
                 className={`px-4 py-2 rounded-lg cursor-pointer font-medium transition-all duration-300 relative flex items-center gap-1 ${
                   isActive("browse")
@@ -150,8 +155,24 @@ export function Navbar() {
                 }`}
               >
                 {t.browse}
-                <div className="w-6 h-5 flex justify-center items-end">
-                  <FaAngleDown />
+                <div
+                  className={`w-6 h-5 flex justify-center items-end transition-transform duration-300 `}
+                >
+                  <svg
+                    className={`w-4 h-4 transition-transform duration-300 ${
+                      browseHovered ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                    />
+                  </svg>
                 </div>
 
                 {isActive("browse") && (
@@ -162,16 +183,6 @@ export function Navbar() {
               {/* Browse Dropdown Menu */}
               <div className="absolute left-0 mt-0 w-56 rounded-xl bg-card-bg border border-card-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div className="py-2">
-                  {/* <Link
-                    href="/dog"
-                    className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all"
-                  >
-                    <span className="text-lg">✓</span>
-                    <div>
-                      <p className="font-semibold text-sm">{t.browseSubLost}</p>
-                      <p className="text-xs text-muted">{t.toto2}</p>
-                    </div>
-                  </Link> */}
                   <Link
                     href="/dog"
                     className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all"
@@ -220,7 +231,13 @@ export function Navbar() {
                 <div className="absolute bottom-0 left-4 right-4 h-1 bg-primary rounded-t-lg"></div>
               )}
             </Link>
-            <div className="relative group">
+
+            {/* Others with Dropdown */}
+            <div
+              className="relative group"
+              onMouseEnter={() => setOthersHovered(true)}
+              onMouseLeave={() => setOthersHovered(false)}
+            >
               <button
                 className={`px-4 py-2 rounded-lg cursor-pointer font-medium transition-all duration-300 relative flex items-center gap-1 ${
                   isActive("browse")
@@ -229,8 +246,24 @@ export function Navbar() {
                 }`}
               >
                 {t.Others}
-                <div className="w-6 h-5 flex justify-center items-end">
-                  <FaAngleDown />
+                <div
+                  className={`w-6 h-5 flex justify-center items-end transition-transform duration-300 `}
+                >
+                  <svg
+                    className={`w-4 h-4 transition-transform duration-300 ${
+                      othersHovered ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                    />
+                  </svg>
                 </div>
 
                 {isActive("browse") && (
@@ -238,35 +271,34 @@ export function Navbar() {
                 )}
               </button>
 
-              {/* Browse Dropdown Menu */}
+              {/* Others Dropdown Menu */}
               <div className="absolute left-0 mt-0 w-56 rounded-xl bg-card-bg border border-card-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div className="py-2">
-                  
                   <Link
                     href="/shop"
                     className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all"
                   >
                     <span className="text-lg">🛒</span>
                     <div>
-                      <p className="font-semibold text-sm">
-                        {t.Shop}
-                      </p>
-                    
+                      <p className="font-semibold text-sm">{t.Shop}</p>
                     </div>
                   </Link>
                   <Link
-                 href="/about"
-              className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all "
-              >
-                <span className="text-lg">📋</span>
-                <div>
-                    <p className="font-semibold text-sm cursor-pointer">{t.about}</p>
-                  </div>
-                </Link>
+                    href="/about"
+                    className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all "
+                  >
+                    <span className="text-lg">📋</span>
+                    <div>
+                      <p className="font-semibold text-sm cursor-pointer">
+                        {t.about}
+                      </p>
+                    </div>
+                  </Link>
                 </div>
-                </div>
+              </div>
             </div>
           </div>
+
           {/* Right side */}
           <div className="flex items-center gap-3">
             <ThemeToggle />
@@ -401,7 +433,7 @@ export function Navbar() {
                 >
                   {t.browse}
                   <svg
-                    className={`w-4 h-4 transition-transform ${
+                    className={`w-4 h-4 transition-transform duration-300 ${
                       browseDropdownOpen ? "rotate-180" : ""
                     }`}
                     fill="none"
