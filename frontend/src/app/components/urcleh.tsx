@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLanguage } from "../contexts/Languagecontext";
-import PetCard from "./petcard";
-import toast from "react-hot-toast";
+
 import { useRouter } from "next/navigation";
 
 type PetFiltersProps = {
@@ -149,9 +148,9 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
             className="bg-card-bg rounded-2xl border border-card-border overflow-hidden cursor-pointer hover:border-primary/50 hover:-translate-y-0.5 transition"
             role="button"
             tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") router.push(`/pet/${adopt._id}`);
-            }}
+            // onKeyDown={(e) => {
+            //   if (e.key === "Enter") router.push(`/pet/${adopt._id}`);
+            // }}
           >
             <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
               <img

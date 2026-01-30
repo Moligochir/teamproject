@@ -301,7 +301,9 @@ export function UrcluulehPage() {
         <h2 className="text-xl font-bold mb-4">{t.petInfoTitle}</h2>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">{t.petName}</label>
+            <label className="block text-sm font-medium mb-2">
+              {t.petName}
+            </label>
             <input
               type="text"
               name="name"
@@ -437,7 +439,9 @@ export function UrcluulehPage() {
         <h2 className="text-xl font-bold mb-4">{t.contactTitle}</h2>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-2">{t.yourName}</label>
+            <label className="block text-sm font-medium mb-2">
+              {t.yourName}
+            </label>
             <input
               type="text"
               name="contactName"
