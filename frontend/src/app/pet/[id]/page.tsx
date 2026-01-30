@@ -3,10 +3,10 @@ import {
   Copy,
   EmailIcon,
   Facebook,
+  Instagram,
   LocationPinIcon,
   PhoneIcon,
-  Twitter,
-  Whatsapp,
+  XIcon,
 } from "@/app/components/icons";
 import { useLanguage } from "@/app/contexts/Languagecontext";
 import Link from "next/link";
@@ -689,7 +689,7 @@ export default function PetDetailPage() {
               <>
                 {t.shareDescription1}{" "}
                 <span className="font-bold">
-                  {pet?.userId?.name || "амьтан"}
+                  {pet.name || "амьтан"}
                 </span>
                 {t.shareDescription2} {isLost ? t.returnHome : t.findFamily}{" "}
                 {t.shareDescriptionEnd}
@@ -697,7 +697,7 @@ export default function PetDetailPage() {
             ) : (
               <>
                 {t.shareDescription1}{" "}
-                <span className="font-bold">{pet?.userId?.name || "pet"}</span>{" "}
+                <span className="font-bold">{pet.name || "pet"}</span>{" "}
                 {isLost ? t.returnHome : t.findFamily}
               </>
             )}
@@ -713,17 +713,17 @@ export default function PetDetailPage() {
             </button>
             <button
               onClick={() => handleShare("twitter")}
-              className="px-6 py-3 cursor-pointer bg-sky-500 hover:bg-sky-600 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
+              className="px-6 py-3 cursor-pointer bg-black hover:bg-gray-800 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
             >
-              <Twitter />
-              Twitter
+              <XIcon />
+              X
             </button>
             <button
-              onClick={() => handleShare("whatsapp")}
-              className="px-6 py-3 cursor-pointer bg-green-500 hover:bg-green-600 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
+              onClick={() => handleShare("instagram")}
+              className="px-6 py-3 cursor-pointer bg-linear-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
             >
-              <Whatsapp />
-              WhatsApp
+              <Instagram />
+              Instagram
             </button>
             <button
               onClick={() => handleShare("copy")}
