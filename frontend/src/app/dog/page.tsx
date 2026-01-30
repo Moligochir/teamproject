@@ -130,8 +130,6 @@ export default function ReportPage() {
             >
              sdfghj
             </Link>
-
-            
           </div>
         </div>
       </div>)}</>
