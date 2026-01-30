@@ -20,7 +20,8 @@ export default function ShopPage() {
   const [price, setPrice] = useState("");
   const [phone, setPhone] = useState("");
   const [imagePreview, setImagePreview] = useState<string>("");
-  
+  const [postShop, setPostShop] = useState("");
+
   // Error states
   const [nameError, setNameError] = useState("");
   const [imageError, setImageError] = useState("");
@@ -81,7 +82,8 @@ export default function ShopPage() {
       createFirst: "Create the first listing to get started!",
       posted: "Posted",
       needToSell: "Need to Sell Something?",
-      createConnect: "Create a listing and connect with buyers in your community",
+      createConnect:
+        "Create a listing and connect with buyers in your community",
       fillAllFields: "Please fill in all fields",
       enterProductName: "Please enter product name",
       uploadProductImage: "Please upload product image",
@@ -116,7 +118,7 @@ export default function ShopPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Reset all errors
     setNameError("");
     setImageError("");
@@ -172,7 +174,7 @@ export default function ShopPage() {
     };
 
     setPosts([newPost, ...posts]);
-    
+
     // Clear form
     setName("");
     setImage("");
@@ -200,12 +202,15 @@ export default function ShopPage() {
           <div className="lg:col-span-1">
             <div className="bg-card-bg rounded-2xl border border-card-border p-6 sticky top-8">
               <h2 className="text-xl font-semibold mb-4">{t.createListing}</h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Product Name */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium mb-2">
-                    {t.productName} 
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium mb-2"
+                  >
+                    {t.productName}
                   </label>
                   <input
                     type="text"
@@ -216,8 +221,8 @@ export default function ShopPage() {
                       setNameError(""); // Clear error on change
                     }}
                     className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent ${
-                      nameError 
-                        ? "border-red-500 focus:ring-red-500" 
+                      nameError
+                        ? "border-red-500 focus:ring-red-500"
                         : "border-card-border focus:ring-primary"
                     }`}
                     placeholder={t.productNamePlaceholder}
@@ -230,9 +235,9 @@ export default function ShopPage() {
                 {/* Image Upload */}
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    {t.productImage} 
+                    {t.productImage}
                   </label>
-                  
+
                   {imagePreview ? (
                     <div className="relative">
                       <img
@@ -249,9 +254,11 @@ export default function ShopPage() {
                       </button>
                     </div>
                   ) : (
-                    <label className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl cursor-pointer hover:bg-background transition-colors ${
-                      imageError ? "border-red-500" : "border-card-border"
-                    }`}>
+                    <label
+                      className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl cursor-pointer hover:bg-background transition-colors ${
+                        imageError ? "border-red-500" : "border-card-border"
+                      }`}
+                    >
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         <Upload className="w-10 h-10 text-muted mb-2" />
                         <p className="text-sm text-muted">{t.uploadImage}</p>
@@ -271,8 +278,11 @@ export default function ShopPage() {
 
                 {/* Price */}
                 <div>
-                  <label htmlFor="price" className="block text-sm font-medium mb-2">
-                    {t.price} 
+                  <label
+                    htmlFor="price"
+                    className="block text-sm font-medium mb-2"
+                  >
+                    {t.price}
                   </label>
                   <input
                     type="text"
@@ -283,8 +293,8 @@ export default function ShopPage() {
                       setPriceError(""); // Clear error on change
                     }}
                     className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent ${
-                      priceError 
-                        ? "border-red-500 focus:ring-red-500" 
+                      priceError
+                        ? "border-red-500 focus:ring-red-500"
                         : "border-card-border focus:ring-primary"
                     }`}
                     placeholder={t.pricePlaceholder}
@@ -296,8 +306,11 @@ export default function ShopPage() {
 
                 {/* Phone Number */}
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium mb-2">
-                    {t.contactPhone} 
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium mb-2"
+                  >
+                    {t.contactPhone}
                   </label>
                   <input
                     type="text"
@@ -308,8 +321,8 @@ export default function ShopPage() {
                       setPhoneError(""); // Clear error on change
                     }}
                     className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent ${
-                      phoneError 
-                        ? "border-red-500 focus:ring-red-500" 
+                      phoneError
+                        ? "border-red-500 focus:ring-red-500"
                         : "border-card-border focus:ring-primary"
                     }`}
                     placeholder={t.phonePlaceholder}
@@ -334,10 +347,14 @@ export default function ShopPage() {
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-2">{t.allListings}</h2>
               <p className="text-muted">
-                {t.total} <span className="font-semibold text-foreground">{posts.length}</span> {t.items}
+                {t.total}{" "}
+                <span className="font-semibold text-foreground">
+                  {posts.length}
+                </span>{" "}
+                {t.items}
               </p>
             </div>
-            
+
             {posts.length === 0 ? (
               <div className="text-center py-20 bg-card-bg rounded-2xl border border-card-border">
                 <div className="text-6xl mb-4">🛍️</div>
@@ -356,23 +373,35 @@ export default function ShopPage() {
                       alt={post.name}
                       className="w-full h-48 object-cover"
                     />
-                    
+
                     <div className="p-4">
-                      <h3 className="text-lg font-semibold mb-2">{post.name}</h3>
-                      
+                      <h3 className="text-lg font-semibold mb-2">
+                        {post.name}
+                      </h3>
+
                       <div className="flex justify-between items-center mb-3">
                         <span className="text-2xl font-bold text-primary">
                           ₮{post.price.toLocaleString()}
                         </span>
                       </div>
-                      
+
                       <div className="flex items-center text-muted mb-2">
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        <svg
+                          className="w-4 h-4 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                          />
                         </svg>
                         <span className="text-sm">{post.phone}</span>
                       </div>
-                      
+
                       <div className="text-xs text-muted">
                         {t.posted} {post.createdAt.toLocaleString()}
                       </div>
@@ -387,9 +416,7 @@ export default function ShopPage() {
         {/* Bottom CTA */}
         <div className="mt-16 text-center bg-card-bg rounded-2xl border border-card-border p-8">
           <h2 className="text-2xl font-bold mb-3">{t.needToSell}</h2>
-          <p className="text-muted mb-6">
-            {t.createConnect}
-          </p>
+          <p className="text-muted mb-6">{t.createConnect}</p>
         </div>
       </div>
     </div>
