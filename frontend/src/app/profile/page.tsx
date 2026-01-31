@@ -326,6 +326,7 @@ export default function ProfilePage() {
         await GetUserPosts(currentUser._id);
       } else {
         setUserData(null);
+        setLoading(false);
       }
     } catch (err) {
       console.log("Error fetching user:", err);
