@@ -74,6 +74,7 @@ export function Navbar() {
       toto2: "Үрчлүүлэх",
       Others: "Бусад",
       Shop: "Дэлгүүр",
+      Hospital: "Эмнэлэг",
     },
     en: {
       home: "Home",
@@ -91,6 +92,7 @@ export function Navbar() {
       toto2: "Provider",
       Others: "Others",
       Shop: "Shop",
+      Hospital: "Hospital",
     },
   };
 
@@ -281,6 +283,15 @@ export function Navbar() {
                     <span className="text-lg">🛒</span>
                     <div>
                       <p className="font-semibold text-sm">{t.Shop}</p>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/hostipal"
+                    className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all"
+                  >
+                    <span className="text-lg">🏥</span>
+                    <div>
+                      <p className="font-semibold text-sm">{t.Hospital}</p>
                     </div>
                   </Link>
                   <Link
