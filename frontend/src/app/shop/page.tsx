@@ -1,26 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ShoppingBag, Upload, X } from "lucide-react";
 import { useLanguage } from "../contexts/Languagecontext";
+import { get } from "http";
 
 interface Post {
-  id: number;
-  name: string;
-  image: string;
-  price: number;
-  phone: string;
+  _id: number;
+  ProductName: string;
+  ImageURL: string;
+  Price: number;
+  PhoneNumber: number;
   createdAt: Date;
 }
-
+const UPLOAD_PRESET = "Pawpew";
+const CLOUD_NAME = "dyduodw7q";
 export default function ShopPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [name, setName] = useState("");
-  const [image, setImage] = useState<string>("");
   const [price, setPrice] = useState("");
   const [phone, setPhone] = useState("");
-  const [imagePreview, setImagePreview] = useState<string>("");
-  
+
   // Error states
   const [nameError, setNameError] = useState("");
   const [imageError, setImageError] = useState("");
@@ -48,11 +48,13 @@ export default function ShopPage() {
       total: "Нийт",
       items: "бараа",
       noListingsYet: "Зар одоогоор байхгүй байна",
+      imageFormats: "PNG, JPG, WEBP",
       createFirst: "Эхний зараа үүсгээрэй!",
       posted: "Нийтэлсэн",
       needToSell: "Ямар нэг зүйл зарах шаардлагатай байна уу?",
       createConnect: "Зар үүсгэж, худалдан авагчидтай холбогдоорой",
       fillAllFields: "Бүх талбаруудыг бөглөнө үү",
+      uploadingPhoto: "Зураг ачааллаж байна...",
       enterProductName: "Барааны нэр оруулна уу",
       uploadProductImage: "Барааны зураг оруулна уу",
       enterPrice: "Үнэ оруулна уу",
@@ -72,7 +74,9 @@ export default function ShopPage() {
       price: "Price",
       pricePlaceholder: "₮0.00",
       contactPhone: "Contact Phone Number",
+      uploadingPhoto: "Uploading photo...",
       phonePlaceholder: "+976 XXXX XXXX",
+      imageFormats: "PNG, JPG, WEBP",
       postListing: "Post Listing",
       allListings: "All Listings",
       total: "Total",
@@ -81,7 +85,8 @@ export default function ShopPage() {
       createFirst: "Create the first listing to get started!",
       posted: "Posted",
       needToSell: "Need to Sell Something?",
-      createConnect: "Create a listing and connect with buyers in your community",
+      createConnect:
+        "Create a listing and connect with buyers in your community",
       fillAllFields: "Please fill in all fields",
       enterProductName: "Please enter product name",
       uploadProductImage: "Please upload product image",
@@ -94,29 +99,112 @@ export default function ShopPage() {
   };
 
   const t = translations[language];
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const uploadToCloudinary = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setImage(result);
-        setImagePreview(result);
-        setImageError(""); // Clear error when image is uploaded
-      };
-      reader.readAsDataURL(file);
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+      const data = await response.json();
+      return data.secure_url;
+    } catch (error) {
+      console.error("Cloudinary upload failed:", error);
+    }
+  };
+  const handleLogoUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+
+    try {
+      const url = await uploadToCloudinary(file);
+      setPreview(url);
+      setImageError("");
+      console.log(url);
+    } catch (err: unknown) {
+      console.log("Failed to upload logo: " + (err as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  };
+  const AddProduct = async () => {
+    try {
+      const newProduct = await fetch(`http://localhost:8000/shop`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ProductName: name,
+          ImageURL: preview,
+          Price: price,
+          PhoneNumber: phone,
+        }),
+      });
+
+      if (!newProduct.ok) {
+        throw new Error("Failed to add product");
+      }
+
+      // Optionally, you can handle the response data here
+      const data = await newProduct.json();
+      console.log("Product added:", data);
+      await GetAdopt();
+      setName("");
+      setPreview("");
+      setPrice("");
+      setPhone("");
+    } catch (error) {
+      console.error("Error adding product:", error);
     }
   };
 
+  const GetAdopt = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/shop`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to get products");
+      }
+
+      // Optionally, you can handle the response data here
+      const datas = await res.json();
+      setPosts(datas);
+      console.log("Products retrieved:", datas);
+    } catch (error) {
+      console.error("Error retrieving products:", error);
+    }
+  };
+  useEffect(() => {
+    GetAdopt();
+  }, []);
+  console.log(posts, "hahahha");
+
   const clearImage = () => {
-    setImage("");
-    setImagePreview("");
+    setPreview(null);
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Reset all errors
     setNameError("");
     setImageError("");
@@ -132,7 +220,7 @@ export default function ShopPage() {
     }
 
     // Validate image
-    if (!image) {
+    if (!preview) {
       setImageError(t.uploadProductImage);
       hasError = true;
     }
@@ -161,24 +249,7 @@ export default function ShopPage() {
     if (hasError) {
       return;
     }
-
-    const newPost: Post = {
-      id: Date.now(),
-      name: name.trim(),
-      image,
-      price: Number(price.trim()),
-      phone: phone.trim(),
-      createdAt: new Date(),
-    };
-
-    setPosts([newPost, ...posts]);
-    
-    // Clear form
-    setName("");
-    setImage("");
-    setPrice("");
-    setPhone("");
-    setImagePreview("");
+    AddProduct();
   };
 
   return (
@@ -200,12 +271,15 @@ export default function ShopPage() {
           <div className="lg:col-span-1">
             <div className="bg-card-bg rounded-2xl border border-card-border p-6 sticky top-8">
               <h2 className="text-xl font-semibold mb-4">{t.createListing}</h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Product Name */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium mb-2">
-                    {t.productName} 
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium mb-2"
+                  >
+                    {t.productName}
                   </label>
                   <input
                     type="text"
@@ -216,8 +290,8 @@ export default function ShopPage() {
                       setNameError(""); // Clear error on change
                     }}
                     className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent ${
-                      nameError 
-                        ? "border-red-500 focus:ring-red-500" 
+                      nameError
+                        ? "border-red-500 focus:ring-red-500"
                         : "border-card-border focus:ring-primary"
                     }`}
                     placeholder={t.productNamePlaceholder}
@@ -230,13 +304,13 @@ export default function ShopPage() {
                 {/* Image Upload */}
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    {t.productImage} 
+                    {t.productImage}
                   </label>
-                  
-                  {imagePreview ? (
+
+                  {preview ? (
                     <div className="relative">
                       <img
-                        src={imagePreview}
+                        src={preview}
                         alt="Preview"
                         className="w-full h-48 object-cover rounded-xl border-2 border-card-border"
                       />
@@ -249,19 +323,31 @@ export default function ShopPage() {
                       </button>
                     </div>
                   ) : (
-                    <label className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl cursor-pointer hover:bg-background transition-colors ${
-                      imageError ? "border-red-500" : "border-card-border"
-                    }`}>
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="w-10 h-10 text-muted mb-2" />
-                        <p className="text-sm text-muted">{t.uploadImage}</p>
-                      </div>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                      />
+                    <label
+                      htmlFor="image-upload"
+                      className={`border-2 border-dashed ${
+                        imageError ? "border-red-500" : "border-card-border"
+                      } rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer block`}
+                    >
+                      {!uploading ? (
+                        <div>
+                          <div className="text-4xl mb-3">📷</div>
+                          <p className="font-medium mb-1">{t.uploadImage}</p>
+                          <p className="text-xs text-muted mt-2">
+                            {t.imageFormats}
+                          </p>
+                          <input
+                            id="image-upload"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleLogoUpload}
+                            ref={inputRef}
+                          />
+                        </div>
+                      ) : (
+                        <p className="font-medium">{t.uploadingPhoto}</p>
+                      )}
                     </label>
                   )}
                   {imageError && (
@@ -271,8 +357,11 @@ export default function ShopPage() {
 
                 {/* Price */}
                 <div>
-                  <label htmlFor="price" className="block text-sm font-medium mb-2">
-                    {t.price} 
+                  <label
+                    htmlFor="price"
+                    className="block text-sm font-medium mb-2"
+                  >
+                    {t.price}
                   </label>
                   <input
                     type="text"
@@ -283,8 +372,8 @@ export default function ShopPage() {
                       setPriceError(""); // Clear error on change
                     }}
                     className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent ${
-                      priceError 
-                        ? "border-red-500 focus:ring-red-500" 
+                      priceError
+                        ? "border-red-500 focus:ring-red-500"
                         : "border-card-border focus:ring-primary"
                     }`}
                     placeholder={t.pricePlaceholder}
@@ -296,8 +385,11 @@ export default function ShopPage() {
 
                 {/* Phone Number */}
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium mb-2">
-                    {t.contactPhone} 
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium mb-2"
+                  >
+                    {t.contactPhone}
                   </label>
                   <input
                     type="text"
@@ -308,8 +400,8 @@ export default function ShopPage() {
                       setPhoneError(""); // Clear error on change
                     }}
                     className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent ${
-                      phoneError 
-                        ? "border-red-500 focus:ring-red-500" 
+                      phoneError
+                        ? "border-red-500 focus:ring-red-500"
                         : "border-card-border focus:ring-primary"
                     }`}
                     placeholder={t.phonePlaceholder}
@@ -334,10 +426,14 @@ export default function ShopPage() {
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-2">{t.allListings}</h2>
               <p className="text-muted">
-                {t.total} <span className="font-semibold text-foreground">{posts.length}</span> {t.items}
+                {t.total}{" "}
+                <span className="font-semibold text-foreground">
+                  {/* {posts.length} */}
+                </span>{" "}
+                {t.items}
               </p>
             </div>
-            
+
             {posts.length === 0 ? (
               <div className="text-center py-20 bg-card-bg rounded-2xl border border-card-border">
                 <div className="text-6xl mb-4">🛍️</div>
@@ -348,33 +444,45 @@ export default function ShopPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {posts.map((post) => (
                   <div
-                    key={post.id}
+                    key={post._id}
                     className="bg-card-bg rounded-2xl border border-card-border overflow-hidden hover:shadow-lg transition-all hover:border-primary"
                   >
                     <img
-                      src={post.image}
-                      alt={post.name}
+                      src={post.ImageURL}
+                      alt={post.ProductName}
                       className="w-full h-48 object-cover"
                     />
-                    
+
                     <div className="p-4">
-                      <h3 className="text-lg font-semibold mb-2">{post.name}</h3>
-                      
+                      <h3 className="text-lg font-semibold mb-2">
+                        {post.ProductName}
+                      </h3>
+
                       <div className="flex justify-between items-center mb-3">
                         <span className="text-2xl font-bold text-primary">
-                          ₮{post.price.toLocaleString()}
+                          ₮{post.Price}
                         </span>
                       </div>
-                      
+
                       <div className="flex items-center text-muted mb-2">
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        <svg
+                          className="w-4 h-4 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                          />
                         </svg>
-                        <span className="text-sm">{post.phone}</span>
+                        <span className="text-sm">{post.PhoneNumber}</span>
                       </div>
-                      
+
                       <div className="text-xs text-muted">
-                        {t.posted} {post.createdAt.toLocaleString()}
+                        {t.posted} {post.createdAt.toString().slice(0, 10)}
                       </div>
                     </div>
                   </div>
@@ -387,9 +495,7 @@ export default function ShopPage() {
         {/* Bottom CTA */}
         <div className="mt-16 text-center bg-card-bg rounded-2xl border border-card-border p-8">
           <h2 className="text-2xl font-bold mb-3">{t.needToSell}</h2>
-          <p className="text-muted mb-6">
-            {t.createConnect}
-          </p>
+          <p className="text-muted mb-6">{t.createConnect}</p>
         </div>
       </div>
     </div>
