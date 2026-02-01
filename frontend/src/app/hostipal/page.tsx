@@ -16,48 +16,42 @@ const exampleHospitals: Hospital[] = [
   {
     id: 1,
     name: "UB Vet Animal Hospital",
-    image:
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=300&fit=crop",
+    image: "/hospitals/ubvet.jpg",
     address: "Хан-Уул дүүрэг, 19-р хороолол, Хан-Уул товертой уулзвараар урагшаа эргээд 300 метр яваад замын баруун талдаа байршиж байна.",
     phone: "+976 75073555",
   },
   {
     id: 2,
     name: "Жонон мал эмнэлэг",
-    image:
-      "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=300&fit=crop",
+    image: "/hospitals/жонон.jpg",
     address: "Чингэлтэй дүүрэг, 6-р хороо Чикаго клубын зүүн талд ЖОНОН мал эмнэлэг",
     phone: "+976 8800 5566",
   },
   {
     id: 3,
     name: "SOS Pet Care & Salon",
-    image:
-      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=300&fit=crop",
+    image: "/hospitals/sos.jpg",
     address: "Баянзүрх дүүрэг, Их Монгол хороолол 904-р байр үйлчилгээний 1тоот",
     phone: "+976 7600 1950",
   },
   {
     id: 4,
     name: "Амар мал эмнэлэг",
-    image:
-      "https://images.unsplash.com/photo-1517849845537-4d257902454a?w=400&h=300&fit=crop",
+    image: "/hospitals/amar.jpg",
     address: "Баруун 4 зам Өгөөж ХХК-ны урд 39-р байр 1-р орц ",
     phone: "+976 9115 1471",
   },
   {
     id: 5,
     name: "Animals Healthy мал эмнэлэг",
-    image:
-      "https://images.unsplash.com/photo-1517849845537-4d257902454a?w=400&h=300&fit=crop",
+    image: "/hospitals/animalshealthy.jpg",
     address: "Улаанбаатар хот Баянзүрх дүүрэг 7-р хороо 115-р байрны 4-р орц",
     phone: "+976 8804 4664",
   },
   {
     id: 6,
     name: "And pet clinic",
-    image:
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=300&fit=crop",
+    image: "/hospitals/AndClinic.jpg",
     address: "Хан-Уул дүүрэг, 4-р хороо, Viva city хотхон N12-S2",
     phone: "+976 94199027",
   },
