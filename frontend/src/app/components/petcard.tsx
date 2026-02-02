@@ -62,7 +62,7 @@ export default function PetCard({
   return (
     <Link
       href={`/pet/${_id}`}
-      className="pet-card block bg-card-bg rounded-2xl overflow-hidden border border-card-border"
+      className="pet-card block bg-card-bg rounded-2xl overflow-hidden border border-card-border hover:border-primary transition-all duration-300"
     >
       <div className="relative w-full aspect-square overflow-hidden bg-gray-100 rounded-t-xl">
         <img

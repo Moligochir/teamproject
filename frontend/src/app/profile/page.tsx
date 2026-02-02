@@ -6,12 +6,7 @@ import { useLanguage } from "../contexts/Languagecontext";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { SuccessNotification } from "../components/SuccesNotif";
-import {
-  ActivityEdit,
-  DeleteIcon,
-  EditIcon,
-  FoundIcon,
-} from "../components/icons";
+import { ActivityEdit, DeleteIcon } from "../components/icons";
 import { Loading } from "../components/profileLoading";
 
 type userType = {
@@ -35,6 +30,7 @@ type PostType = {
   location: string;
   createdAt: string;
   updatedAt: string;
+  isHidden?: boolean;
 };
 
 type ActivityType = {
@@ -123,6 +119,7 @@ export default function ProfilePage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const router = useRouter();
+  const [showHiddenPosts, setShowHiddenPosts] = useState(false);
 
   const [editForm, setEditForm] = useState({
     name: "",
@@ -218,6 +215,10 @@ export default function ProfilePage() {
       sending: "Илгээж байна...",
       justnow: "Дөнгөж сая",
       viewMatch: "Тохирлыг үзэх",
+      hideSuccess: "✓ Зар амжилттай нүүгдлээ",
+      unhideSuccess: "✓ Зар амжилттай нээгдлээ",
+      hideConfirm: "Энэ зарыг нуух уу?",
+      hideWarning: "Зар та нууцаас хасагдах болно. Дахин нээж болно.",
     },
     en: {
       myProfile: "My Profile",
@@ -299,6 +300,11 @@ export default function ProfilePage() {
       sending: "Sending...",
       justnow: "Just now",
       viewMatch: "View Match",
+      hideSuccess: "✓ Post hidden successfully",
+      unhideSuccess: "✓ Post restored successfully",
+      hideConfirm: "Hide this post?",
+      hideWarning:
+        "The post will be hidden from your profile and browse. You can restore it later.",
     },
   };
 
@@ -326,7 +332,6 @@ export default function ProfilePage() {
         await GetUserPosts(currentUser._id);
       } else {
         setUserData(null);
-        setLoading(false);
       }
     } catch (err) {
       console.log("Error fetching user:", err);
@@ -345,16 +350,22 @@ export default function ProfilePage() {
         },
       });
       const data = await res.json();
-      const userPosts = data.filter((post: PostType) => post.userId === userId);
-      setMyPosts(userPosts);
 
-      // ✅ Get matched posts (opposite role)
+      // ✅ Filter out hidden posts
+      const visiblePosts = data.filter(
+        (post: PostType) => post.userId === userId && !post.isHidden,
+      );
+      setMyPosts(visiblePosts);
+
+      // ✅ Filter out hidden posts from matches
       const matchedPosts = data.filter(
         (post: PostType) =>
           post.userId !== userId &&
-          post.role !== (userPosts.length > 0 ? userPosts[0].role : "Lost"),
+          !post.isHidden &&
+          post.role !==
+            (visiblePosts.length > 0 ? visiblePosts[0].role : "Lost"),
       );
-      setMatchedPosts(matchedPosts.slice(0, 12)); // Limit to 12 for display
+      setMatchedPosts(matchedPosts.slice(0, 12));
     } catch (err) {
       console.log("Error fetching posts:", err);
     } finally {
@@ -420,11 +431,11 @@ export default function ProfilePage() {
         ActivityService.logActivity({
           userId: userData._id,
           timestamp: userData.role,
-          action: "edited",
+          action: "deleted", // or create new action "hidden"
           postId: selectedPost._id,
-          postName: editForm.name,
+          postName: selectedPost.name,
           postImage: selectedPost.image,
-          details: `${editForm.petType} - ${editForm.location}`,
+          details: `Hidden: ${selectedPost.petType} - ${selectedPost.location}`,
         });
 
         setEditModal(false);
@@ -650,6 +661,70 @@ export default function ProfilePage() {
   if (!clerkLoaded || loading) {
     return <Loading />;
   }
+
+  // Handle Hide/Unhide Post
+  const handleHidePost = async () => {
+    if (!selectedPost || !userData) return;
+
+    setIsDeleting(true);
+
+    try {
+      // Toggle hidden status
+      const newHiddenStatus = !selectedPost.isHidden;
+
+      const res = await fetch(
+        `http://localhost:8000/lostFound/${selectedPost._id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            isHidden: newHiddenStatus,
+          }),
+        },
+      );
+
+      if (res.ok) {
+        const updatedPost = await res.json();
+        const postData = updatedPost.data || updatedPost;
+
+        // Update local state - remove from display if hidden
+        if (newHiddenStatus) {
+          setMyPosts(myPosts.filter((post) => post._id !== selectedPost._id));
+
+          ActivityService.logActivity({
+            userId: userData._id,
+            timestamp: userData.role,
+            action: "deleted",
+            postId: selectedPost._id,
+            postName: selectedPost.name,
+            postImage: selectedPost.image,
+            details: `${selectedPost.petType} - ${selectedPost.location}`,
+          });
+        } else {
+          // If unhiding, add back to posts
+          setMyPosts([...myPosts, postData]);
+        }
+
+        LoadActivities(userData._id);
+
+        setDeleteModal(false);
+        setSelectedPost(null);
+
+        const message = newHiddenStatus ? t.hideSuccess : t.unhideSuccess;
+        setSuccessMessage(message);
+        setShowSuccess(true);
+      } else {
+        throw new Error("Failed to update post visibility");
+      }
+    } catch (err) {
+      console.log("Error hiding post:", err);
+      alert(t.deleteError);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen py-12">
@@ -1536,11 +1611,18 @@ export default function ProfilePage() {
       )}
 
       {/* Delete Modal */}
+      {/* Hide Modal */}
       {deleteModal && selectedPost && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-card-bg rounded-2xl max-w-md w-full p-6 text-center">
-            <h3 className="text-xl font-bold mb-4">{t.deleteConfirm}</h3>
-            <p className="text-muted mb-6 text-sm">{t.deleteWarning}</p>
+            <h3 className="text-xl font-bold mb-4">
+              {language === "mn" ? "Энэ зарыг нуух уу?" : "Hide this post?"}
+            </h3>
+            <p className="text-muted mb-6 text-sm">
+              {language === "mn"
+                ? "Зар та нууцаас хасагдах болно. Дахин нээж болно."
+                : "The post will be hidden from your profile and browse. You can restore it later."}
+            </p>
             <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 mb-6">
               <div className="flex items-center gap-3">
                 <img
@@ -1554,6 +1636,23 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
+
+            {/* Info Box */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-6 text-left">
+              <p className="text-xs text-blue-600 dark:text-blue-400">
+                <span className="font-semibold">
+                  💾{" "}
+                  {language === "mn"
+                    ? "Мэдээлэл нүүлгэн шилжүүлэгдэхгүй"
+                    : "Data Preserved"}
+                </span>
+                <br />
+                {language === "mn"
+                  ? "Зарыг нуусан ч гэсэн бүх мэдээлэл хадгалагдах бөгөөд аль ч үед буцааж нээж болно."
+                  : "All post information will be preserved. You can restore it anytime."}
+              </p>
+            </div>
+
             <div className="flex gap-3">
               <button
                 onClick={() => {
@@ -1566,11 +1665,17 @@ export default function ProfilePage() {
                 {t.cancel}
               </button>
               <button
-                onClick={handleDeleteConfirm}
+                onClick={handleHidePost}
                 disabled={isDeleting}
                 className="flex-1 px-6 py-2 cursor-pointer bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 disabled:opacity-60 transition-all"
               >
-                {isDeleting ? t.deleting : t.confirmDelete}
+                {isDeleting
+                  ? language === "mn"
+                    ? "Нууцаж байна..."
+                    : "Hiding..."
+                  : language === "mn"
+                    ? "Нуу"
+                    : "Hide"}
               </button>
             </div>
           </div>

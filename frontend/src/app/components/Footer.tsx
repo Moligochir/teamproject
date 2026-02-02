@@ -20,7 +20,7 @@ export default function Footer() {
       cat: "Муур",
       lost: "Төөрсөн",
       found: "Олдсон",
-      copyright: "© 2026 PawFinder. Бүх тэжээвэр амьтдад ❤️ зориулав.",
+      copyright: "© 2026 PawFinder.",
       map: "Газарын зураг",
     },
     en: {
@@ -35,7 +35,7 @@ export default function Footer() {
       cat: "Cats",
       lost: "Lost",
       found: "Found",
-      copyright: "© 2026 PawFinder. Made with ❤️ for all pets.",
+      copyright: "© 2026 PawFinder.",
       map: "Map",
     },
   };

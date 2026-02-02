@@ -315,66 +315,96 @@ export default function ProbabilityPage() {
 
         {/* Your Report Section */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">{t.yourReport}</h2>
-          <div className="bg-card-bg rounded-xl border border-card-border p-6">
-            <div className="flex flex-col sm:flex-row gap-6">
-              {/* Image */}
-              <div className="w-full sm:w-48 h-48 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700 shrink-0">
+          <h2 className="text-3xl font-bold mb-6">{t.yourReport}</h2>
+          <div className="bg-linear-to-br from-card-bg to-card-bg/50 rounded-2xl  p-8 backdrop-blur-sm hover:border-orange-500/60 transition-all duration-300">
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Image Section */}
+              <div className="w-full lg:w-64 h-64 rounded-2xl overflow-hidden bg-linear-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 shrink-0 shadow-lg border-4 border-orange-500/20 hover:shadow-orange-500/30 transition-all duration-300 group">
                 <img
                   src={queryPet.image}
                   alt={queryPet.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
 
-              {/* Info */}
-              <div className="flex-1">
-                <div className="mb-4">
-                  <h3 className="text-2xl font-bold mb-2">{queryPet.name}</h3>
-                  <span
-                    className={`inline-block px-3 py-1 text-xs font-bold rounded ${
-                      queryPet.role?.toLowerCase() === "lost" ||
+              {/* Info Section */}
+              <div className="flex-1 space-y-6">
+                {/* Header */}
+                <div>
+                  <h3 className="text-4xl font-black mb-3 text-white">
+                    {queryPet.name}
+                  </h3>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span
+                      className={`inline-block px-4 py-2 text-sm font-bold rounded-full transition-all ${
+                        queryPet.role?.toLowerCase() === "lost" ||
+                        queryPet.role === "Төөрсөн"
+                          ? "status-lost"
+                          : "status-found"
+                      }`}
+                    >
+                      {queryPet.role?.toLowerCase() === "lost" ||
                       queryPet.role === "Төөрсөн"
-                        ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
-                        : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                    }`}
-                  >
-                    {queryPet.role?.toLowerCase() === "lost" ||
-                    queryPet.role === "Төөрсөн"
-                      ? t.lost
-                      : t.found}
-                  </span>
+                        ? t.lost
+                        : t.found}
+                    </span>
+                    <span className="text-sm text-muted font-medium px-3 py-2 bg-white/5 rounded-full">
+                      🐾 {translateValue("petType", queryPet.petType)}
+                    </span>
+                  </div>
                 </div>
 
-                {/* Details Grid */}
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <p className="text-muted text-sm mb-1">{t.breed}</p>
-                    <p className="font-semibold">{queryPet.breed || "-"}</p>
+                {/* Details Grid - 2x2 */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {/* Breed */}
+                  <div className="bg-linear-to-br from-white/10 to-white/5 rounded-xl p-4 border border-primary/30 hover:border-primary/60 transition-all hover:shadow-lg hover:shadow-primary/20">
+                    <p className="text-muted text-xs font-bold mb-2 uppercase tracking-wider">
+                      {t.breed}
+                    </p>
+                    <p className="font-bold text-lg text-white">
+                      {queryPet.breed || "-"}
+                    </p>
                   </div>
-                  <div>
-                    <p className="text-muted text-sm mb-1">{t.type}</p>
-                    <p className="font-semibold">
+
+                  {/* Type */}
+                  <div className="bg-gradient-to-br from-white/10 to-white/5 rounded-xl p-4 border border-orange-500/30 hover:border-orange-500/60 transition-all hover:shadow-lg hover:shadow-orange-500/20">
+                    <p className="text-muted text-xs font-bold mb-2 uppercase tracking-wider">
+                      {t.type}
+                    </p>
+                    <p className="font-bold text-lg text-white">
                       {translateValue("petType", queryPet.petType)}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-muted text-sm mb-1">{t.gender}</p>
-                    <p className="font-semibold">
+
+                  {/* Gender */}
+                  <div className="bg-gradient-to-br from-white/10 to-white/5 rounded-xl p-4 border border-primary/30 hover:border-primary/60 transition-all hover:shadow-lg hover:shadow-primary/20">
+                    <p className="text-muted text-xs font-bold mb-2 uppercase tracking-wider">
+                      {t.gender}
+                    </p>
+                    <p className="font-bold text-lg text-white">
                       {translateValue("gender", queryPet.gender) || "-"}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-muted text-sm mb-1">{t.location}</p>
-                    <p className="font-semibold">{queryPet.location}</p>
+
+                  {/* Location */}
+                  <div className="bg-gradient-to-br from-white/10 to-white/5 rounded-xl p-4 border border-primary/30 hover:border-primary/60 transition-all hover:shadow-lg hover:shadow-primary/20">
+                    <p className="text-muted text-xs font-bold mb-2 uppercase tracking-wider">
+                      📍 {t.location}
+                    </p>
+                    <p className="font-bold text-lg text-white line-clamp-2">
+                      {queryPet.location}
+                    </p>
                   </div>
                 </div>
 
                 {/* Description */}
                 {queryPet.description && (
-                  <div>
-                    <p className="text-muted text-sm mb-2">{t.descriptionn}</p>
-                    <p className="text-sm leading-relaxed">
+                  <div className="bg-linear-to-r from-orange-500/10 to-rose-500/10 rounded-xl p-6 border border-orange-500/30 hover:border-orange-500/60 transition-all">
+                    <p className="text-muted text-sm font-bold mb-3 uppercase tracking-widest flex items-center gap-2">
+                      <span className="text-lg">📝</span>
+                      {t.descriptionn}
+                    </p>
+                    <p className="text-sm leading-relaxed text-white/90 line-clamp-3 hover:line-clamp-none transition-all">
                       {queryPet.description}
                     </p>
                   </div>
