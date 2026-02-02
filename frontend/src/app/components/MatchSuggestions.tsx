@@ -564,7 +564,7 @@ export default function MatchSuggestions({
                   onClick={() =>
                     setExpandedMatch(isExpanded ? null : match.matchId)
                   }
-                  className="w-full flex items-center justify-between p-4 bg-muted/5 hover:bg-muted/10 rounded-lg transition-colors font-medium"
+                  className="w-full cursor-pointer flex items-center justify-between p-4 bg-muted/5 hover:bg-muted/10 rounded-lg transition-colors font-medium"
                 >
                   <span className="flex items-center gap-2">
                     <span>📋</span>
