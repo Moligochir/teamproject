@@ -9,31 +9,27 @@ type PetFiltersProps = {
   onChange: (filters: {
     searchTerm: string;
     typeFilter: "all" | "dog" | "cat";
-    statusFilter: "all" | "lost" | "found";
+    statusFilter: "all" | "yes" | "no";
   }) => void;
 };
 
 type adopt = {
-  role: string;
-  name: string;
-  gender: string;
-  description: string;
-  Date: Date;
-  petType: string;
-  image: string;
-  breed: string;
   _id: string;
-  phonenumber: number;
+  name: string;
+  petType: string;
+  breed: string;
+  description: string;
+  image: string;
   age: number;
+  adoptType: "YES" | "NO";
+  createdAt: string;
 };
 
 export function UrclehPage({ onChange }: PetFiltersProps) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "dog" | "cat">("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | "lost" | "found">(
-    "all",
-  );
+  const [statusFilter, setStatusFilter] = useState<"all" | "yes" | "no">("all");
   const { language } = useLanguage();
   const [animalData, setAnimalData] = useState<adopt[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,19 +96,16 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
     onChange({ searchTerm, typeFilter, statusFilter });
   };
 
-  // Filter pets based on search and filters
   const filteredPets = animalData.filter((pet) => {
     const matchesSearch =
-      pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pet.breed.toLowerCase().includes(searchTerm.toLowerCase());
+      pet.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pet.breed?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesType =
-      typeFilter === "all" ||
-      pet.petType.toLowerCase() === typeFilter.toLowerCase();
+      typeFilter === "all" || pet.petType?.toLowerCase() === typeFilter;
 
     const matchesStatus =
-      statusFilter === "all" ||
-      pet.role.toLowerCase() === statusFilter.toLowerCase();
+      statusFilter === "all" || pet.adoptType?.toLowerCase() === statusFilter;
 
     return matchesSearch && matchesType && matchesStatus;
   });
@@ -120,79 +113,6 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
   return (
     <div className="space-y-8">
       {/* Filters Section */}
-      <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-        <div className="grid md:grid-cols-3 gap-4">
-          {/* Search Input */}
-          <div className="md:col-span-1">
-            <label className="block text-sm font-semibold mb-2">
-              {t.search}
-            </label>
-            <div className="relative w-full">
-              <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-              <input
-                type="text"
-                placeholder={t.searchPlaceholder}
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  handleUpdate();
-                }}
-                className="w-full pl-10 pr-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-              />
-            </div>
-          </div>
-
-          {/* Type Dropdown */}
-          <div>
-            <label className="block text-sm font-semibold mb-2">
-              {t.petType}
-            </label>
-            <select
-              value={typeFilter}
-              onChange={(e) => {
-                setTypeFilter(e.target.value as "all" | "dog" | "cat");
-                handleUpdate();
-              }}
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none cursor-pointer transition-all"
-            >
-              <option value="all">{t.allTypes}</option>
-              <option value="dog">{t.dog}</option>
-              <option value="cat">{t.cat}</option>
-            </select>
-          </div>
-
-          {/* Status Dropdown */}
-          <div>
-            <label className="block text-sm font-semibold mb-2">
-              {t.status}
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value as "all" | "lost" | "found");
-                handleUpdate();
-              }}
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none cursor-pointer transition-all"
-            >
-              <option value="all">{t.allStatus}</option>
-              <option value="lost">{t.lost}</option>
-              <option value="found">{t.found}</option>
-            </select>
-          </div>
-        </div>
-      </div>
 
       {/* Results Summary */}
       <div className="flex items-center justify-between">
@@ -285,20 +205,6 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
                 </div>
 
                 {/* Gender and Date */}
-                <div className="flex items-center gap-2 text-sm text-muted">
-                  {adopt.gender && (
-                    <span className="inline-block px-2 py-1 bg-muted/10 rounded-lg text-xs font-medium">
-                      {adopt.gender}
-                    </span>
-                  )}
-                  {adopt.Date && (
-                    <span className="text-xs">
-                      {new Date(adopt.Date).toLocaleDateString(
-                        language === "mn" ? "mn-MN" : "en-US",
-                      )}
-                    </span>
-                  )}
-                </div>
 
                 {/* Description */}
                 {adopt.description && (

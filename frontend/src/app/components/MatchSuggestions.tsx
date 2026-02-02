@@ -320,7 +320,7 @@ export default function MatchSuggestions({
       breed: candidatePet.breed,
       location: candidatePet.location,
       confidenceScore: Math.min(100, confidenceScore),
-      imageMatch: 70 + Math.random() * 30,
+      imageMatch: 30 + Math.random() * 30,
       breedMatch,
       locationMatch,
       distance,

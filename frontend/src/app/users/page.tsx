@@ -45,14 +45,12 @@ export default function AdminUsersPage() {
     GetAllUsers();
   }, []);
 
-  // Filter users (if you have status field in backend)
   const filteredUsers = allUsers.filter((user) => {
     if (filterStatus === "all") return true;
-    // Add status logic if backend has this field
+
     return true;
   });
 
-  // Format date
   const formatDate = (date: Date | string) => {
     if (!date) return "Огноо байхгүй";
     const d = new Date(date);

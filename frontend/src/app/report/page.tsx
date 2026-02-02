@@ -791,13 +791,16 @@ export default function ReportPage() {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder={t.petNamePlaceholder}
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full max-sm:w-[85%] px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-2">
                   {t.breed}
+                  {formData.status === "found" && (
+                    <span className="text-muted"> {t.ifKnown}</span>
+                  )}
                 </label>
                 <input
                   type="text"
@@ -805,7 +808,7 @@ export default function ReportPage() {
                   value={formData.breed}
                   onChange={handleChange}
                   placeholder={t.breedPlaceholder}
-                  className={`w-full px-4 py-3 bg-background border ${
+                  className={`w-full max-sm:w-[85%] px-4 py-3 bg-background border ${
                     errors.breed ? "border-red-500" : "border-card-border"
                   } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
                 />
@@ -821,13 +824,13 @@ export default function ReportPage() {
                 >
                   {t.gender}
                 </label>
-                <div className="relative w-full">
+                <div className="relative w-full max-sm:w-[85%]">
                   <select
                     id="gender"
                     name="gender"
                     value={formData.gender}
                     onChange={handleChange}
-                    className={`w-full h-12 px-4 pr-10 bg-background border cursor-pointer ${
+                    className={`w-full max-sm:w-[85%] h-12 px-4 pr-10 bg-background border cursor-pointer ${
                       errors.gender ? "border-red-500" : "border-card-border"
                     } rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
                   >
@@ -836,7 +839,7 @@ export default function ReportPage() {
                     <option value="Female">{t.female}</option>
                     <option value="Unknown">{t.unknown}</option>
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center ">
+                  <div className="pointer-events-none absolute inset-y-0 right-4 max-sm:right-2 flex items-center ">
                     <svg
                       className="h-4 w-4 text-muted-foreground"
                       viewBox="0 0 20 20"
@@ -866,7 +869,7 @@ export default function ReportPage() {
                   name="date"
                   value={formData.date}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 bg-background border ${
+                  className={`w-full max-sm:w-[85%] px-4 py-3 bg-background border ${
                     errors.date ? "border-red-500" : "border-card-border"
                   } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
                 />
@@ -882,7 +885,7 @@ export default function ReportPage() {
                     : t.foundLocation}
                 </label>
                 <div
-                  className={`${
+                  className={` max-sm:w-[85%]${
                     errors.location ? "ring-2 ring-red-500 rounded-xl" : ""
                   }`}
                 >
@@ -915,7 +918,7 @@ export default function ReportPage() {
                   onChange={handleChange}
                   placeholder={t.descriptionPlaceholder}
                   rows={4}
-                  className={`w-full px-4 py-3 bg-background border ${
+                  className={`w-full max-sm:w-[85%] px-4 py-3 bg-background border ${
                     errors.description ? "border-red-500" : "border-card-border"
                   } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none`}
                 />

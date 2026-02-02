@@ -86,7 +86,7 @@ export default function UBMap() {
       allPets: "Бүх амьтан",
       lostOnly: "Төөрсөн",
       foundOnly: "Олдсон",
-      noResults: "Амьтан олдсонгүй",
+      noResults: "амьтан олдлоо",
     },
     en: {
       seemore: "View Details",
@@ -100,7 +100,7 @@ export default function UBMap() {
       allPets: "All Pets",
       lostOnly: "Lost",
       foundOnly: "Found",
-      noResults: "No pets found",
+      noResults: "pets found",
     },
   };
 
@@ -175,12 +175,12 @@ export default function UBMap() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mt-6">
       {/* Filter Tabs */}
       <div className="flex justify-center gap-3 px-4">
         <button
           onClick={() => setFilter("all")}
-          className={`px-6 py-2.5 rounded-full font-semibold transition-all ${
+          className={`px-6 py-2.5 rounded-full cursor-pointer font-semibold transition-all ${
             filter === "all"
               ? "bg-primary text-white shadow-lg shadow-primary/30"
               : "bg-card-bg border border-card-border text-muted hover:border-primary hover:text-primary"
@@ -190,7 +190,7 @@ export default function UBMap() {
         </button>
         <button
           onClick={() => setFilter("lost")}
-          className={`px-6 py-2.5 rounded-full font-semibold transition-all ${
+          className={`px-6 py-2.5 rounded-full font-semibold cursor-pointer transition-all ${
             filter === "lost"
               ? "bg-red-500 text-white shadow-lg shadow-red-500/30"
               : "bg-card-bg border border-card-border text-muted hover:border-red-500 hover:text-red-500"
@@ -200,9 +200,9 @@ export default function UBMap() {
         </button>
         <button
           onClick={() => setFilter("found")}
-          className={`px-6 py-2.5 rounded-full font-semibold transition-all ${
+          className={`px-6 py-2.5 rounded-full cursor-pointer font-semibold transition-all ${
             filter === "found"
-              ? "bg-green-500 text-white shadow-lg shadow-green-500/30"
+              ? "status-found"
               : "bg-card-bg border border-card-border text-muted hover:border-green-500 hover:text-green-500"
           }`}
         >
@@ -259,7 +259,7 @@ export default function UBMap() {
                         <div className="absolute top-3 left-3">
                           <span
                             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm text-white ${
-                              isLost ? "bg-red-500" : "bg-green-500"
+                              isLost ? "status-lost" : "status-found"
                             }`}
                           >
                             {isLost ? t.lost : t.found}
@@ -309,9 +309,7 @@ export default function UBMap() {
                         <button
                           onClick={() => handleViewDetails(marker._id)}
                           className={`w-full mt-4 px-4 py-2.5 text-white rounded-lg font-semibold text-sm transition-all duration-200 transform cursor-pointer hover:shadow-lg active:scale-95 ${
-                            isLost
-                              ? "bg-red-500 hover:bg-red-600"
-                              : "bg-green-500 hover:bg-green-600"
+                            isLost ? "bg-primary" : "bg-primary"
                           }`}
                         >
                           {t.seemore}

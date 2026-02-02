@@ -355,7 +355,7 @@ export function UrcluulehPage() {
 
       // Redirect after toast
       setTimeout(() => {
-        router.push("/dog");
+        router.push("/");
       }, 2000);
     } catch (err) {
       console.log(err);

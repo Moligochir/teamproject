@@ -17,12 +17,10 @@ import { toast } from "react-hot-toast";
 
 type lostFound = {
   role: string;
-  userId?: {
-    _id: string;
-    name: string;
-    email: string;
-    phonenumber: number;
-  };
+  userId: string; // ✅ Change to string (user ID reference)
+  userName?: string; // ✅ Add owner name
+  userEmail?: string; // ✅ Add owner email
+  userPhone?: number; // ✅ Add owner phone
   name: string;
   gender: string;
   location: string;
@@ -37,6 +35,14 @@ type lostFound = {
   lng?: number;
 };
 
+type UserType = {
+  _id: string;
+  name: string;
+  email: string;
+  phonenumber: number;
+  clerkId: string;
+};
+
 export default function PetDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -44,11 +50,11 @@ export default function PetDetailPage() {
   const { language } = useLanguage();
   const { user: clerkUser, isLoaded: clerkLoaded } = useUser();
   const [pet, setPet] = useState<lostFound | null>(null);
-  const [userData, setUserData] = useState<any>(null);
+  const [ownerData, setOwnerData] = useState<UserType | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserType | null>(null);
   const [allPets, setAllPets] = useState<lostFound[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
 
   const translations = {
     mn: {
@@ -160,7 +166,7 @@ export default function PetDetailPage() {
       deletePost: "🗑️ Delete Post",
       follow: "👤 Follow",
       following: "✓ Following",
-      viewSuggestions: "🤖 View AI Suggestions",
+      viewSuggestions: "View AI Suggestions",
       myPost: "👤 My Post",
       linkCopied: "Link copied to clipboard!",
       posted: "Posted",
@@ -175,6 +181,7 @@ export default function PetDetailPage() {
 
   const t = translations[language];
 
+  // ✅ Get pet details
   const GetPetDetails = async () => {
     try {
       const res = await fetch(`http://localhost:8000/lostFound/findid/${id}`, {
@@ -185,17 +192,52 @@ export default function PetDetailPage() {
         },
       });
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        setPet(data[0]);
-      } else {
-        setPet(data);
+      const petData = Array.isArray(data) && data.length > 0 ? data[0] : data;
+      setPet(petData);
+      console.log("✅ Pet data:", petData);
+
+      // ✅ If userId is an object, use it; if string, fetch user data
+      if (petData.userId) {
+        if (typeof petData.userId === "object") {
+          // userId is already populated object
+          setOwnerData(petData.userId);
+          console.log("✅ Owner data from pet:", petData.userId);
+        } else if (typeof petData.userId === "string") {
+          // userId is just an ID, fetch user data
+          GetOwnerData(petData.userId);
+        }
       }
     } catch (err) {
-      console.log("Error fetching pet:", err);
+      console.log("❌ Error fetching pet:", err);
     }
   };
 
-  const GetUserData = async () => {
+  // ✅ Get owner data from user ID
+  const GetOwnerData = async (userId: string) => {
+    try {
+      const res = await fetch(`http://localhost:8000/users`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+      const allUsers = await res.json();
+      const owner = allUsers.find((u: UserType) => u._id === userId);
+
+      if (owner) {
+        setOwnerData(owner);
+        console.log("✅ Owner data fetched:", owner);
+      } else {
+        console.log("❌ Owner not found");
+      }
+    } catch (err) {
+      console.log("❌ Error fetching owner data:", err);
+    }
+  };
+
+  // ✅ Get current user
+  const GetCurrentUser = async () => {
     if (!clerkUser?.id) {
       console.log("❌ No clerkUser.id");
       return;
@@ -210,15 +252,13 @@ export default function PetDetailPage() {
         },
       });
       const data = await res.json();
-      const currentUser = data.find((u: any) => u.clerkId === clerkUser.id);
-      if (currentUser) {
-        console.log("✅ User found:", currentUser);
-        setUserData(currentUser);
-      } else {
-        console.log("❌ User not found in database");
+      const user = data.find((u: UserType) => u.clerkId === clerkUser.id);
+      if (user) {
+        setCurrentUser(user);
+        console.log("✅ Current user:", user);
       }
     } catch (err) {
-      console.log("Error fetching user data:", err);
+      console.log("❌ Error fetching current user:", err);
     }
   };
 
@@ -245,7 +285,7 @@ export default function PetDetailPage() {
       if (id) {
         GetPetDetails();
         GetAllPets();
-        GetUserData();
+        GetCurrentUser();
         const saved = localStorage.getItem(`saved_${id}`);
         setIsSaved(!!saved);
       }
@@ -253,13 +293,14 @@ export default function PetDetailPage() {
   }, [id, clerkLoaded]);
 
   useEffect(() => {
-    if (pet && userData) {
+    if (pet && currentUser) {
       console.log("🔍 DEBUG INFO:");
-      console.log("Pet owner ID:", pet.userId?._id);
-      console.log("Current user ID:", userData._id);
-      console.log("Is Owner:", userData._id === pet.userId?._id);
+      console.log("Pet userId:", pet.userId);
+      console.log("Current user ID:", currentUser._id);
+      console.log("Owner data:", ownerData);
+      console.log("Is Owner:", currentUser._id === pet.userId);
     }
-  }, [pet, userData]);
+  }, [pet, currentUser, ownerData]);
 
   const handleSave = () => {
     if (!pet) return;
@@ -288,7 +329,6 @@ export default function PetDetailPage() {
     try {
       console.log("📤 Storing pet data to sessionStorage:", pet);
 
-      // ✅ Бүтэн pet объектыг JSON string болгон хадгалах
       sessionStorage.setItem(
         "queryPet",
         JSON.stringify({
@@ -309,17 +349,11 @@ export default function PetDetailPage() {
         }),
       );
 
-      // ✅ Хадгалагдсан дата шалгах
       const storedData = sessionStorage.getItem("queryPet");
       if (storedData) {
         const parsedData = JSON.parse(storedData);
         console.log("✅ Data stored successfully:", parsedData);
-        console.log("✅ Navigating to probability page...");
-
-        // ✅ URL параметртэй болон sessionStorage-тэй хоёуланг нь ашиглах
         router.push(`/probability?petId=${pet._id}`);
-      } else {
-        console.log("❌ Failed to store data");
       }
     } catch (error) {
       console.error("❌ Error storing pet data:", error);
@@ -403,7 +437,7 @@ export default function PetDetailPage() {
 
   const isLost = pet.role === "Lost";
   const isDog = pet.petType === "Dog";
-  const isOwner = userData?._id === pet.userId?._id;
+  const isOwner = currentUser?._id === pet.userId;
 
   const today = new Date();
   const petDate = new Date(pet.Date);
@@ -444,9 +478,7 @@ export default function PetDetailPage() {
           <div className="flex items-center gap-3 flex-wrap">
             <div
               className={`inline-block px-4 py-2 rounded-full text-sm font-bold ${
-                isLost
-                  ? "bg-red-500/20 text-red-500 border border-red-500/50"
-                  : "bg-green-500/20 text-green-500 border border-green-500/50"
+                isLost ? "status-lost" : "status-found"
               }`}
             >
               {isLost ? t.lostIcon : t.foundIcon}
@@ -456,7 +488,7 @@ export default function PetDetailPage() {
                 {t.myPost}
               </div>
             )}
-            {pet.userId && (
+            {pet.Date && (
               <div className="flex items-center gap-2 text-sm text-muted">
                 <span>
                   {daysAgo} {t.daysAgo} {t.posted}
@@ -544,20 +576,20 @@ export default function PetDetailPage() {
             </div>
 
             {/* Contact Section - Show for non-owners */}
-            {!isOwner && pet?.userId && (
+            {!isOwner && ownerData && (
               <div className="rounded-xl p-6 border-2 border-orange-500/20 backdrop-blur-sm">
                 <h3 className="font-bold text-lg mb-4">{t.contact}</h3>
                 <div className="space-y-4">
                   {/* Owner Card */}
                   <div className="flex items-center gap-4 p-4 bg-white/50 dark:bg-white/5 rounded-lg backdrop-blur-sm">
                     <div className="w-12 h-12 rounded-full bg-linear-to-br from-orange-500 to-rose-500 flex items-center justify-center text-white font-bold text-lg shrink-0">
-                      {pet.userId?.name && pet.userId.name.length > 0
-                        ? pet.userId.name.charAt(0).toUpperCase()
+                      {ownerData.name && ownerData.name.length > 0
+                        ? ownerData.name.charAt(0).toUpperCase()
                         : "?"}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-lg">
-                        {pet.userId?.name || "Unknown"}
+                        {ownerData.name || "Unknown"}
                       </p>
                       <div className="flex items-center gap-2 text-xs text-muted mt-1">
                         <span>{t.verified}</span>
@@ -568,9 +600,9 @@ export default function PetDetailPage() {
                   {/* Contact Methods */}
                   <div className="space-y-2">
                     {/* Email */}
-                    {pet.userId?.email && (
+                    {ownerData.email && (
                       <a
-                        href={`mailto:${pet.userId.email}`}
+                        href={`mailto:${ownerData.email}`}
                         className="flex items-center gap-3 p-3 bg-white/50 dark:bg-white/5 rounded-lg hover:bg-white/70 dark:hover:bg-white/10 transition-all"
                       >
                         <svg
@@ -589,7 +621,7 @@ export default function PetDetailPage() {
                         <div className="flex-1 min-w-0">
                           <div className="text-xs text-muted">{t.email}</div>
                           <div className="font-semibold truncate">
-                            {pet.userId.email}
+                            {ownerData.email}
                           </div>
                         </div>
                         <span className="text-primary text-sm">→</span>
@@ -597,9 +629,9 @@ export default function PetDetailPage() {
                     )}
 
                     {/* Phone */}
-                    {(pet?.phonenumber || pet?.userId?.phonenumber) && (
+                    {(pet.phonenumber || ownerData.phonenumber) && (
                       <a
-                        href={`tel:${pet.phonenumber || pet?.userId?.phonenumber}`}
+                        href={`tel:${pet.phonenumber || ownerData.phonenumber}`}
                         className="flex items-center gap-3 p-3 bg-white/50 dark:bg-white/5 rounded-lg hover:bg-white/70 dark:hover:bg-white/10 transition-all"
                       >
                         <svg
@@ -618,7 +650,7 @@ export default function PetDetailPage() {
                         <div className="flex-1 min-w-0">
                           <div className="text-xs text-muted">{t.phone}</div>
                           <div className="font-semibold">
-                            {pet.phonenumber || pet?.userId?.phonenumber}
+                            {pet.phonenumber || ownerData.phonenumber}
                           </div>
                         </div>
                         <span className="text-primary text-sm">→</span>
@@ -644,20 +676,20 @@ export default function PetDetailPage() {
             )}
 
             {/* CTA Buttons - Only for non-owners */}
-            {!isOwner && pet?.userId && (
+            {!isOwner && ownerData && (
               <div className="flex flex-col sm:flex-row gap-3">
-                {pet.userId?.email && (
+                {ownerData.email && (
                   <a
-                    href={`mailto:${pet.userId.email}?subject=${isLost ? t.lost : t.found} ${isDog ? t.dog : t.cat}: ${pet.name}`}
+                    href={`mailto:${ownerData.email}?subject=${isLost ? t.lost : t.found} ${isDog ? t.dog : t.cat}: ${pet.name}`}
                     className="flex gap-2 items-center px-6 py-4 bg-primary hover:shadow-lg hover:shadow-orange-500/30 text-white rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95"
                   >
                     {t.emailContact}
                     <EmailIcon />
                   </a>
                 )}
-                {(pet.phonenumber || pet.userId?.phonenumber) && (
+                {(pet.phonenumber || ownerData.phonenumber) && (
                   <a
-                    href={`tel:${pet.phonenumber || pet.userId?.phonenumber}`}
+                    href={`tel:${pet.phonenumber || ownerData.phonenumber}`}
                     className="flex items-center gap-2 px-6 py-4 bg-card-bg border-2 border-card-border hover:border-primary text-foreground rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95"
                   >
                     {t.phoneContact}
@@ -669,7 +701,7 @@ export default function PetDetailPage() {
           </div>
         </div>
 
-        {/* View Suggestions - Only for non-owners */}
+        {/* View Suggestions - Only for owners */}
         {isOwner && (
           <div className="mt-12 flex justify-center">
             <button
@@ -688,16 +720,14 @@ export default function PetDetailPage() {
             {language === "mn" ? (
               <>
                 {t.shareDescription1}{" "}
-                <span className="font-bold">
-                  {pet?.userId?.name || "амьтан"}
-                </span>
+                <span className="font-bold">{ownerData?.name || "амьтан"}</span>
                 {t.shareDescription2} {isLost ? t.returnHome : t.findFamily}{" "}
                 {t.shareDescriptionEnd}
               </>
             ) : (
               <>
                 {t.shareDescription1}{" "}
-                <span className="font-bold">{pet?.userId?.name || "pet"}</span>{" "}
+                <span className="font-bold">{ownerData?.name || "pet"}</span>{" "}
                 {isLost ? t.returnHome : t.findFamily}
               </>
             )}

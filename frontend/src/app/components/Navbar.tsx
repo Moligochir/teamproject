@@ -43,16 +43,18 @@ export function Navbar() {
   const pathname = usePathname();
   const { openSignIn } = useClerk();
 
-  // Update active tab based on pathname
+  // ✅ Update active tab based on pathname
   useEffect(() => {
     if (pathname === "/") {
       setActiveTab("home");
-    } else if (pathname.includes("/browse")) {
+    } else if (pathname.includes("/browse") || pathname.includes("/dog")) {
       setActiveTab("browse");
     } else if (pathname === "/map") {
       setActiveTab("map");
     } else if (pathname === "/about") {
       setActiveTab("about");
+    } else {
+      setActiveTab("");
     }
   }, [pathname]);
 
@@ -109,7 +111,7 @@ export function Navbar() {
     }
   };
 
-  // Check if nav link is active
+  // ✅ Check if nav link is active
   const isActive = (tab: string) => activeTab === tab;
 
   return (
@@ -136,8 +138,9 @@ export function Navbar() {
               }`}
             >
               {t.home}
+              {/* ✅ Fixed: Show underline only when active */}
               {isActive("home") && (
-                <div className="absolute bottom-0 left-4 right-4 h-1 bg-primary rounded-t-lg"></div>
+                <div className="absolute bottom-1 left-4 right-4 h-0.5 bg-primary rounded-full"></div>
               )}
             </Link>
 
@@ -175,8 +178,9 @@ export function Navbar() {
                   </svg>
                 </div>
 
+                {/* ✅ Fixed: Show underline only when active */}
                 {isActive("browse") && (
-                  <div className="absolute bottom-0 left-4 right-4 h-1 bg-primary rounded-t-lg"></div>
+                  <div className="absolute bottom-1 left-4 right-4 h-0.5 bg-primary rounded-full"></div>
                 )}
               </button>
 
@@ -227,8 +231,9 @@ export function Navbar() {
               }`}
             >
               {t.map}
+              {/* ✅ Fixed: Show underline only when active */}
               {isActive("map") && (
-                <div className="absolute bottom-0 left-4 right-4 h-1 bg-primary rounded-t-lg"></div>
+                <div className="absolute bottom-1 left-4 right-4 h-0.5 bg-primary rounded-full"></div>
               )}
             </Link>
 
@@ -240,7 +245,7 @@ export function Navbar() {
             >
               <button
                 className={`px-4 py-2 rounded-lg cursor-pointer font-medium transition-all duration-300 relative flex items-center gap-1 ${
-                  isActive("browse")
+                  isActive("others")
                     ? "text-primary"
                     : "text-muted hover:text-primary"
                 }`}
@@ -265,10 +270,6 @@ export function Navbar() {
                     />
                   </svg>
                 </div>
-
-                {isActive("browse") && (
-                  <div className="absolute bottom-0 left-4 right-4 h-1 bg-primary rounded-t-lg"></div>
-                )}
               </button>
 
               {/* Others Dropdown Menu */}

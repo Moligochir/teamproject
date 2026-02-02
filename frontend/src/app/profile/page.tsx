@@ -915,6 +915,12 @@ export default function ProfilePage() {
                             >
                               {t.viewMatch}
                             </button>
+                            <button
+                              onClick={() => openContactModal(post)}
+                              className="px-4 py-2.5 cursor-pointer bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold text-sm transition-colors"
+                            >
+                              {t.contact}
+                            </button>
                           </div>
                         </div>
                       </div>
