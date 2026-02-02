@@ -23,6 +23,7 @@ type lostFound = {
     email: string;
     phonenumber: number;
   };
+  createdAt: any;
   name: string;
   gender: string;
   location: string;
@@ -103,8 +104,8 @@ export default function PetDetailPage() {
       viewSuggestions: "Санал болгосон тохирол үзэх",
       myPost: "Миний зар",
       linkCopied: "Холбоос хуулагдсан!",
-      posted: "нийтлэгдсэн",
-      daysAgo: "өдрийн өмнө",
+      posted: "Нийтлэгдсэн:",
+
       verified: "✓ Баталгаажсан",
       responseTime: "Хариу үйл ажиллагааны хугацаа",
       fast: "Хурдан",
@@ -163,8 +164,7 @@ export default function PetDetailPage() {
       viewSuggestions: "🤖 View AI Suggestions",
       myPost: "👤 My Post",
       linkCopied: "Link copied to clipboard!",
-      posted: "Posted",
-      daysAgo: "days ago",
+      posted: "Posted:",
       verified: "✓ Verified",
       responseTime: "Response Time",
       fast: "Fast",
@@ -405,6 +405,7 @@ export default function PetDetailPage() {
         break;
     }
   };
+  console.log(pet, "pet");
 
   if (loading || !clerkLoaded) {
     return (
@@ -493,9 +494,7 @@ export default function PetDetailPage() {
           <div className="flex items-center gap-3 flex-wrap">
             <div
               className={`inline-block px-4 py-2 rounded-full text-sm font-bold ${
-                isLost
-                  ? "bg-red-500/20 text-red-500 border border-red-500/50"
-                  : "bg-green-500/20 text-green-500 border border-green-500/50"
+                isLost ? "status-lost" : "status-found"
               }`}
             >
               {isLost ? t.lostIcon : t.foundIcon}
@@ -508,7 +507,7 @@ export default function PetDetailPage() {
             {pet.userId && (
               <div className="flex items-center gap-2 text-sm text-muted">
                 <span>
-                  {daysAgo} {t.daysAgo} {t.posted}
+                  {t.posted} {pet.createdAt.slice(0, 10)}
                 </span>
               </div>
             )}
