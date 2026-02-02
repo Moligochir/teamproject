@@ -281,7 +281,7 @@ const calculateLocationSimilarity = (
 ): { similarity: number; distance: number; reason: MatchReason } => {
   if (!lat1 || !lng1 || !lat2 || !lng2) {
     return {
-      similarity: 50,
+      similarity: 30,
       distance: 999,
       reason: {
         type: "location",
@@ -451,9 +451,9 @@ export const findPetMatches = async (
 
     // Calculate overall confidence score using weighted average
     const confidenceScore =
-      imageMatch * 0.4 +
+      imageMatch * 0.3 +
       breedMatch * 0.2 +
-      locationData.similarity * 0.2 +
+      locationData.similarity * 0.3 +
       timeData.similarity * 0.2;
 
     // Only include matches with confidence > 50%

@@ -3,17 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { ShoppingBag, Upload, X } from "lucide-react";
 import { useLanguage } from "../contexts/Languagecontext";
+import { toast } from "react-hot-toast";
 
 interface Post {
-  _id: number;
+  _id: string;
   ProductName: string;
   ImageURL: string;
   Price: number;
   PhoneNumber: number;
   createdAt: Date;
 }
+
 const UPLOAD_PRESET = "Pawpew";
 const CLOUD_NAME = "dyduodw7q";
+
 export default function ShopPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [name, setName] = useState("");
@@ -27,6 +30,11 @@ export default function ShopPage() {
   const [phoneError, setPhoneError] = useState("");
 
   const { language } = useLanguage();
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   // Translations
   const translations = {
@@ -61,6 +69,8 @@ export default function ShopPage() {
       enterPhone: "Утасны дугаар оруулна уу",
       phoneOnlyNumbers: "Утасны дугаар зөвхөн тоо байх ёстой",
       postSuccess: "Зар амжилттай нийтлэгдлээ!",
+      loading: "Уншиж байна...",
+      error: "Алдаа гарлаа",
     },
     en: {
       title: "Shop",
@@ -94,14 +104,15 @@ export default function ShopPage() {
       enterPhone: "Please enter phone number",
       phoneOnlyNumbers: "Phone number should be numbers only",
       postSuccess: "Listing posted successfully!",
+      loading: "Loading...",
+      error: "An error occurred",
     },
   };
 
   const t = translations[language];
-  const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const uploadToCloudinary = async (file: File) => {
+
+  // ✅ Upload to Cloudinary
+  const uploadToCloudinary = async (file: File): Promise<string | null> => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", UPLOAD_PRESET);
@@ -114,93 +125,147 @@ export default function ShopPage() {
           body: formData,
         },
       );
+
+      if (!response.ok) {
+        throw new Error("Cloudinary upload failed");
+      }
+
       const data = await response.json();
+      console.log("✅ Image uploaded:", data.secure_url);
       return data.secure_url;
     } catch (error) {
-      console.error("Cloudinary upload failed:", error);
+      console.error("❌ Cloudinary upload failed:", error);
+      toast.error(
+        language === "mn" ? "Зураг ачааллахад алдаа" : "Failed to upload image",
+      );
+      return null;
     }
   };
+
+  // ✅ Handle Image Upload
   const handleLogoUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
     setUploading(true);
 
     try {
       const url = await uploadToCloudinary(file);
-      setPreview(url);
-      setImageError("");
-      console.log(url);
-    } catch (err: unknown) {
-      console.log("Failed to upload logo: " + (err as Error).message);
+      if (url) {
+        setPreview(url);
+        setImageError("");
+      }
+    } catch (err) {
+      console.log("Failed to upload logo:", err);
     } finally {
       setUploading(false);
     }
   };
+
+  // ✅ Add Product to Shop
   const AddProduct = async () => {
     try {
-      const newProduct = await fetch(`http://localhost:8000/shop`, {
+      setIsSubmitting(true);
+
+      const payload = {
+        ProductName: name,
+        ImageURL: preview,
+        Price: parseInt(price),
+        PhoneNumber: phone,
+      };
+
+      console.log("📤 Sending payload:", payload);
+
+      const response = await fetch(`http://localhost:8000/shop`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ProductName: name,
-          ImageURL: preview,
-          Price: price,
-          PhoneNumber: phone,
-        }),
+        body: JSON.stringify(payload),
       });
 
-      if (!newProduct.ok) {
-        throw new Error("Failed to add product");
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("❌ Server error:", errorData);
+        throw new Error(errorData.message || "Failed to add product");
       }
 
-      // Optionally, you can handle the response data here
-      const data = await newProduct.json();
-      console.log("Product added:", data);
-      await GetAdopt();
+      const data = await response.json();
+      console.log("✅ Product added:", data);
+
+      // Reset form
       setName("");
-      setPreview("");
+      setPreview(null);
       setPrice("");
       setPhone("");
+      setNameError("");
+      setImageError("");
+      setPriceError("");
+      setPhoneError("");
+
+      toast.success(t.postSuccess);
+
+      // Reload posts
+      await GetProducts();
     } catch (error) {
-      console.error("Error adding product:", error);
+      console.error("❌ Error adding product:", error);
+      toast.error(
+        language === "mn" ? "Зар нийтлэхэд алдаа" : "Failed to post listing",
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const GetAdopt = async () => {
+  // ✅ Get All Products
+  const GetProducts = async () => {
     try {
+      setLoading(true);
+      console.log("🔄 Fetching products...");
+
       const res = await fetch(`http://localhost:8000/shop`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          accept: "application/json",
         },
       });
 
       if (!res.ok) {
-        throw new Error("Failed to get products");
+        console.warn(`⚠️ Server returned ${res.status}`);
+        // Don't throw, just set empty posts
+        setPosts([]);
+        return;
       }
 
-      // Optionally, you can handle the response data here
-      const datas = await res.json();
-      setPosts(datas);
-      console.log("Products retrieved:", datas);
+      const data = await res.json();
+      console.log("✅ Products fetched:", data);
+
+      // Handle both array and object response
+      const productsList = Array.isArray(data) ? data : data.data || [];
+      setPosts(productsList);
     } catch (error) {
-      console.error("Error retrieving products:", error);
+      console.error("❌ Error fetching products:", error);
+      // Set empty posts on error
+      setPosts([]);
+    } finally {
+      setLoading(false);
     }
   };
+
+  // ✅ Load products on mount
   useEffect(() => {
-    GetAdopt();
+    GetProducts();
   }, []);
-  console.log(posts, "hahahha");
 
   const clearImage = () => {
     setPreview(null);
     if (inputRef.current) inputRef.current.value = "";
   };
 
+  // ✅ Handle Form Submit
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -248,8 +313,20 @@ export default function ShopPage() {
     if (hasError) {
       return;
     }
+
     AddProduct();
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen py-12 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted">{t.loading}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-12">
@@ -286,7 +363,7 @@ export default function ShopPage() {
                     value={name}
                     onChange={(e) => {
                       setName(e.target.value);
-                      setNameError(""); // Clear error on change
+                      setNameError("");
                     }}
                     className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent ${
                       nameError
@@ -294,6 +371,7 @@ export default function ShopPage() {
                         : "border-card-border focus:ring-primary"
                     }`}
                     placeholder={t.productNamePlaceholder}
+                    disabled={isSubmitting}
                   />
                   {nameError && (
                     <p className="text-red-500 text-sm mt-1">{nameError}</p>
@@ -316,7 +394,8 @@ export default function ShopPage() {
                       <button
                         type="button"
                         onClick={clearImage}
-                        className="absolute top-2 right-2 bg-primary text-white p-2 rounded-full hover:bg-primary-dark transition-colors"
+                        disabled={uploading}
+                        className="absolute top-2 right-2 bg-primary text-white p-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -326,7 +405,9 @@ export default function ShopPage() {
                       htmlFor="image-upload"
                       className={`border-2 border-dashed ${
                         imageError ? "border-red-500" : "border-card-border"
-                      } rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer block`}
+                      } rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer block ${
+                        uploading ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                     >
                       {!uploading ? (
                         <div>
@@ -342,6 +423,7 @@ export default function ShopPage() {
                             className="hidden"
                             onChange={handleLogoUpload}
                             ref={inputRef}
+                            disabled={uploading}
                           />
                         </div>
                       ) : (
@@ -368,7 +450,7 @@ export default function ShopPage() {
                     value={price}
                     onChange={(e) => {
                       setPrice(e.target.value);
-                      setPriceError(""); // Clear error on change
+                      setPriceError("");
                     }}
                     className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent ${
                       priceError
@@ -376,6 +458,7 @@ export default function ShopPage() {
                         : "border-card-border focus:ring-primary"
                     }`}
                     placeholder={t.pricePlaceholder}
+                    disabled={isSubmitting}
                   />
                   {priceError && (
                     <p className="text-red-500 text-sm mt-1">{priceError}</p>
@@ -396,7 +479,7 @@ export default function ShopPage() {
                     value={phone}
                     onChange={(e) => {
                       setPhone(e.target.value);
-                      setPhoneError(""); // Clear error on change
+                      setPhoneError("");
                     }}
                     className={`w-full px-4 py-3 bg-background border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent ${
                       phoneError
@@ -404,6 +487,7 @@ export default function ShopPage() {
                         : "border-card-border focus:ring-primary"
                     }`}
                     placeholder={t.phonePlaceholder}
+                    disabled={isSubmitting}
                   />
                   {phoneError && (
                     <p className="text-red-500 text-sm mt-1">{phoneError}</p>
@@ -412,9 +496,10 @@ export default function ShopPage() {
 
                 <button
                   type="submit"
-                  className="w-full px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-semibold transition-all cursor-pointer"
+                  disabled={isSubmitting || uploading}
+                  className="w-full px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-semibold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {t.postListing}
+                  {isSubmitting ? "⏳ " + t.postListing : t.postListing}
                 </button>
               </form>
             </div>
@@ -427,7 +512,7 @@ export default function ShopPage() {
               <p className="text-muted">
                 {t.total}{" "}
                 <span className="font-semibold text-foreground">
-                  {/* {posts.length} */}
+                  {posts.length}
                 </span>{" "}
                 {t.items}
               </p>
@@ -444,22 +529,22 @@ export default function ShopPage() {
                 {posts.map((post) => (
                   <div
                     key={post._id}
-                    className="bg-card-bg rounded-2xl border border-card-border overflow-hidden hover:shadow-lg transition-all hover:border-primary"
+                    className="bg-card-bg rounded-2xl border border-card-border overflow-hidden hover:shadow-lg transition-all hover:border-primary cursor-pointer"
                   >
                     <img
                       src={post.ImageURL}
                       alt={post.ProductName}
-                      className="w-full h-48 object-cover"
+                      className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                     />
 
                     <div className="p-4">
-                      <h3 className="text-lg font-semibold mb-2">
+                      <h3 className="text-lg font-semibold mb-2 line-clamp-2">
                         {post.ProductName}
                       </h3>
 
                       <div className="flex justify-between items-center mb-3">
                         <span className="text-2xl font-bold text-primary">
-                          ₮{post.Price}
+                          ₮{post.Price.toLocaleString()}
                         </span>
                       </div>
 
@@ -477,11 +562,21 @@ export default function ShopPage() {
                             d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                           />
                         </svg>
-                        <span className="text-sm">{post.PhoneNumber}</span>
+                        <span className="text-sm">
+                          <a
+                            href={`tel:${post.PhoneNumber}`}
+                            className="hover:text-primary transition-colors"
+                          >
+                            {post.PhoneNumber}
+                          </a>
+                        </span>
                       </div>
 
                       <div className="text-xs text-muted">
-                        {t.posted} {post.createdAt.toString().slice(0, 10)}
+                        {t.posted}{" "}
+                        {new Date(post.createdAt).toLocaleDateString(
+                          language === "mn" ? "mn-MN" : "en-US",
+                        )}
                       </div>
                     </div>
                   </div>

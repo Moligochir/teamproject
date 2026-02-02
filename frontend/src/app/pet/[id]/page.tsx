@@ -23,6 +23,7 @@ type lostFound = {
     email: string;
     phonenumber: number;
   };
+  createdAt: any;
   name: string;
   gender: string;
   location: string;
@@ -103,8 +104,8 @@ export default function PetDetailPage() {
       viewSuggestions: "Санал болгосон тохирол үзэх",
       myPost: "Миний зар",
       linkCopied: "Холбоос хуулагдсан!",
-      posted: "нийтлэгдсэн",
-      daysAgo: "өдрийн өмнө",
+      posted: "Нийтлэгдсэн:",
+
       verified: "✓ Баталгаажсан",
       responseTime: "Хариу үйл ажиллагааны хугацаа",
       fast: "Хурдан",
@@ -163,8 +164,7 @@ export default function PetDetailPage() {
       viewSuggestions: "🤖 View AI Suggestions",
       myPost: "👤 My Post",
       linkCopied: "Link copied to clipboard!",
-      posted: "Posted",
-      daysAgo: "days ago",
+      posted: "Posted:",
       verified: "✓ Verified",
       responseTime: "Response Time",
       fast: "Fast",
@@ -187,8 +187,16 @@ export default function PetDetailPage() {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
         setPet(data[0]);
+        // If userId is just an ID string, fetch owner data
+        if (typeof data[0].userId === "string") {
+          await GetOwnerData(data[0].userId);
+        }
       } else {
         setPet(data);
+        // If userId is just an ID string, fetch owner data
+        if (typeof data.userId === "string") {
+          await GetOwnerData(data.userId);
+        }
       }
     } catch (err) {
       console.log("Error fetching pet:", err);
@@ -212,13 +220,56 @@ export default function PetDetailPage() {
       const data = await res.json();
       const currentUser = data.find((u: any) => u.clerkId === clerkUser.id);
       if (currentUser) {
-        console.log("✅ User found:", currentUser);
+        console.log("✅ Current user found:", currentUser);
         setUserData(currentUser);
       } else {
-        console.log("❌ User not found in database");
+        console.log("❌ Current user not found in database");
       }
     } catch (err) {
-      console.log("Error fetching user data:", err);
+      console.log("Error fetching current user data:", err);
+    }
+  };
+
+  // ✅ Get owner data from pet userId
+  const GetOwnerData = async (ownerId: string) => {
+    if (!ownerId) {
+      console.log("❌ No ownerId provided");
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:8000/users`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+      const data = await res.json();
+      const owner = data.find((u: any) => u._id === ownerId);
+
+      if (owner) {
+        console.log("✅ Owner found:", owner);
+        // Update pet with full owner data
+        setPet((prevPet) => {
+          if (prevPet) {
+            return {
+              ...prevPet,
+              userId: {
+                _id: owner._id,
+                name: owner.name,
+                email: owner.email,
+                phonenumber: owner.phonenumber,
+              },
+            };
+          }
+          return prevPet;
+        });
+      } else {
+        console.log("❌ Owner not found with ID:", ownerId);
+      }
+    } catch (err) {
+      console.log("Error fetching owner data:", err);
     }
   };
 
@@ -257,6 +308,7 @@ export default function PetDetailPage() {
       console.log("🔍 DEBUG INFO:");
       console.log("Pet owner ID:", pet.userId?._id);
       console.log("Current user ID:", userData._id);
+      console.log("Pet owner email:", pet.userId?.email);
       console.log("Is Owner:", userData._id === pet.userId?._id);
     }
   }, [pet, userData]);
@@ -288,7 +340,6 @@ export default function PetDetailPage() {
     try {
       console.log("📤 Storing pet data to sessionStorage:", pet);
 
-      // ✅ Бүтэн pet объектыг JSON string болгон хадгалах
       sessionStorage.setItem(
         "queryPet",
         JSON.stringify({
@@ -309,14 +360,12 @@ export default function PetDetailPage() {
         }),
       );
 
-      // ✅ Хадгалагдсан дата шалгах
       const storedData = sessionStorage.getItem("queryPet");
       if (storedData) {
         const parsedData = JSON.parse(storedData);
         console.log("✅ Data stored successfully:", parsedData);
         console.log("✅ Navigating to probability page...");
 
-        // ✅ URL параметртэй болон sessionStorage-тэй хоёуланг нь ашиглах
         router.push(`/probability?petId=${pet._id}`);
       } else {
         console.log("❌ Failed to store data");
@@ -356,6 +405,7 @@ export default function PetDetailPage() {
         break;
     }
   };
+  console.log(pet, "pet");
 
   if (loading || !clerkLoaded) {
     return (
@@ -401,7 +451,7 @@ export default function PetDetailPage() {
     );
   }
 
-  const isLost = pet.role === "Lost";
+  const isLost = pet.role === "Lost" || pet.role === "Төөрсөн";
   const isDog = pet.petType === "Dog";
   const isOwner = userData?._id === pet.userId?._id;
 
@@ -444,9 +494,7 @@ export default function PetDetailPage() {
           <div className="flex items-center gap-3 flex-wrap">
             <div
               className={`inline-block px-4 py-2 rounded-full text-sm font-bold ${
-                isLost
-                  ? "bg-red-500/20 text-red-500 border border-red-500/50"
-                  : "bg-green-500/20 text-green-500 border border-green-500/50"
+                isLost ? "status-lost" : "status-found"
               }`}
             >
               {isLost ? t.lostIcon : t.foundIcon}
@@ -459,7 +507,7 @@ export default function PetDetailPage() {
             {pet.userId && (
               <div className="flex items-center gap-2 text-sm text-muted">
                 <span>
-                  {daysAgo} {t.daysAgo} {t.posted}
+                  {t.posted} {pet.createdAt.slice(0, 10)}
                 </span>
               </div>
             )}
@@ -567,11 +615,11 @@ export default function PetDetailPage() {
 
                   {/* Contact Methods */}
                   <div className="space-y-2">
-                    {/* Email */}
-                    {pet.userId?.email && (
+                    {/* Email - Fixed Display */}
+                    {pet.userId?.email ? (
                       <a
                         href={`mailto:${pet.userId.email}`}
-                        className="flex items-center gap-3 p-3 bg-white/50 dark:bg-white/5 rounded-lg hover:bg-white/70 dark:hover:bg-white/10 transition-all"
+                        className="flex items-center gap-3 p-3 bg-white/50 dark:bg-white/5 rounded-lg hover:bg-white/70 dark:hover:bg-white/10 transition-all cursor-pointer"
                       >
                         <svg
                           className="w-5 h-5 text-primary shrink-0"
@@ -594,13 +642,13 @@ export default function PetDetailPage() {
                         </div>
                         <span className="text-primary text-sm">→</span>
                       </a>
-                    )}
+                    ) : null}
 
                     {/* Phone */}
-                    {(pet?.phonenumber || pet?.userId?.phonenumber) && (
+                    {pet.userId?.phonenumber || pet?.phonenumber ? (
                       <a
-                        href={`tel:${pet.phonenumber || pet?.userId?.phonenumber}`}
-                        className="flex items-center gap-3 p-3 bg-white/50 dark:bg-white/5 rounded-lg hover:bg-white/70 dark:hover:bg-white/10 transition-all"
+                        href={`tel:${pet.userId?.phonenumber || pet?.phonenumber}`}
+                        className="flex items-center gap-3 p-3 bg-white/50 dark:bg-white/5 rounded-lg hover:bg-white/70 dark:hover:bg-white/10 transition-all cursor-pointer"
                       >
                         <svg
                           className="w-5 h-5 text-primary shrink-0"
@@ -618,12 +666,24 @@ export default function PetDetailPage() {
                         <div className="flex-1 min-w-0">
                           <div className="text-xs text-muted">{t.phone}</div>
                           <div className="font-semibold">
-                            {pet.phonenumber || pet?.userId?.phonenumber}
+                            {pet.userId?.phonenumber || pet?.phonenumber}
                           </div>
                         </div>
                         <span className="text-primary text-sm">→</span>
                       </a>
-                    )}
+                    ) : null}
+
+                    {/* No contact info */}
+                    {!pet.userId?.email &&
+                      !pet.userId?.phonenumber &&
+                      !pet?.phonenumber && (
+                        <div className="p-3 bg-orange-500/10 rounded-lg text-orange-600 dark:text-orange-400 text-sm">
+                          📞{" "}
+                          {language === "mn"
+                            ? "Холбоо барих мэдээлэл байхгүй"
+                            : "No contact information available"}
+                        </div>
+                      )}
                   </div>
                 </div>
               </div>
@@ -636,7 +696,7 @@ export default function PetDetailPage() {
                 <p className="text-muted mb-6">{t.myPostMessage}</p>
                 <Link
                   href="/profile"
-                  className="inline-block px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all"
+                  className="inline-block px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all cursor-pointer"
                 >
                   {t.goToProfile}
                 </Link>
@@ -644,32 +704,36 @@ export default function PetDetailPage() {
             )}
 
             {/* CTA Buttons - Only for non-owners */}
-            {!isOwner && pet?.userId && (
-              <div className="flex flex-col sm:flex-row gap-3">
-                {pet.userId?.email && (
-                  <a
-                    href={`mailto:${pet.userId.email}?subject=${isLost ? t.lost : t.found} ${isDog ? t.dog : t.cat}: ${pet.name}`}
-                    className="flex gap-2 items-center px-6 py-4 bg-primary hover:shadow-lg hover:shadow-orange-500/30 text-white rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95"
-                  >
-                    {t.emailContact}
-                    <EmailIcon />
-                  </a>
-                )}
-                {(pet.phonenumber || pet.userId?.phonenumber) && (
-                  <a
-                    href={`tel:${pet.phonenumber || pet.userId?.phonenumber}`}
-                    className="flex items-center gap-2 px-6 py-4 bg-card-bg border-2 border-card-border hover:border-primary text-foreground rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95"
-                  >
-                    {t.phoneContact}
-                    <PhoneIcon />
-                  </a>
-                )}
-              </div>
-            )}
+            {!isOwner &&
+              pet?.userId &&
+              (pet.userId.email ||
+                pet.userId.phonenumber ||
+                pet.phonenumber) && (
+                <div className="flex flex-col sm:flex-row gap-3">
+                  {pet.userId?.email && (
+                    <a
+                      href={`mailto:${pet.userId.email}?subject=${isLost ? t.lost : t.found} ${isDog ? t.dog : t.cat}: ${pet.name}`}
+                      className="flex gap-2 items-center px-6 py-4 bg-primary hover:shadow-lg hover:shadow-orange-500/30 text-white rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95 cursor-pointer"
+                    >
+                      {t.emailContact}
+                      <EmailIcon />
+                    </a>
+                  )}
+                  {(pet.userId?.phonenumber || pet.phonenumber) && (
+                    <a
+                      href={`tel:${pet.userId?.phonenumber || pet.phonenumber}`}
+                      className="flex items-center gap-2 px-6 py-4 bg-card-bg border-2 border-card-border hover:border-primary text-foreground rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95 cursor-pointer"
+                    >
+                      {t.phoneContact}
+                      <PhoneIcon />
+                    </a>
+                  )}
+                </div>
+              )}
           </div>
         </div>
 
-        {/* View Suggestions - Only for non-owners */}
+        {/* View Suggestions - Only for owners */}
         {isOwner && (
           <div className="mt-12 flex justify-center">
             <button
@@ -688,9 +752,7 @@ export default function PetDetailPage() {
             {language === "mn" ? (
               <>
                 {t.shareDescription1}{" "}
-                <span className="font-bold">
-                  {pet.name || "амьтан"}
-                </span>
+                <span className="font-bold">{pet.name || "амьтан"}</span>
                 {t.shareDescription2} {isLost ? t.returnHome : t.findFamily}{" "}
                 {t.shareDescriptionEnd}
               </>
@@ -715,8 +777,7 @@ export default function PetDetailPage() {
               onClick={() => handleShare("twitter")}
               className="px-6 py-3 cursor-pointer bg-black hover:bg-gray-800 text-white rounded-full font-bold transition-all hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
             >
-              <XIcon />
-              X
+              <XIcon />X
             </button>
             <button
               onClick={() => handleShare("instagram")}
