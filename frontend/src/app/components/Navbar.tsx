@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
 import React, { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { FaAngleDown } from "react-icons/fa6";
 import {
   SignedIn,
   SignedOut,
@@ -14,15 +13,9 @@ import {
 } from "@clerk/nextjs";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter, usePathname } from "next/navigation";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { useLanguage } from "../contexts/Languagecontext";
-import {
-  Arrow,
-  Logo1,
-  NotificationIcon,
-  NotificationIcon2,
-  TriggerIcon,
-} from "./icons";
+import { Logo1, NotificationIcon2, TriggerIcon } from "./icons";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { useNotification } from "../contexts/Notificationcontext";
 
@@ -151,7 +144,7 @@ export function Navbar() {
             >
               <button
                 className={`px-4 py-2 rounded-lg cursor-pointer font-medium transition-all duration-300 relative flex items-center gap-1 ${
-                  isActive("browse") 
+                  isActive("browse")
                     ? "text-primary"
                     : "text-muted hover:text-primary"
                 }`}
@@ -177,7 +170,7 @@ export function Navbar() {
                   </svg>
                 </div>
 
-                {isActive("browse")  && (
+                {isActive("browse") && (
                   <div className="absolute bottom-0 left-4 right-4 h-1 bg-primary rounded-t-lg"></div>
                 )}
               </button>
