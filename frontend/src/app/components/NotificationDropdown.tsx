@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/app/contexts/Languagecontext";
 import { useNotification } from "@/app/contexts/Notificationcontext";
@@ -8,7 +7,6 @@ import { NotificationIcon, NotificationIcon2 } from "./icons";
 import { useRouter } from "next/navigation";
 
 export function NotificationDropdown() {
-  const router = useRouter();
   const { language } = useLanguage();
   const {
     notifications,

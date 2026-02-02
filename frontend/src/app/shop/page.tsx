@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ShoppingBag, Upload, X } from "lucide-react";
 import { useLanguage } from "../contexts/Languagecontext";
-import { get } from "http";
 
 interface Post {
   _id: number;
