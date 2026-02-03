@@ -290,7 +290,7 @@ export function Navbar() {
                     </div>
                   </Link>
                   <Link
-                    href="/hospital"
+                    href="/hostipal"
                     className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all"
                   >
                     <span className="text-lg">🏥</span>
