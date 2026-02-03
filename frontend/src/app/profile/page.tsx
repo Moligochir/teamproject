@@ -315,7 +315,7 @@ export default function ProfilePage() {
     if (!clerkUser?.id) return;
 
     try {
-      const res = await fetch(`http://localhost:8000/users`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -342,13 +342,16 @@ export default function ProfilePage() {
   // Get user's posts
   const GetUserPosts = async (userId: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/lostFound`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+          },
         },
-      });
+      );
       const data = await res.json();
 
       // ✅ Filter out hidden posts
@@ -409,7 +412,7 @@ export default function ProfilePage() {
 
     try {
       const res = await fetch(
-        `http://localhost:8000/lostFound/${selectedPost._id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound/${selectedPost._id}`,
         {
           method: "PUT",
           headers: {
@@ -470,7 +473,7 @@ export default function ProfilePage() {
 
     try {
       const res = await fetch(
-        `http://localhost:8000/lostFound/${selectedPost._id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound/${selectedPost._id}`,
         {
           method: "DELETE",
           headers: {
@@ -673,7 +676,7 @@ export default function ProfilePage() {
       const newHiddenStatus = !selectedPost.isHidden;
 
       const res = await fetch(
-        `http://localhost:8000/lostFound/${selectedPost._id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound/${selectedPost._id}`,
         {
           method: "PATCH",
           headers: {

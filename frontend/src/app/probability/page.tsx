@@ -128,7 +128,7 @@ export default function ProbabilityPage() {
         pet = JSON.parse(sessionPetData);
       } else if (petIdParam) {
         const res = await fetch(
-          `http://localhost:8000/lostFound/findid/${petIdParam}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound/findid/${petIdParam}`,
         );
         const data = await res.json();
         pet = Array.isArray(data) ? data[0] : data;
@@ -143,7 +143,9 @@ export default function ProbabilityPage() {
       setQueryPet(pet);
 
       // ✅ Fetch all pets for MatchSuggestions
-      const allPetsRes = await fetch("http://localhost:8000/lostFound");
+      const allPetsRes = await fetch(
+        "${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound",
+      );
       const allPetsData: MatchPet[] = await allPetsRes.json();
       setAllPets(allPetsData);
     } catch (error) {

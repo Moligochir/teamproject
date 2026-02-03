@@ -41,7 +41,7 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
   const GetAdopts = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:8000/adopt`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/adopt`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

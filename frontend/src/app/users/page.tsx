@@ -24,7 +24,7 @@ export default function AdminUsersPage() {
   // Fetch users from backend
   const GetAllUsers = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/users`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
