@@ -86,12 +86,6 @@ export default function AdminDashboard() {
       color: "bg-green-500",
       inner: <LostIcon />,
     },
-    {
-      label: "Шалган хүлээгдэж буй",
-      value: 0,
-      color: "bg-yellow-500",
-      inner: <ScheduleClipboardIcon />,
-    },
   ];
 
   // Format date
@@ -139,7 +133,7 @@ export default function AdminDashboard() {
       {/* Main */}
       <main className="flex-1 p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mt-8 mb-8">
           <div>
             <h1 className="text-3xl font-bold">Админ Dashboard</h1>
             <p className="text-muted">Системийн ерөнхий хяналт</p>

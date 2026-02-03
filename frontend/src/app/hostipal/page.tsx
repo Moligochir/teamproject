@@ -17,21 +17,24 @@ const exampleHospitals: Hospital[] = [
     id: 1,
     name: "UB Vet Animal Hospital",
     image: "/hospitals/ubvet.jpg",
-    address: "Хан-Уул дүүрэг, 19-р хороолол, Хан-Уул товертой уулзвараар урагшаа эргээд 300 метр яваад замын баруун талдаа байршиж байна.",
+    address:
+      "Хан-Уул дүүрэг, 19-р хороолол, Хан-Уул товертой уулзвараар урагшаа эргээд 300 метр яваад замын баруун талдаа байршиж байна.",
     phone: "+976 75073555",
   },
   {
     id: 2,
     name: "Жонон мал эмнэлэг",
     image: "/hospitals/жонон.jpg",
-    address: "Чингэлтэй дүүрэг, 6-р хороо Чикаго клубын зүүн талд ЖОНОН мал эмнэлэг",
+    address:
+      "Чингэлтэй дүүрэг, 6-р хороо Чикаго клубын зүүн талд ЖОНОН мал эмнэлэг",
     phone: "+976 8800 5566",
   },
   {
     id: 3,
     name: "SOS Pet Care & Salon",
     image: "/hospitals/sos.jpg",
-    address: "Баянзүрх дүүрэг, Их Монгол хороолол 904-р байр үйлчилгээний 1тоот",
+    address:
+      "Баянзүрх дүүрэг, Их Монгол хороолол 904-р байр үйлчилгээний 1тоот",
     phone: "+976 7600 1950",
   },
   {
@@ -72,7 +75,8 @@ export default function HospitalPage() {
     },
     en: {
       title: "Hospital",
-      description: "Share and discover hospital information within the community",
+      description:
+        "Share and discover hospital information within the community",
       allHospitals: "All Hospitals",
       total: "Total",
       hospitals: "hospitals",
@@ -112,9 +116,7 @@ export default function HospitalPage() {
           {hospitals.length === 0 ? (
             <div className="text-center py-20 bg-card-bg rounded-2xl border border-card-border">
               <div className="text-6xl mb-4">🏥</div>
-              <h3 className="text-xl font-bold mb-2">
-                {t.noHospitalsYet}
-              </h3>
+              <h3 className="text-xl font-bold mb-2">{t.noHospitalsYet}</h3>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
