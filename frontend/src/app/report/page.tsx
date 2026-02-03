@@ -265,17 +265,20 @@ export default function ReportPage() {
 
   const createUser = async () => {
     try {
-      const userInfo = await fetch(`http://localhost:8000/users`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clerkId: user?.id,
-          email: user?.primaryEmailAddress?.emailAddress,
-          name: user?.fullName,
-          role: "USER",
-          phonenumber: user?.phoneNumbers[0]?.phoneNumber || "",
-        }),
-      });
+      const userInfo = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            clerkId: user?.id,
+            email: user?.primaryEmailAddress?.emailAddress,
+            name: user?.fullName,
+            role: "USER",
+            phonenumber: user?.phoneNumbers[0]?.phoneNumber || "",
+          }),
+        },
+      );
       const data = await userInfo.json();
       console.log("CreateUseryn hariu", data);
     } catch (err) {
@@ -293,7 +296,7 @@ export default function ReportPage() {
 
   const GetUser = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/users`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -511,28 +514,31 @@ export default function ReportPage() {
   const handleAddChange = async () => {
     setIsSubmitting(true);
     try {
-      const res = await fetch(`http://localhost:8000/lostFound`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+          },
+          body: JSON.stringify({
+            role: formData.status === "lost" ? "Lost" : "Found",
+            petType: formData.type === "dog" ? "Dog" : "Cat",
+            name: formData.name,
+            breed: formData.breed,
+            gender: formData.gender,
+            Date: formData.date,
+            image: preview,
+            description: formData.description,
+            location: formData.location,
+            lat: formData.lat,
+            lng: formData.lng,
+            phonenumber: formData.contactPhone,
+            userId: FilterUser?._id,
+          }),
         },
-        body: JSON.stringify({
-          role: formData.status === "lost" ? "Lost" : "Found",
-          petType: formData.type === "dog" ? "Dog" : "Cat",
-          name: formData.name,
-          breed: formData.breed,
-          gender: formData.gender,
-          Date: formData.date,
-          image: preview,
-          description: formData.description,
-          location: formData.location,
-          lat: formData.lat,
-          lng: formData.lng,
-          phonenumber: formData.contactPhone,
-          userId: FilterUser?._id,
-        }),
-      });
+      );
       const result = await res.json();
       console.log("LostFound create hariu:", result.data);
 

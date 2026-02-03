@@ -85,11 +85,15 @@ export default function AdoptDetailPage() {
 
         // Try multiple endpoints
         let data;
-        let res = await fetch(`http://localhost:8000/adopt/${id}`);
+        let res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/adopt/${id}`,
+        );
 
         if (!res.ok) {
           // Fallback to adopts endpoint
-          res = await fetch(`http://localhost:8000/adopt/${id}`);
+          res = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/adopt/${id}`,
+          );
         }
 
         if (!res.ok) {

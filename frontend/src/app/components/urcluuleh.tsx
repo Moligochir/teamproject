@@ -26,7 +26,7 @@ type AdoptItem = {
   userId?: string;
 };
 type ResultType = {
-  Result: React.Dispatch<React.SetStateAction<boolean>>
+  Result: React.Dispatch<React.SetStateAction<boolean>>;
 };
 export function UrcluulehPage({ Result }: ResultType) {
   const { user } = useUser();
@@ -202,10 +202,13 @@ export function UrcluulehPage({ Result }: ResultType) {
 
     (async () => {
       try {
-        const res = await fetch(`http://localhost:8000/adopt/${id}`, {
-          method: "GET",
-          headers: { accept: "application/json" },
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/adopt/${id}`,
+          {
+            method: "GET",
+            headers: { accept: "application/json" },
+          },
+        );
 
         const json = await res.json();
         const item: AdoptItem = json?.data ?? json;
@@ -290,7 +293,7 @@ export function UrcluulehPage({ Result }: ResultType) {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
- const [Data, setData] = useState<any>(null);
+  const [Data, setData] = useState<any>(null);
   // ====== Submit (POST or PUT) ======
   const handleSubmit = async () => {
     if (!validateForm()) {
@@ -319,8 +322,8 @@ export function UrcluulehPage({ Result }: ResultType) {
       };
 
       const url = isEdit
-        ? `http://localhost:8000/adopt/${id}`
-        : `http://localhost:8000/adopt`;
+        ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/adopt/${id}`
+        : `${process.env.NEXT_PUBLIC_BACKEND_URL}/adopt`;
 
       const method = isEdit ? "PUT" : "POST";
 
@@ -357,7 +360,6 @@ export function UrcluulehPage({ Result }: ResultType) {
       // setTimeout(() => {
       //   router.push(`/`);
       // }, 2000); // Wait 2 seconds to show the toast
-     
     } catch (err) {
       console.log(err);
       toast.error(t.submitError, {
@@ -390,9 +392,8 @@ export function UrcluulehPage({ Result }: ResultType) {
     }
   };
 
-  return ( 
+  return (
     <div className="space-y-6">
-      
       {/* Animal Type */}
       <div className="bg-card-bg rounded-2xl border border-card-border p-6">
         <h2 className="text-xl font-bold mb-4">{t.petTypeTitle}</h2>
@@ -683,7 +684,7 @@ export function UrcluulehPage({ Result }: ResultType) {
       </div>
 
       {/* Actions */}
-     
+
       <div className="flex flex-col sm:flex-row gap-4">
         <button
           type="button"
@@ -708,7 +709,6 @@ export function UrcluulehPage({ Result }: ResultType) {
           {t.cancel}
         </Link>
       </div>
-    </div> 
-  
- )   
+    </div>
+  );
 }

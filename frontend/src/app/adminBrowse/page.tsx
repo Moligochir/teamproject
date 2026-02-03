@@ -34,13 +34,16 @@ export default function AdminPetsPage() {
   // Fetch pets from backend
   const GetAllPets = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/lostFound`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+          },
         },
-      });
+      );
       const data = await res.json();
       console.log("Fetched pets:", data);
       setAllPets(data);
@@ -83,12 +86,15 @@ export default function AdminPetsPage() {
   // Delete pet
   const handleDeletePet = async (petId: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/lostFound/${petId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound/${petId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
 
       if (res.ok) {
         setAllPets(allPets.filter((pet) => pet._id !== petId));

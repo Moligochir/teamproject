@@ -178,13 +178,16 @@ export default function ShopPage() {
 
       console.log("📤 Sending payload:", payload);
 
-      const response = await fetch(`http://localhost:8000/shop`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/shop`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
         },
-        body: JSON.stringify(payload),
-      });
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -225,7 +228,7 @@ export default function ShopPage() {
       setLoading(true);
       console.log("🔄 Fetching products...");
 
-      const res = await fetch(`http://localhost:8000/shop`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/shop`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
