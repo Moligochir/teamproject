@@ -5,8 +5,8 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import { Shop } from "./routes/shop";
-const app = express();
 const port = 8000;
+const app = express();
 
 app.use(express.json());
 app.use(cors());
