@@ -1,7 +1,18 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import MapLocationPicker from "../components/mapLocationPicker";
+import dynamic from "next/dynamic";
+const MapLocationPicker = dynamic(
+  () => import("../components/mapLocationPicker"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-64 flex items-center justify-center text-muted">
+        Газрын зураг ачаалж байна...
+      </div>
+    ),
+  },
+);
 import { DeleteIcon, EditIcon } from "../components/icons";
 import { useUser } from "@clerk/nextjs";
 import * as React from "react";
