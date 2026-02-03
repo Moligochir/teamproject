@@ -144,7 +144,7 @@ export default function ProbabilityPage() {
 
       // ✅ Fetch all pets for MatchSuggestions
       const allPetsRes = await fetch(
-        "${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound`,
       );
       const allPetsData: MatchPet[] = await allPetsRes.json();
       setAllPets(allPetsData);
