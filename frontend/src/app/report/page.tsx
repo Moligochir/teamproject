@@ -41,6 +41,7 @@ type MatchResponse = {
   data: MatchData[];
   dataLength: number;
 };
+
 const BreedData = [
   {
     id: "1",
@@ -59,6 +60,7 @@ const BreedData = [
     Breed: "Golden Retru",
   },
 ];
+
 const UPLOAD_PRESET = "Pawpew";
 const CLOUD_NAME = "dyduodw7q";
 
@@ -626,8 +628,8 @@ export default function ReportPage() {
   // ✅ Show redirecting screen
   if (redirecting) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-6">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="text-center space-y-6 w-full max-w-sm">
           <div className="flex justify-center">
             <div className="relative w-20 h-20">
               <div className="absolute inset-0 rounded-full border-4 border-primary/20"></div>
@@ -636,7 +638,7 @@ export default function ReportPage() {
           </div>
           <div>
             <h2 className="text-2xl font-bold mb-2">{t.matchFound}</h2>
-            <p className="text-muted">{t.redirecting}</p>
+            <p className="text-muted text-sm sm:text-base">{t.redirecting}</p>
           </div>
           <div className="flex gap-2 justify-center">
             <div
@@ -659,11 +661,11 @@ export default function ReportPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen py-12 flex items-center justify-center">
-        <div className="max-w-md mx-auto text-center px-4">
-          <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+      <div className="min-h-screen py-8 sm:py-12 flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg
-              className="w-12 h-12 text-green-500"
+              className="w-10 h-10 sm:w-12 sm:h-12 text-green-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -676,11 +678,15 @@ export default function ReportPage() {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold mb-4">{t.successTitle}</h1>
-          <p className="text-muted mb-8">{t.successDescription}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4">
+            {t.successTitle}
+          </h1>
+          <p className="text-muted mb-6 sm:mb-8 text-sm sm:text-base">
+            {t.successDescription}
+          </p>
           {match && match.length > 0 && (
-            <div className="mb-8 p-4 bg-primary/10 rounded-xl border border-primary/20">
-              <p className="text-sm font-semibold text-primary mb-2">
+            <div className="mb-6 sm:mb-8 p-4 bg-primary/10 rounded-xl border border-primary/20">
+              <p className="text-xs sm:text-sm font-semibold text-primary mb-2">
                 {t.matchesFound.replace("{count}", match.length.toString())}
               </p>
               <div className="space-y-2">
@@ -695,10 +701,10 @@ export default function ReportPage() {
               </div>
             </div>
           )}
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <div className="flex flex-col gap-3">
             <Link
               href="/browse"
-              className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all"
+              className="w-full px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all"
             >
               {t.viewListings}
             </Link>
@@ -706,7 +712,7 @@ export default function ReportPage() {
             {createdPetId && (
               <Link
                 href={`/probability?petId=${createdPetId}`}
-                className="px-8 py-3 bg-card-bg border border-card-border rounded-full font-semibold text-center hover:border-primary transition"
+                className="w-full px-6 py-3 bg-card-bg border border-card-border rounded-full font-semibold text-center hover:border-primary transition"
               >
                 {t.viewProbability}
               </Link>
@@ -718,96 +724,112 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="min-h-screen py-12">
+    <div className="min-h-screen py-6 sm:py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">{t.pageTitle}</h1>
-          <p className="text-muted text-lg max-w-2xl mx-auto">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">
+            {t.pageTitle}
+          </h1>
+          <p className="text-muted text-sm sm:text-base lg:text-lg max-w-2xl mx-auto">
             {t.pageDescription}
           </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
           {/* Status Selection */}
-          <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-            <h2 className="text-xl font-bold mb-4">{t.statusTitle}</h2>
-            <div className="grid grid-cols-2 gap-4">
+          <div className="bg-card-bg rounded-2xl border border-card-border p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold mb-4">
+              {t.statusTitle}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() =>
                   setFormData((prev) => ({ ...prev, status: "lost" }))
                 }
-                className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
+                className={`p-4 sm:p-6 rounded-xl border-2 cursor-pointer transition-all ${
                   formData.status === "lost"
                     ? "border-red-500 bg-red-500/10"
                     : "border-card-border hover:border-red-500/50"
                 }`}
               >
-                <div className="text-4xl mb-2">🔍</div>
-                <div className="font-bold text-lg">{t.lostPet}</div>
-                <p className="text-sm text-muted mt-1">{t.lostPetDesc}</p>
+                <div className="text-3xl sm:text-4xl mb-2">🔍</div>
+                <div className="font-bold text-base sm:text-lg">
+                  {t.lostPet}
+                </div>
+                <p className="text-xs sm:text-sm text-muted mt-1">
+                  {t.lostPetDesc}
+                </p>
               </button>
               <button
                 type="button"
                 onClick={() =>
                   setFormData((prev) => ({ ...prev, status: "found" }))
                 }
-                className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
+                className={`p-4 sm:p-6 rounded-xl border-2 cursor-pointer transition-all ${
                   formData.status === "found"
                     ? "border-green-500 bg-green-500/10"
                     : "border-card-border hover:border-green-500/50"
                 }`}
               >
-                <div className="text-4xl mb-2">✓</div>
-                <div className="font-bold text-lg">{t.foundPet}</div>
-                <p className="text-sm text-muted mt-1">{t.foundPetDesc}</p>
+                <div className="text-3xl sm:text-4xl mb-2">✓</div>
+                <div className="font-bold text-base sm:text-lg">
+                  {t.foundPet}
+                </div>
+                <p className="text-xs sm:text-sm text-muted mt-1">
+                  {t.foundPetDesc}
+                </p>
               </button>
             </div>
           </div>
 
           {/* Pet Type */}
-          <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-            <h2 className="text-xl font-bold mb-4">{t.petTypeTitle}</h2>
-            <div className="grid grid-cols-2 gap-4">
+          <div className="bg-card-bg rounded-2xl border border-card-border p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold mb-4">
+              {t.petTypeTitle}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() =>
                   setFormData((prev) => ({ ...prev, type: "dog" }))
                 }
-                className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
+                className={`p-4 sm:p-6 rounded-xl border-2 cursor-pointer transition-all ${
                   formData.type === "dog"
                     ? "border-primary bg-primary/10"
                     : "border-card-border hover:border-primary/50"
                 }`}
               >
-                <div className="text-4xl mb-2">🐕</div>
-                <div className="font-bold text-lg">{t.dog}</div>
+                <div className="text-3xl sm:text-4xl mb-2">🐕</div>
+                <div className="font-bold text-base sm:text-lg">{t.dog}</div>
               </button>
               <button
                 type="button"
                 onClick={() =>
                   setFormData((prev) => ({ ...prev, type: "cat" }))
                 }
-                className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
+                className={`p-4 sm:p-6 rounded-xl border-2 cursor-pointer transition-all ${
                   formData.type === "cat"
                     ? "border-primary bg-primary/10"
                     : "border-card-border hover:border-primary/50"
                 }`}
               >
-                <div className="text-4xl mb-2">🐱</div>
-                <div className="font-bold text-lg">{t.cat}</div>
+                <div className="text-3xl sm:text-4xl mb-2">🐱</div>
+                <div className="font-bold text-base sm:text-lg">{t.cat}</div>
               </button>
             </div>
           </div>
 
           {/* Pet Details */}
-          <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-            <h2 className="text-xl font-bold mb-4">{t.petDetailsTitle}</h2>
-            <div className="grid md:grid-cols-2 gap-4">
+          <div className="bg-card-bg rounded-2xl border border-card-border p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold mb-4">
+              {t.petDetailsTitle}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-xs sm:text-sm font-medium mb-2">
                   {t.petName}
                   {formData.status === "found" && (
                     <span className="text-muted"> {t.ifKnown}</span>
@@ -819,12 +841,12 @@ export default function ReportPage() {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder={t.petNamePlaceholder}
-                  className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-xs sm:text-sm font-medium mb-2">
                   {t.breed}
                 </label>
                 <input
@@ -833,19 +855,21 @@ export default function ReportPage() {
                   value={formData.breed}
                   onChange={handleChange}
                   placeholder={t.breedPlaceholder}
-                  className={`w-full px-4 py-3 bg-background border ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 bg-background border ${
                     errors.breed ? "border-red-500" : "border-card-border"
-                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base`}
                 />
                 {errors.breed && (
-                  <p className="mt-1 text-sm text-red-500">{t.breedRequired}</p>
+                  <p className="mt-1 text-xs sm:text-sm text-red-500">
+                    {t.breedRequired}
+                  </p>
                 )}
               </div>
 
               <div>
                 <label
                   htmlFor="gender"
-                  className="block text-sm font-medium mb-2"
+                  className="block text-xs sm:text-sm font-medium mb-2"
                 >
                   {t.gender}
                 </label>
@@ -855,16 +879,16 @@ export default function ReportPage() {
                     name="gender"
                     value={formData.gender}
                     onChange={handleChange}
-                    className={`w-full h-12 px-4 pr-10 bg-background border cursor-pointer ${
+                    className={`w-full h-10 sm:h-12 px-3 sm:px-4 pr-8 bg-background border cursor-pointer ${
                       errors.gender ? "border-red-500" : "border-card-border"
-                    } rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
+                    } rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base`}
                   >
                     <option value="">{t.selectGender}</option>
                     <option value="Male">{t.male}</option>
                     <option value="Female">{t.female}</option>
                     <option value="Unknown">{t.unknown}</option>
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center ">
+                  <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
                     <svg
                       className="h-4 w-4 text-muted-foreground"
                       viewBox="0 0 20 20"
@@ -879,14 +903,14 @@ export default function ReportPage() {
                   </div>
                 </div>
                 {errors.gender && (
-                  <p className="mt-1 text-sm text-red-500">
+                  <p className="mt-1 text-xs sm:text-sm text-red-500">
                     {t.genderRequired}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-xs sm:text-sm font-medium mb-2">
                   {formData.status === "lost" ? t.lastSeenDate : t.foundDate}
                 </label>
                 <input
@@ -894,17 +918,19 @@ export default function ReportPage() {
                   name="date"
                   value={formData.date}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 bg-background border ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 bg-background border ${
                     errors.date ? "border-red-500" : "border-card-border"
-                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base`}
                 />
                 {errors.date && (
-                  <p className="mt-1 text-sm text-red-500">{t.dateRequired}</p>
+                  <p className="mt-1 text-xs sm:text-sm text-red-500">
+                    {t.dateRequired}
+                  </p>
                 )}
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-2">
+              <div className="sm:col-span-2">
+                <label className="block text-xs sm:text-sm font-medium mb-2">
                   {formData.status === "lost"
                     ? t.lastSeenLocation
                     : t.foundLocation}
@@ -927,14 +953,14 @@ export default function ReportPage() {
                   />
                 </div>
                 {errors.location && (
-                  <p className="mt-1 text-sm text-red-500">
+                  <p className="mt-1 text-xs sm:text-sm text-red-500">
                     {t.locationRequired}
                   </p>
                 )}
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-2">
+              <div className="sm:col-span-2">
+                <label className="block text-xs sm:text-sm font-medium mb-2">
                   {t.description}
                 </label>
                 <textarea
@@ -942,13 +968,13 @@ export default function ReportPage() {
                   value={formData.description}
                   onChange={handleChange}
                   placeholder={t.descriptionPlaceholder}
-                  rows={4}
-                  className={`w-full px-4 py-3 bg-background border ${
+                  rows={3}
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 bg-background border ${
                     errors.description ? "border-red-500" : "border-card-border"
-                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none`}
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-sm sm:text-base`}
                 />
                 {errors.description && (
-                  <p className="mt-1 text-sm text-red-500">
+                  <p className="mt-1 text-xs sm:text-sm text-red-500">
                     {t.descriptionRequired}
                   </p>
                 )}
@@ -957,20 +983,26 @@ export default function ReportPage() {
           </div>
 
           {/* Photo Upload */}
-          <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-            <h2 className="text-xl font-bold mb-4">{t.photoTitle}</h2>
+          <div className="bg-card-bg rounded-2xl border border-card-border p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold mb-4">
+              {t.photoTitle}
+            </h2>
             <div className="relative">
               {!preview ? (
                 <label
                   htmlFor="image-upload"
                   className={`border-2 border-dashed ${
                     errors.image ? "border-red-500" : "border-card-border"
-                  } rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer block`}
+                  } rounded-xl p-6 sm:p-8 text-center hover:border-primary/50 transition-colors cursor-pointer block`}
                 >
                   {!uploading ? (
                     <div>
-                      <div className="text-4xl mb-3">📷</div>
-                      <p className="font-medium mb-1">{t.uploadPhoto}</p>
+                      <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">
+                        📷
+                      </div>
+                      <p className="font-medium text-sm sm:text-base mb-1">
+                        {t.uploadPhoto}
+                      </p>
                       <p className="text-xs text-muted mt-2">
                         {t.imageFormats}
                       </p>
@@ -984,7 +1016,9 @@ export default function ReportPage() {
                       />
                     </div>
                   ) : (
-                    <p className="font-medium">{t.uploadingPhoto}</p>
+                    <p className="font-medium text-sm sm:text-base">
+                      {t.uploadingPhoto}
+                    </p>
                   )}
                 </label>
               ) : (
@@ -1020,17 +1054,21 @@ export default function ReportPage() {
                 </div>
               )}
               {errors.image && (
-                <p className="mt-2 text-sm text-red-500">{t.imageRequired}</p>
+                <p className="mt-2 text-xs sm:text-sm text-red-500">
+                  {t.imageRequired}
+                </p>
               )}
             </div>
           </div>
 
           {/* Contact Information */}
-          <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-            <h2 className="text-xl font-bold mb-4">{t.contactTitle}</h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-2">
+          <div className="bg-card-bg rounded-2xl border border-card-border p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold mb-4">
+              {t.contactTitle}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="block text-xs sm:text-sm font-medium mb-2">
                   {t.yourName}
                 </label>
                 <input
@@ -1039,16 +1077,18 @@ export default function ReportPage() {
                   value={formData.contactName!}
                   onChange={handleChange}
                   placeholder={t.namePlaceholder}
-                  className={`w-full px-4 py-3 bg-background border ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 bg-background border ${
                     errors.contactName ? "border-red-500" : "border-card-border"
-                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base`}
                 />
                 {errors.contactName && (
-                  <p className="mt-1 text-sm text-red-500">{t.nameRequired}</p>
+                  <p className="mt-1 text-xs sm:text-sm text-red-500">
+                    {t.nameRequired}
+                  </p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-xs sm:text-sm font-medium mb-2">
                   {t.email}
                 </label>
                 <input
@@ -1057,46 +1097,50 @@ export default function ReportPage() {
                   value={formData.contactEmail!}
                   onChange={handleChange}
                   placeholder={t.emailPlaceholder}
-                  className={`w-full px-4 py-3 bg-background border ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 bg-background border ${
                     errors.contactEmail
                       ? "border-red-500"
                       : "border-card-border"
-                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base`}
                 />
                 {errors.contactEmail && (
-                  <p className="mt-1 text-sm text-red-500">{t.emailRequired}</p>
+                  <p className="mt-1 text-xs sm:text-sm text-red-500">
+                    {t.emailRequired}
+                  </p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-xs sm:text-sm font-medium mb-2">
                   {t.phone}
                 </label>
                 <input
-                  type="telephone"
+                  type="tel"
                   name="contactPhone"
                   value={formData.contactPhone!}
                   onChange={handleChange}
                   placeholder={t.phonePlaceholder}
                   maxLength={8}
-                  className={`w-full px-4 py-3 bg-background border ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 bg-background border ${
                     errors.contactPhone
                       ? "border-red-500"
                       : "border-card-border"
-                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base`}
                 />
                 {errors.contactPhone && (
-                  <p className="mt-1 text-sm text-red-500">{t.phoneInvalid}</p>
+                  <p className="mt-1 text-xs sm:text-sm text-red-500">
+                    {t.phoneInvalid}
+                  </p>
                 )}
               </div>
             </div>
           </div>
 
           {/* Submit */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
               type="submit"
               disabled={!isFormValid() || isSubmitting}
-              className={`flex-1 px-8 py-4 text-white rounded-full font-bold text-lg transition-all ${
+              className={`flex-1 px-6 sm:px-8 py-3 sm:py-4 text-white rounded-full font-bold text-sm sm:text-lg transition-all ${
                 !isFormValid() || isSubmitting
                   ? "bg-gray-400 cursor-not-allowed opacity-60"
                   : "bg-primary hover:bg-primary-dark cursor-pointer hover:shadow-xl hover:shadow-primary/30"
@@ -1104,8 +1148,9 @@ export default function ReportPage() {
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  {t.submitting}
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span className="hidden sm:inline">{t.submitting}</span>
+                  <span className="sm:hidden">⏳</span>
                 </>
               ) : (
                 t.submit
@@ -1115,7 +1160,7 @@ export default function ReportPage() {
               type="button"
               onClick={() => setQuit(true)}
               disabled={isSubmitting}
-              className={`px-8 py-4 border border-card-border text-foreground rounded-full font-bold text-lg transition-all text-center ${
+              className={`px-6 sm:px-8 py-3 sm:py-4 border border-card-border text-foreground rounded-full font-bold text-sm sm:text-lg transition-all text-center ${
                 isSubmitting
                   ? "bg-gray-200 cursor-not-allowed opacity-60"
                   : "bg-card-bg cursor-pointer hover:border-primary"
@@ -1124,21 +1169,21 @@ export default function ReportPage() {
               {t.cancel}
             </button>
             {quit && (
-              <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-9999 flex justify-center items-center">
-                <div className="bg-card-bg rounded-lg shadow-lg w-90 h-40 border border-card-border">
-                  <div className="p-5 flex flex-col justify-center gap-10">
-                    <p className="text-foreground text-[20px] font-semibold">
+              <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex justify-center items-center p-4">
+                <div className="bg-card-bg rounded-2xl shadow-lg w-full max-w-sm border border-card-border p-6">
+                  <div className="flex flex-col gap-6">
+                    <p className="text-foreground text-lg sm:text-xl font-semibold">
                       {t.quitTitle}
                     </p>
-                    <div className="flex gap-8 justify-center">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
                       <button
                         onClick={() => setQuit(false)}
-                        className="px-6 py-3 rounded-lg shadow-lg cursor-pointer bg-primary hover:bg-primary-dark text-white"
+                        className="px-6 py-3 rounded-lg shadow-lg cursor-pointer bg-primary hover:bg-primary-dark text-white font-semibold text-sm sm:text-base"
                       >
                         {t.continueReport}
                       </button>
-                      <Link href={"/"}>
-                        <button className="px-6 py-3 rounded-lg shadow-lg cursor-pointer bg-red-500 hover:bg-red-600 text-white">
+                      <Link href={"/"} className="w-full sm:w-auto">
+                        <button className="w-full px-6 py-3 rounded-lg shadow-lg cursor-pointer bg-red-500 hover:bg-red-600 text-white font-semibold text-sm sm:text-base">
                           {t.quit}
                         </button>
                       </Link>

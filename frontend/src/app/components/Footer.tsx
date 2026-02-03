@@ -46,93 +46,96 @@ export default function Footer() {
     <footer className="bg-card-bg border-t border-card-border py-12 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
+          {/* Brand */}
+          <div className="md:col-span-2 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
               <div className="w-11 h-11 rounded-xl bg-primary flex items-center justify-center">
                 <Logo1 />
               </div>
               <span className="text-xl font-bold">PawFinder</span>
             </div>
-            <p className="text-muted max-w-md">{t.description}</p>
+            <p className="text-muted max-w-md mx-auto md:mx-0">
+              {t.description}
+            </p>
           </div>
 
-          <div>
-            <h3 className="font-semibold mb-4">{t.quickLinks}</h3>
-            <ul className="space-y-4 text-muted">
-              <li>
-                <Link
-                  href="/browse"
-                  className="hover:text-[#e47a3d] transition-all duration-300"
-                >
-                  {t.browse}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/report"
-                  className="hover:text-[#e47a3d] transition-all duration-300"
-                >
-                  {t.report}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/about"
-                  className="hover:text-[#e47a3d] transition-all duration-300"
-                >
-                  {t.about}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/map"
-                  className={`hover:text-[#e47a3d] transition-all duration-300`}
-                >
-                  {t.map}
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* Mobile flex wrapper */}
+          <div className="flex justify-center gap-30 md:contents">
+            {/* Quick Links */}
+            <div className="text-center md:text-left">
+              <h3 className="font-semibold mb-4">{t.quickLinks}</h3>
+              <ul className="space-y-4 text-muted">
+                <li>
+                  <Link
+                    href="/browse"
+                    className="hover:text-primary transition"
+                  >
+                    {t.browse}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/report"
+                    className="hover:text-primary transition"
+                  >
+                    {t.report}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about" className="hover:text-primary transition">
+                    {t.about}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/map" className="hover:text-primary transition">
+                    {t.map}
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-          <div>
-            <h3 className="font-semibold mb-4">{t.categories}</h3>
-            <ul className="space-y-2 text-muted">
-              <li>
-                <Link
-                  href="/browse?type=dog"
-                  className="hover:text-[#e47a3d] transition-all duration-300"
-                >
-                  {t.dog}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/browse?type=cat"
-                  className="hover:text-[#e47a3d] transition-all duration-300"
-                >
-                  {t.cat}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/browse?status=lost"
-                  className="hover:text-[#e47a3d] transition-all duration-300"
-                >
-                  {t.lost}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/browse?status=found"
-                  className="hover:text-[#e47a3d] transition-all duration-300"
-                >
-                  {t.found}
-                </Link>
-              </li>
-            </ul>
+            {/* Categories */}
+            <div className="text-center md:text-left">
+              <h3 className="font-semibold mb-4">{t.categories}</h3>
+              <ul className="space-y-2 text-muted">
+                <li>
+                  <Link
+                    href="/browse?type=dog"
+                    className="hover:text-primary transition"
+                  >
+                    {t.dog}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/browse?type=cat"
+                    className="hover:text-primary transition"
+                  >
+                    {t.cat}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/browse?status=lost"
+                    className="hover:text-primary transition"
+                  >
+                    {t.lost}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/browse?status=found"
+                    className="hover:text-primary transition"
+                  >
+                    {t.found}
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
+        {/* Bottom */}
         <div className="border-t border-card-border mt-8 pt-8 text-center text-muted">
           <p>{t.copyright}</p>
         </div>

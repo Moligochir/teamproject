@@ -709,11 +709,11 @@ export default function PetDetailPage() {
               (pet.userId.email ||
                 pet.userId.phonenumber ||
                 pet.phonenumber) && (
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col  gap-3">
                   {pet.userId?.email && (
                     <a
                       href={`mailto:${pet.userId.email}?subject=${isLost ? t.lost : t.found} ${isDog ? t.dog : t.cat}: ${pet.name}`}
-                      className="flex gap-2 items-center px-6 py-4 bg-primary hover:shadow-lg hover:shadow-orange-500/30 text-white rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95 cursor-pointer"
+                      className="flex justify-center gap-2 items-center px-6 py-4 bg-primary hover:shadow-lg hover:shadow-orange-500/30 text-white rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95 cursor-pointer"
                     >
                       {t.emailContact}
                       <EmailIcon />
@@ -722,7 +722,7 @@ export default function PetDetailPage() {
                   {(pet.userId?.phonenumber || pet.phonenumber) && (
                     <a
                       href={`tel:${pet.userId?.phonenumber || pet.phonenumber}`}
-                      className="flex items-center gap-2 px-6 py-4 bg-card-bg border-2 border-card-border hover:border-primary text-foreground rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95 cursor-pointer"
+                      className="flex items-center justify-center gap-2 px-6 py-4 bg-card-bg border-2 border-card-border hover:border-primary text-foreground rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95 cursor-pointer"
                     >
                       {t.phoneContact}
                       <PhoneIcon />
