@@ -28,8 +28,8 @@ type lostFound = {
 
 export default function AdminDashboard() {
   const [filter, setFilter] = useState("all");
-  const [animalData, setAnimalData] = useState<lostFound[]>([]);
   const [loading, setLoading] = useState(true);
+  const [animalData, setAnimalData] = useState<lostFound[]>([]);
 
   const GetLostFound = async () => {
     try {
