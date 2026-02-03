@@ -92,18 +92,10 @@ export default function UBMap() {
     return r === "lost" || role === "Төөрсөн";
   };
 
-  const apiBase = process.env.NEXT_PUBLIC_API_URL;
-
   const fetchLostFound = async () => {
     try {
       setError(null);
       setLoading(true);
-
-      if (!apiBase) {
-        throw new Error(
-          "NEXT_PUBLIC_API_URL тохируулаагүй байна. Local дээр frontend/.env.local, Vercel дээр Environment Variables дээр нэм.",
-        );
-      }
 
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound`,
