@@ -105,14 +105,17 @@ export default function UBMap() {
         );
       }
 
-      const res = await fetch(`${apiBase}/lostFound`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+          },
+          cache: "no-store",
         },
-        cache: "no-store",
-      });
+      );
 
       if (!res.ok) {
         const txt = await res.text();
