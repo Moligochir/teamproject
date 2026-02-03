@@ -96,7 +96,6 @@ export default function UBMap() {
     try {
       setError(null);
       setLoading(true);
-
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound`,
         {
