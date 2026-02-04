@@ -7,10 +7,19 @@ import { useParams, useRouter } from "next/navigation";
 import { DeleteIcon, EditIcon } from "./icons";
 import { useLanguage } from "../contexts/Languagecontext";
 import toast from "react-hot-toast";
+import { lstat } from "fs";
 
 const UPLOAD_PRESET = "Pawpew";
 const CLOUD_NAME = "dyduodw7q";
-
+type User = {
+  _id: string;
+  clerkId: string;
+  email: string;
+  name?: string;
+  role?: "ADMIN" | "USER";
+  createdAt?: string;
+  updatedAt?: string;
+};
 type AdoptItem = {
   _id: string;
   petType: "Dog" | "Cat";
@@ -53,7 +62,38 @@ export function UrcluulehPage({ Result }: ResultType) {
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const inputRef = useRef<HTMLInputElement | null>(null);
-
+  const [usersdata, setUsersData] = useState<User[]>([]);
+  const GetUser = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+      const data = await res.json();
+      console.log("User data:", data);
+      setUsersData(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    if (user) {
+      GetUser();
+    }
+  }, [user]);
+  const FilterUser = usersdata.find((u) => u.clerkId === user?.id);
+  useEffect(() => {
+    if (FilterUser) {
+      setFormData((prev) => ({
+        ...prev,
+        contactName: FilterUser.name || "",
+        contactEmail: FilterUser.email || "",
+      }));
+    }
+  }, [FilterUser]);
   const translations = {
     mn: {
       petTypeTitle: "Амьтны төрөл",
@@ -224,6 +264,8 @@ export function UrcluulehPage({ Result }: ResultType) {
           contactName: item.contactName || prev.contactName,
           contactEmail: item.contactEmail || prev.contactEmail,
           contactPhone: item.contactPhone || "",
+          userId: FilterUser?._id || "",
+          phonenumber: item.contactPhone || "",
         }));
 
         setPreview(item.image || null);
@@ -295,7 +337,9 @@ export function UrcluulehPage({ Result }: ResultType) {
   };
   const [Data, setData] = useState<any>(null);
   // ====== Submit (POST or PUT) ======
+  // ====== Submit (POST or PUT) ======
   const handleSubmit = async () => {
+    // 1️⃣ Form validation
     if (!validateForm()) {
       const firstErrorKey = Object.keys(errors)[0];
       const element = document.getElementsByName(firstErrorKey)[0];
@@ -305,8 +349,20 @@ export function UrcluulehPage({ Result }: ResultType) {
       return;
     }
 
+    // 2️⃣ MongoDB user олдсон эсэхийг шалгана
+    if (!FilterUser || !FilterUser._id) {
+      toast.error(
+        language === "mn"
+          ? "Хэрэглэгчийн мэдээлэл олдсонгүй"
+          : "User not found",
+      );
+      return;
+    }
+
     setSubmitting(true);
+
     try {
+      // 3️⃣ Backend руу явах payload (ЗӨВ userId)
       const payload = {
         petType: formData.petType === "dog" ? "Dog" : "Cat",
         name: formData.name,
@@ -318,9 +374,12 @@ export function UrcluulehPage({ Result }: ResultType) {
         contactName: formData.contactName,
         contactEmail: formData.contactEmail,
         contactPhone: formData.contactPhone,
-        userId: user?.id,
+
+        // ✅ ЭНЭ БОЛ ГОЛ ЗАСВАР
+        userId: FilterUser._id, // MongoDB User _id
       };
 
+      // 4️⃣ POST эсвэл PUT
       const url = isEdit
         ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/adopt/${id}`
         : `${process.env.NEXT_PUBLIC_BACKEND_URL}/adopt`;
@@ -336,47 +395,26 @@ export function UrcluulehPage({ Result }: ResultType) {
         body: JSON.stringify(payload),
       });
 
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        throw new Error(data?.message || `HTTP ${res.status}`);
       }
 
-      const data = await res.json();
-      console.log("Saved:", data);
-      // ✅ Show success toast
+      // 5️⃣ Амжилттай
       toast.success(t.submittedSuccess, {
         duration: 2000,
         position: "top-center",
-        style: {
-          background: "#10b981",
-          color: "#fff",
-          padding: "16px",
-          borderRadius: "8px",
-          fontSize: "16px",
-          fontWeight: "bold",
-        },
       });
 
-      // ✅ Wait for toast to show, then redirect
-      // setTimeout(() => {
-      //   router.push(`/`);
-      // }, 2000); // Wait 2 seconds to show the toast
+      Result(true);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       toast.error(t.submitError, {
         duration: 2000,
         position: "top-center",
-        style: {
-          background: "#ef4444",
-          color: "#fff",
-          padding: "16px",
-          borderRadius: "8px",
-          fontSize: "16px",
-          fontWeight: "bold",
-        },
       });
     } finally {
       setSubmitting(false);
-      Result(true);
     }
   };
 
