@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useLanguage } from "../contexts/Languagecontext";
 import { UrcluulehPage } from "../components/urcluuleh";
 import { UrclehPage } from "../components/urcleh";
-import { Link } from "lucide-react";
+import Link from "next/link";
 
 export default function ReportPage() {
   const [showPeople, setShowPeople] = useState(false);
@@ -24,6 +24,9 @@ export default function ReportPage() {
       posttype2: "Амьтан үрчилж авах",
       dood1: "Амьтанд эзэн хайж байна",
       dood2: "Амьтан үрчилж авмаар байна",
+      successTitle: "Мэдээлэл амжилттай илгээгдлээ",
+      
+      successButton: "Нүүр хуудас руу буцах",
     },
     en: {
       createPost: "Submit Report",
@@ -34,6 +37,9 @@ export default function ReportPage() {
       posttype2: "Adopt a Pet",
       dood1: "Looking for an owner",
       dood2: "Looking to adopt a pet",
+      successTitle: "Data submitted successfully",
+      
+      successButton: "Go to home page",
     },
   };
 
@@ -120,16 +126,17 @@ export default function ReportPage() {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold mb-4">bas neg ym</h1>
-          <p className="text-muted mb-8">neg ym baigaa bha</p>
+          <h1 className="text-3xl font-bold mb-4">{t.successTitle}</h1>
+         
           
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link
               href="/browse"
               className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all"
             >
-             sdfghj
+              <p className="text-white">{t.successButton}</p>
             </Link>
+            
           </div>
         </div>
       </div>)}</>
