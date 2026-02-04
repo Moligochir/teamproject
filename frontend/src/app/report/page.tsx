@@ -19,6 +19,7 @@ import * as React from "react";
 import { useLanguage } from "../contexts/Languagecontext";
 import { useNotification } from "../contexts/Notificationcontext";
 import { useRouter } from "next/navigation";
+import { FaCalendarAlt } from "react-icons/fa";
 
 type User = {
   _id: string;
@@ -393,6 +394,7 @@ export default function ReportPage() {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const dateInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleEdit = () => {
     inputRef.current?.click();
@@ -919,15 +921,26 @@ export default function ReportPage() {
                 <label className="block text-xs sm:text-sm font-medium mb-2">
                   {formData.status === "lost" ? t.lastSeenDate : t.foundDate}
                 </label>
-                <input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 bg-background border ${
-                    errors.date ? "border-red-500" : "border-card-border"
-                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base`}
-                />
+                <div className="relative">
+                  <input
+                    ref={dateInputRef}
+                    type="date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleChange}
+                    className={`w-full px-3 sm:px-4 py-2 sm:py-3 pr-10 bg-background border ${
+                      errors.date ? "border-red-500" : "border-card-border"
+                    } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden [&::-webkit-outer-spin-button]:hidden`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => dateInputRef.current?.showPicker?.() || dateInputRef.current?.click()}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    aria-label="Open date picker"
+                  >
+                    <FaCalendarAlt className="w-5 h-5" />
+                  </button>
+                </div>
                 {errors.date && (
                   <p className="mt-1 text-xs sm:text-sm text-red-500">
                     {t.dateRequired}
