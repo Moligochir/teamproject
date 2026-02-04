@@ -22,6 +22,7 @@ type lostFound = {
     name: string;
     email: string;
     phonenumber: number;
+    clerkId?: string;
   };
   createdAt: any;
   name: string;
@@ -50,6 +51,7 @@ export default function PetDetailPage() {
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
 
   const translations = {
     mn: {
@@ -102,10 +104,9 @@ export default function PetDetailPage() {
       follow: "👤 Дагах",
       following: "✓ Дагаж байна",
       viewSuggestions: "Санал болгосон тохирол үзэх",
-      myPost: "Миний зар",
+      myPost: "👤 Миний зар",
       linkCopied: "Холбоос хуулагдсан!",
       posted: "Нийтлэгдсэн:",
-
       verified: "✓ Баталгаажсан",
       responseTime: "Хариу үйл ажиллагааны хугацаа",
       fast: "Хурдан",
@@ -162,7 +163,7 @@ export default function PetDetailPage() {
       deletePost: "🗑️ Delete Post",
       follow: "👤 Follow",
       following: "✓ Following",
-      viewSuggestions: "🤖 View AI Suggestions",
+      viewSuggestions: "View AI Suggestions",
       myPost: "👤 My Post",
       linkCopied: "Link copied to clipboard!",
       posted: "Posted:",
@@ -265,6 +266,7 @@ export default function PetDetailPage() {
                 name: owner.name,
                 email: owner.email,
                 phonenumber: owner.phonenumber,
+                clerkId: owner.clerkId,
               },
             };
           }
@@ -311,15 +313,34 @@ export default function PetDetailPage() {
     }
   }, [id, clerkLoaded]);
 
+  // ✅ FIXED: Better owner detection with multiple checks
   useEffect(() => {
     if (pet && userData) {
       console.log("🔍 DEBUG INFO:");
-      console.log("Pet owner ID:", pet.userId?._id);
-      console.log("Current user ID:", userData._id);
-      console.log("Pet owner email:", pet.userId?.email);
-      console.log("Is Owner:", userData._id === pet.userId?._id);
+      console.log("Pet:", pet);
+      console.log("Pet userId:", pet.userId);
+      console.log("Pet userId._id:", pet.userId?._id);
+      console.log("Current user data:", userData);
+      console.log("Current user _id:", userData._id);
+      console.log("Clerk user ID:", clerkUser?.id);
+      
+      // ✅ Multiple ways to check if owner - any of these should work
+      const isOwnerById = userData._id === pet.userId?._id;
+      const isOwnerByEmail = userData.email === pet.userId?.email;
+      const isOwnerByClerk = clerkUser?.id === pet.userId?.clerkId;
+      
+      console.log("Is Owner (by MongoDB ID):", isOwnerById);
+      console.log("Is Owner (by Email):", isOwnerByEmail);
+      console.log("Is Owner (by Clerk):", isOwnerByClerk);
+      
+      // Set isOwner to true if ANY check passes
+      const ownerCheck = isOwnerById || isOwnerByEmail || isOwnerByClerk;
+      console.log("Final IsOwner Result:", ownerCheck);
+      setIsOwner(ownerCheck);
+    } else {
+      setIsOwner(false);
     }
-  }, [pet, userData]);
+  }, [pet, userData, clerkUser]);
 
   const handleSave = () => {
     if (!pet) return;
@@ -413,7 +434,6 @@ export default function PetDetailPage() {
         break;
     }
   };
-  console.log(pet, "pet");
 
   if (loading || !clerkLoaded) {
     return (
@@ -461,7 +481,6 @@ export default function PetDetailPage() {
 
   const isLost = pet.role === "Lost" || pet.role === "Төөрсөн";
   const isDog = pet.petType === "Dog";
-  const isOwner = userData?._id === pet.userId?._id;
 
   const today = new Date();
   const petDate = new Date(pet.Date);
@@ -555,7 +574,7 @@ export default function PetDetailPage() {
           <div className="space-y-6">
             <div className="space-y-4">
               <h1 className="text-4xl md:text-5xl font-black mb-2 text-white bg-clip-text">
-                {pet.name}
+                {pet.name || t.unknown}
               </h1>
             </div>
 
@@ -625,7 +644,7 @@ export default function PetDetailPage() {
 
                   {/* Contact Methods */}
                   <div className="space-y-2">
-                    {/* Email - Fixed Display */}
+                    {/* Email */}
                     {pet.userId?.email ? (
                       <a
                         href={`mailto:${pet.userId.email}`}
@@ -719,7 +738,7 @@ export default function PetDetailPage() {
               (pet.userId.email ||
                 pet.userId.phonenumber ||
                 pet.phonenumber) && (
-                <div className="flex flex-col  gap-3">
+                <div className="flex flex-col gap-3">
                   {pet.userId?.email && (
                     <a
                       href={`mailto:${pet.userId.email}?subject=${isLost ? t.lost : t.found} ${isDog ? t.dog : t.cat}: ${pet.name}`}
