@@ -10,7 +10,7 @@ export const FindIdAdopt = async (req: Request, res: Response) => {
   if (!id) {
     return res.status(404).json({ message: "ID is required" });
   }
-  console.log("THIS IS ID:", id);
+
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({
       message: "Invalid adopt id (Mongo ObjectId байх ёстой)",
