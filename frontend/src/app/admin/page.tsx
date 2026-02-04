@@ -28,18 +28,21 @@ type lostFound = {
 
 export default function AdminDashboard() {
   const [filter, setFilter] = useState("all");
-  const [animalData, setAnimalData] = useState<lostFound[]>([]);
   const [loading, setLoading] = useState(true);
+  const [animalData, setAnimalData] = useState<lostFound[]>([]);
 
   const GetLostFound = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/lostFound`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+          },
         },
-      });
+      );
       const data = await res.json();
       console.log("User data:", data);
       setAnimalData(data);
@@ -85,12 +88,6 @@ export default function AdminDashboard() {
       ).length,
       color: "bg-green-500",
       inner: <LostIcon />,
-    },
-    {
-      label: "Шалган хүлээгдэж буй",
-      value: 0,
-      color: "bg-yellow-500",
-      inner: <ScheduleClipboardIcon />,
     },
   ];
 
@@ -139,7 +136,7 @@ export default function AdminDashboard() {
       {/* Main */}
       <main className="flex-1 p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mt-8 mb-8">
           <div>
             <h1 className="text-3xl font-bold">Админ Dashboard</h1>
             <p className="text-muted">Системийн ерөнхий хяналт</p>

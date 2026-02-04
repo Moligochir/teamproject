@@ -4,6 +4,7 @@ import { getLostFound } from "../resolvers/LostFound/get-LostFound";
 import { FindIdLostFound } from "../resolvers/LostFound/findid-lostFound";
 import { deleteLostFound } from "../resolvers/LostFound/delete-LostFound";
 import { putLostFound } from "../resolvers/LostFound/put-LostFound";
+import { patchLostFound } from "../resolvers/LostFound/patch-LostFound";
 
 export const LostFound = express.Router();
 LostFound.get("/findid/:id", FindIdLostFound);
@@ -11,3 +12,4 @@ LostFound.post("/", createLostFound);
 LostFound.get("/", getLostFound);
 LostFound.delete("/:id", deleteLostFound);
 LostFound.put("/:id", putLostFound);
+LostFound.patch("/:id", patchLostFound);

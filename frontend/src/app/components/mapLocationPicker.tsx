@@ -494,7 +494,7 @@ export default function MapLocationPicker({
   return (
     <div className="space-y-4">
       {/* Map Container */}
-      <div className="w-full h-96 rounded-2xl overflow-hidden border-2 border-card-border shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <div className="w-full  h-96 rounded-2xl overflow-hidden border-2 border-card-border shadow-lg hover:shadow-xl transition-shadow duration-300">
         <MapContainer
           center={[UB_CENTER.lat, UB_CENTER.lng]}
           zoom={13}
@@ -552,7 +552,7 @@ export default function MapLocationPicker({
 
       {/* Info Section */}
       {address && (
-        <div className="bg-linear-to-r from-primary/10 to-orange-500/10 border border-primary/20 rounded-xl p-4">
+        <div className="bg-linear-to-r  from-primary/10 to-orange-500/10 border border-primary/20 rounded-xl p-4">
           <div className="flex items-start gap-3">
             <span className="text-2xl">✓</span>
             <div>

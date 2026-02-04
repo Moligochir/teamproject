@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ShoppingBag, Upload, X } from "lucide-react";
+import { ShoppingBag, X } from "lucide-react";
 import { useLanguage } from "../contexts/Languagecontext";
 import { toast } from "react-hot-toast";
 
@@ -57,7 +57,7 @@ export default function ShopPage() {
       noListingsYet: "Зар одоогоор байхгүй байна",
       imageFormats: "PNG, JPG, WEBP",
       createFirst: "Эхний зараа үүсгээрэй!",
-      posted: "Нийтэлсэн",
+      posted: "Нийтлэсэн:",
       needToSell: "Ямар нэг зүйл зарах шаардлагатай байна уу?",
       createConnect: "Зар үүсгэж, худалдан авагчидтай холбогдоорой",
       fillAllFields: "Бүх талбаруудыг бөглөнө үү",
@@ -70,7 +70,9 @@ export default function ShopPage() {
       phoneOnlyNumbers: "Утасны дугаар зөвхөн тоо байх ёстой",
       postSuccess: "Зар амжилттай нийтлэгдлээ!",
       loading: "Уншиж байна...",
+      loadingProducts: "Барааг уншиж байна...",
       error: "Алдаа гарлаа",
+      loadError: "Барааг ачааллахад алдаа",
     },
     en: {
       title: "Shop",
@@ -92,7 +94,7 @@ export default function ShopPage() {
       items: "items",
       noListingsYet: "No Listings Yet",
       createFirst: "Create the first listing to get started!",
-      posted: "Posted",
+      posted: "Posted:",
       needToSell: "Need to Sell Something?",
       createConnect:
         "Create a listing and connect with buyers in your community",
@@ -105,7 +107,9 @@ export default function ShopPage() {
       phoneOnlyNumbers: "Phone number should be numbers only",
       postSuccess: "Listing posted successfully!",
       loading: "Loading...",
+      loadingProducts: "Loading products...",
       error: "An error occurred",
+      loadError: "Failed to load products",
     },
   };
 
@@ -178,21 +182,43 @@ export default function ShopPage() {
 
       console.log("📤 Sending payload:", payload);
 
-      const response = await fetch(`http://localhost:8000/shop`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/shop`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
         },
-        body: JSON.stringify(payload),
-      });
+      );
+
+      console.log(`📊 Response status: ${response.status}`);
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("❌ Server error:", errorData);
-        throw new Error(errorData.message || "Failed to add product");
+        const text = await response.text();
+        console.error("❌ Server error response:", text.substring(0, 200));
+        throw new Error("Failed to add product");
       }
 
-      const data = await response.json();
+      // ✅ Parse response as text first
+      const responseText = await response.text();
+
+      if (!responseText || responseText.trim() === "") {
+        console.error("❌ Empty response from server");
+        throw new Error("Server returned empty response");
+      }
+
+      // ✅ Check if response is JSON
+      if (
+        responseText.includes("<!DOCTYPE") ||
+        responseText.includes("<html")
+      ) {
+        console.error("❌ Server returned HTML instead of JSON");
+        throw new Error("Server error - check backend logs");
+      }
+
+      const data = JSON.parse(responseText);
       console.log("✅ Product added:", data);
 
       // Reset form
@@ -219,36 +245,79 @@ export default function ShopPage() {
     }
   };
 
-  // ✅ Get All Products
+  // ✅ Get All Products - WITH BETTER ERROR HANDLING
   const GetProducts = async () => {
     try {
       setLoading(true);
-      console.log("🔄 Fetching products...");
+      console.log("🔄 Fetching from: http://localhost:8000/shop");
 
-      const res = await fetch(`http://localhost:8000/shop`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/shop`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          accept: "application/json",
+          Accept: "application/json",
         },
       });
 
+      console.log(`📊 Response status: ${res.status}`);
+
       if (!res.ok) {
         console.warn(`⚠️ Server returned ${res.status}`);
-        // Don't throw, just set empty posts
+        // Try to get error message
+        const errorText = await res.text();
+        console.error("Error response:", errorText.substring(0, 200));
         setPosts([]);
         return;
       }
 
-      const data = await res.json();
-      console.log("✅ Products fetched:", data);
+      // ✅ Get response as text first
+      const text = await res.text();
+      console.log("📨 Raw response (first 200 chars):", text.substring(0, 200));
 
-      // Handle both array and object response
-      const productsList = Array.isArray(data) ? data : data.data || [];
-      setPosts(productsList);
+      if (!text || text.trim() === "") {
+        console.log("⚠️ Empty response from server");
+        setPosts([]);
+        return;
+      }
+
+      // ✅ Check if it's HTML instead of JSON
+      if (text.includes("<!DOCTYPE") || text.includes("<html")) {
+        console.error("❌ ERROR: Server returned HTML instead of JSON!");
+        console.error("This means:");
+        console.error("1. The /shop endpoint doesn't exist");
+        console.error("2. The server crashed");
+        console.error("3. The port is wrong");
+        toast.error(
+          language === "mn"
+            ? "Сервер алдаатай байна. Логийг үзнэ үү"
+            : "Server error. Check console logs",
+        );
+        setPosts([]);
+        return;
+      }
+
+      // ✅ Try to parse JSON
+      try {
+        const data = JSON.parse(text);
+        console.log("✅ Successfully parsed JSON:", data);
+
+        // Handle both array and object response
+        const productsList = Array.isArray(data) ? data : data.data || [];
+        console.log(`📊 Found ${productsList.length} products`);
+        setPosts(productsList);
+      } catch (parseErr) {
+        console.error("❌ JSON Parse Error:", parseErr);
+        console.error("Response text:", text);
+        toast.error(
+          language === "mn"
+            ? "Өгөгдөл боловсруулахад алдаа"
+            : "Error parsing data",
+        );
+        setPosts([]);
+      }
     } catch (error) {
-      console.error("❌ Error fetching products:", error);
-      // Set empty posts on error
+      console.error("❌ Fetch Error:", error);
+      toast.error(t.loadError);
       setPosts([]);
     } finally {
       setLoading(false);
@@ -289,22 +358,20 @@ export default function ShopPage() {
       hasError = true;
     }
 
-    // Validate price - check if empty
+    // Validate price
     if (!price.trim()) {
       setPriceError(t.enterPrice);
       hasError = true;
     } else if (!/^\d+$/.test(price.trim())) {
-      // Validate price - check if it's only numbers
       setPriceError(t.priceOnlyNumbers);
       hasError = true;
     }
 
-    // Validate phone - check if empty
+    // Validate phone
     if (!phone.trim()) {
       setPhoneError(t.enterPhone);
       hasError = true;
     } else if (!/^\d+$/.test(phone.trim())) {
-      // Validate phone - check if it's only numbers
       setPhoneError(t.phoneOnlyNumbers);
       hasError = true;
     }
@@ -317,12 +384,106 @@ export default function ShopPage() {
     AddProduct();
   };
 
+  // ✅ ENHANCED LOADING SECTION
   if (loading) {
     return (
-      <div className="min-h-screen py-12 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted">{t.loading}</p>
+      <div className="min-h-screen py-12 flex items-center justify-center bg-linear-to-b from-background to-card-bg/50">
+        <style>{`
+          @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+          }
+          @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+          }
+          .animate-float {
+            animation: float 3s ease-in-out infinite;
+          }
+          .animate-shimmer {
+            animation: shimmer 2s infinite;
+            background: linear-gradient(90deg, rgba(0,0,0,0.1) 25%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.1) 75%);
+            background-size: 1000px 100%;
+          }
+        `}</style>
+
+        <div className="text-center max-w-3xl w-full px-4">
+          {/* Animated Shopping Bag with Ring */}
+          <div className="mb-12 relative w-32 h-32 mx-auto">
+            {/* Outer rotating ring */}
+            <div
+              className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary border-r-primary animate-spin"
+              style={{ animationDuration: "3s" }}
+            ></div>
+
+            {/* Inner rotating ring (opposite direction) */}
+            <div
+              className="absolute inset-2 rounded-full border-4 border-transparent border-b-orange-500 border-l-orange-500 animate-spin"
+              style={{ animationDuration: "2s", animationDirection: "reverse" }}
+            ></div>
+
+            {/* Center floating icon */}
+            <div className="absolute inset-0 flex items-center justify-center animate-float">
+              <ShoppingBag className="w-16 h-16 text-primary" />
+            </div>
+          </div>
+
+          {/* Loading Text */}
+          <div className="mb-8">
+            <h2 className="text-3xl font-black mb-3 bg-linear-to-r from-primary to-orange-500 bg-clip-text text-transparent">
+              {t.loading}
+            </h2>
+            <p className="text-lg text-muted mb-4">{t.loadingProducts}</p>
+
+            {/* Animated Dots */}
+            <div className="flex justify-center gap-3">
+              <div
+                className="w-3 h-3 bg-primary rounded-full animate-bounce"
+                style={{ animationDelay: "0s" }}
+              ></div>
+              <div
+                className="w-3 h-3 bg-orange-500 rounded-full animate-bounce"
+                style={{ animationDelay: "0.2s" }}
+              ></div>
+              <div
+                className="w-3 h-3 bg-primary rounded-full animate-bounce"
+                style={{ animationDelay: "0.4s" }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Skeleton Loading Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="bg-card-bg rounded-2xl border border-card-border overflow-hidden animate-pulse"
+                style={{ animationDuration: "2s" }}
+              >
+                {/* Image Skeleton */}
+                <div className="w-full h-48 bg-linear-to-r from-card-border via-card-bg to-card-border animate-shimmer"></div>
+
+                {/* Content Skeleton */}
+                <div className="p-4 space-y-3">
+                  {/* Title skeleton */}
+                  <div className="h-5 bg-linear-to-r from-card-border via-card-bg to-card-border rounded-lg animate-shimmer"></div>
+
+                  {/* Price skeleton */}
+                  <div className="h-8 bg-linear-to-r from-primary/30 via-primary/10 to-primary/30 rounded-lg w-1/2 animate-shimmer"></div>
+
+                  {/* Phone skeleton */}
+                  <div className="h-4 bg-linear-to-r from-card-border via-card-bg to-card-border rounded animate-shimmer w-2/3"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Fun message */}
+          <p className="text-sm text-muted mt-12 font-medium">
+            {language === "mn"
+              ? " Хүлээнэ үү, гайхалтай зарнууд ирж байна..."
+              : " Hang tight, amazing deals are loading..."}
+          </p>
         </div>
       </div>
     );
@@ -395,7 +556,7 @@ export default function ShopPage() {
                         type="button"
                         onClick={clearImage}
                         disabled={uploading}
-                        className="absolute top-2 right-2 bg-primary text-white p-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50"
+                        className="absolute top-2 right-2 bg-primary text-white p-2 rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50 cursor-pointer"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -525,7 +686,7 @@ export default function ShopPage() {
                 <p className="text-muted mb-6">{t.createFirst}</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-sm:grid-cols-2">
                 {posts.map((post) => (
                   <div
                     key={post._id}
@@ -565,7 +726,7 @@ export default function ShopPage() {
                         <span className="text-sm">
                           <a
                             href={`tel:${post.PhoneNumber}`}
-                            className="hover:text-primary transition-colors"
+                            className="hover:text-primary transition-colors cursor-pointer"
                           >
                             {post.PhoneNumber}
                           </a>

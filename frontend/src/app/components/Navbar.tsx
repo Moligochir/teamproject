@@ -23,6 +23,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [browseDropdownOpen, setBrowseDropdownOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("");
   const [browseHovered, setBrowseHovered] = useState(false);
   const [othersHovered, setOthersHovered] = useState(false);
@@ -46,6 +47,8 @@ export function Navbar() {
       setActiveTab("map");
     } else if (pathname === "/about") {
       setActiveTab("about");
+    } else if (pathname === "/shop") {
+      setActiveTab("shop");
     }
   }, [pathname]);
 
@@ -54,8 +57,8 @@ export function Navbar() {
     mn: {
       home: "Нүүр",
       browse: "Амьтад үзэх",
-      browseSubLost: "Амьтан үрчлүүлэх",
-      browseSubFound: "Амьтан үрчлэх",
+      browseSubLost: "Амьтан Үрчлэх",
+      browseSubFound: "Олдсон амьтан",
       map: "Газарын зураг",
       about: "Бидний тухай",
       login: "Нэвтрэх",
@@ -63,17 +66,19 @@ export function Navbar() {
       loginRequired: "Та нэвтрэх шаардлагатай",
       langButton: "EN",
       aboutUs: "Бидний тухай",
-      toto: "Үрчлэх",
+      toto: "Үрчлэх / Үрчлүүлэх",
       toto2: "Үрчлүүлэх",
       Others: "Бусад",
       Shop: "Дэлгүүр",
       Hospital: "Эмнэлэг",
+      AllPets: "Бүх амьтнууд",
+      ViewAll: "Бүх зарлалуудыг үзэх",
     },
     en: {
       home: "Home",
       browse: "Browse Pets",
-      browseSubLost: "Pet adoption",
-      browseSubFound: "Pet adoption",
+      browseSubLost: "Adoption",
+      browseSubFound: "Found Pets",
       map: "Map",
       about: "About Us",
       login: "Sign In",
@@ -86,6 +91,8 @@ export function Navbar() {
       Others: "Others",
       Shop: "Shop",
       Hospital: "Hospital",
+      AllPets: "All Pets",
+      ViewAll: "View all listings",
     },
   };
 
@@ -107,16 +114,33 @@ export function Navbar() {
   // Check if nav link is active
   const isActive = (tab: string) => activeTab === tab;
 
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Only close if clicking outside the dropdowns
+      if (!target.closest(".group")) {
+        setNotificationOpen(false);
+        setProfileDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-9999 bg-card-bg/80 backdrop-blur-md border-b border-card-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center  transition-all">
+            <div className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center transition-all">
               <Logo1 />
             </div>
-            <span className="text-xl font-bold text-foreground">PawFinder</span>
+            <span className="text-xl font-bold text-foreground ">
+              PawFinder
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -150,25 +174,21 @@ export function Navbar() {
                 }`}
               >
                 {t.browse}
-                <div
-                  className={`w-6 h-5 flex justify-center items-end transition-transform duration-300 `}
+                <svg
+                  className={`w-4 h-4 transition-transform duration-300 ${
+                    browseHovered ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <svg
-                    className={`w-4 h-4 transition-transform duration-300 ${
-                      browseHovered ? "rotate-180" : ""
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                    />
-                  </svg>
-                </div>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                  />
+                </svg>
 
                 {isActive("browse") && (
                   <div className="absolute bottom-0 left-4 right-4 h-1 bg-primary rounded-t-lg"></div>
@@ -184,12 +204,8 @@ export function Navbar() {
                   >
                     <span className="text-lg">🔍</span>
                     <div>
-                      <p className="font-semibold text-sm">
-                        {t.browseSubFound}
-                      </p>
-                      <p className="text-xs text-muted">
-                        {t.toto} / {t.toto2}
-                      </p>
+                      <p className="font-semibold text-sm">{t.browseSubLost}</p>
+                      <p className="text-xs text-muted">{t.toto}</p>
                     </div>
                   </Link>
                   <Link
@@ -198,14 +214,8 @@ export function Navbar() {
                   >
                     <span className="text-lg">🐾</span>
                     <div>
-                      <p className="font-semibold text-sm">
-                        {language === "mn" ? "Бүх амьтнууд" : "All Pets"}
-                      </p>
-                      <p className="text-xs text-muted">
-                        {language === "mn"
-                          ? "Бүх зарлалуудыг үзэх"
-                          : "View all listings"}
-                      </p>
+                      <p className="font-semibold text-sm">{t.AllPets}</p>
+                      <p className="text-xs text-muted">{t.ViewAll}</p>
                     </div>
                   </Link>
                 </div>
@@ -235,33 +245,29 @@ export function Navbar() {
             >
               <button
                 className={`px-4 py-2 rounded-lg cursor-pointer font-medium transition-all duration-300 relative flex items-center gap-1 ${
-                  isActive("shop")
+                  isActive("shop") || isActive("hospital")
                     ? "text-primary"
                     : "text-muted hover:text-primary"
                 }`}
               >
                 {t.Others}
-                <div
-                  className={`w-6 h-5 flex justify-center items-end transition-transform duration-300 `}
+                <svg
+                  className={`w-4 h-4 transition-transform duration-300 ${
+                    othersHovered ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <svg
-                    className={`w-4 h-4 transition-transform duration-300 ${
-                      othersHovered ? "rotate-180" : ""
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                    />
-                  </svg>
-                </div>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                  />
+                </svg>
 
-                {isActive("shop") && (
+                {(isActive("shop") || isActive("hospital")) && (
                   <div className="absolute bottom-0 left-4 right-4 h-1 bg-primary rounded-t-lg"></div>
                 )}
               </button>
@@ -276,6 +282,11 @@ export function Navbar() {
                     <span className="text-lg">🛒</span>
                     <div>
                       <p className="font-semibold text-sm">{t.Shop}</p>
+                      <p className="text-xs text-muted">
+                        {language === "mn"
+                          ? "Бараа худалдаж авах"
+                          : "Buy & Sell"}
+                      </p>
                     </div>
                   </Link>
                   <Link
@@ -285,11 +296,14 @@ export function Navbar() {
                     <span className="text-lg">🏥</span>
                     <div>
                       <p className="font-semibold text-sm">{t.Hospital}</p>
+                      <p className="text-xs text-muted">
+                        {language === "mn" ? "Эмнэлэг олох" : "Find hospitals"}
+                      </p>
                     </div>
                   </Link>
                   <Link
                     href="/about"
-                    className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all "
+                    className="flex items-center cursor-pointer gap-3 px-4 py-3 text-muted hover:text-primary hover:bg-primary/10 transition-all border-t border-card-border"
                   >
                     <span className="text-lg">📋</span>
                     <div>
@@ -304,34 +318,54 @@ export function Navbar() {
           </div>
 
           {/* Right side */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
 
             {/* Auth buttons */}
             <SignedOut>
               <SignInButton mode="modal">
-                <button className="hidden sm:block px-4 py-2 rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-all cursor-pointer text-sm">
+                <button className="hidden sm:block px-4 py-2 rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-all cursor-pointer text-sm font-medium">
                   {t.login}
                 </button>
               </SignInButton>
             </SignedOut>
 
-            {/* Language & Profile Dropdown - CENTERED */}
-            <div className="relative group max-sm:hidden">
-              <button className="w-10 h-10 rounded-full cursor-pointer bg-card-bg border border-card-border flex items-center justify-center hover:border-primary transition-colors">
+            {/* Profile Dropdown - HOVER on Desktop, CLICK on Mobile */}
+            <div
+              className="relative group max-sm:hidden"
+              onMouseEnter={() => setProfileDropdownOpen(true)}
+              onMouseLeave={() => setProfileDropdownOpen(false)}
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setProfileDropdownOpen(!profileDropdownOpen);
+                }}
+                className="w-10 h-10 rounded-full cursor-pointer bg-card-bg border border-card-border flex items-center justify-center hover:border-primary transition-colors"
+              >
                 <TriggerIcon />
               </button>
 
-              {/* Dropdown - CENTER ALIGNED */}
-              <div className="absolute left-1/2 -translate-x-1/2 mt-3 w-48 rounded-xl bg-card-bg border border-card-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              {/* Dropdown - CENTER ALIGNED - Show on hover desktop or click mobile */}
+              <div
+                className={`absolute left-1/2 -translate-x-1/2 mt-3 w-48 rounded-xl bg-card-bg border border-card-border shadow-xl z-50 transition-all duration-200 ${
+                  profileDropdownOpen
+                    ? "opacity-100 visible"
+                    : "opacity-0 invisible"
+                }`}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="flex flex-col p-3 gap-3">
                   <SignedIn>
                     <div
-                      onClick={() => router.push(`/profile`)}
-                      className="flex items-center justify-center cursor-pointer gap-2 h-12 w-full px-3 rounded-lg hover:bg-primary/10 transition-all duration-300 group/profile"
+                      onClick={() => {
+                        router.push(`/profile`);
+                        setProfileDropdownOpen(false);
+                      }}
+                      className="flex items-center justify-center cursor-pointer gap-2 h-12 w-full px-3 rounded-lg hover:bg-primary/10 transition-all"
                     >
                       <UserButton />
-                      <span className="px-3 py-1 rounded-lg cursor-pointer bg-primary/10 text-primary text-xs font-semibold group-hover/profile:bg-primary/20">
+                      <span className="px-3 py-1 rounded-lg cursor-pointer bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20">
                         {user?.fullName || "User"}
                       </span>
                     </div>
@@ -339,8 +373,11 @@ export function Navbar() {
                   </SignedIn>
 
                   <button
-                    onClick={toggleLanguage}
-                    className="w-full h-10 bg-primary cursor-pointer text-white rounded-lg font-semibold hover:bg-primary-dark transition-all"
+                    onClick={() => {
+                      toggleLanguage();
+                      setProfileDropdownOpen(false);
+                    }}
+                    className="w-full h-10 bg-primary cursor-pointer text-white rounded-lg font-semibold hover:bg-primary-dark transition-all text-sm"
                   >
                     {t.langButton}
                   </button>
@@ -348,10 +385,17 @@ export function Navbar() {
               </div>
             </div>
 
-            {/* Notification Button - CENTERED */}
-            <div className="relative group">
+            {/* Notification Button - HOVER on Desktop, CLICK on Mobile */}
+            <div
+              className="relative group"
+              onMouseEnter={() => setNotificationOpen(true)}
+              onMouseLeave={() => setNotificationOpen(false)}
+            >
               <button
-                onClick={() => setNotificationOpen(!notificationOpen)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setNotificationOpen(!notificationOpen);
+                }}
                 className="relative w-10 h-10 rounded-full cursor-pointer bg-card-bg border border-card-border flex items-center justify-center hover:border-primary transition-colors"
               >
                 <NotificationIcon2 />
@@ -362,8 +406,15 @@ export function Navbar() {
                 )}
               </button>
 
-              {/* Notification Dropdown - CENTER ALIGNED */}
-              <div className="absolute left-1/2 -translate-x-1/2 mt-3 w-80 rounded-xl bg-card-bg border border-card-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 max-h-96 overflow-y-auto">
+              {/* Notification Dropdown - CENTER ALIGNED - Show on hover desktop or click mobile */}
+              <div
+                className={`absolute left-1/2 -translate-x-1/2 mt-3 w-80 rounded-xl bg-card-bg border border-card-border shadow-xl z-50 max-h-96 overflow-y-auto transition-all duration-200 ${
+                  notificationOpen
+                    ? "opacity-100 visible"
+                    : "opacity-0 invisible"
+                }`}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <NotificationDropdown />
               </div>
             </div>
@@ -416,7 +467,7 @@ export function Navbar() {
               <Link
                 href="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`px-4 py-2 rounded-lg font-medium ${
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
                   isActive("home")
                     ? "bg-primary text-white"
                     : "text-muted hover:bg-primary/10"
@@ -429,7 +480,7 @@ export function Navbar() {
               <div>
                 <button
                   onClick={() => setBrowseDropdownOpen(!browseDropdownOpen)}
-                  className={`w-full px-4 py-2 rounded-lg font-medium flex items-center justify-between ${
+                  className={`w-full px-4 py-2 rounded-lg font-medium flex items-center justify-between transition-all ${
                     isActive("browse")
                       ? "bg-primary text-white"
                       : "text-muted hover:bg-primary/10"
@@ -456,24 +507,14 @@ export function Navbar() {
                 {browseDropdownOpen && (
                   <div className="mt-2 ml-4 flex flex-col gap-2 border-l-2 border-primary pl-4">
                     <Link
-                      href="/browse/lost"
+                      href="/dog"
                       onClick={() => {
                         setMobileMenuOpen(false);
                         setBrowseDropdownOpen(false);
                       }}
-                      className="text-sm text-muted hover:text-primary hover:bg-primary/10 px-3 py-2 rounded-lg"
+                      className="text-sm text-muted hover:text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-all"
                     >
                       🔍 {t.browseSubLost}
-                    </Link>
-                    <Link
-                      href="/browse/found"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        setBrowseDropdownOpen(false);
-                      }}
-                      className="text-sm text-muted hover:text-primary hover:bg-primary/10 px-3 py-2 rounded-lg"
-                    >
-                      ✓ {t.browseSubFound}
                     </Link>
                     <Link
                       href="/browse"
@@ -481,9 +522,9 @@ export function Navbar() {
                         setMobileMenuOpen(false);
                         setBrowseDropdownOpen(false);
                       }}
-                      className="text-sm text-muted hover:text-primary hover:bg-primary/10 px-3 py-2 rounded-lg border-t border-card-border pt-2"
+                      className="text-sm text-muted hover:text-primary hover:bg-primary/10 px-3 py-2 rounded-lg border-t border-card-border pt-2 transition-all"
                     >
-                      🐾 {language === "mn" ? "Бүх амьтнууд" : "All Pets"}
+                      🐾 {t.AllPets}
                     </Link>
                   </div>
                 )}
@@ -492,7 +533,7 @@ export function Navbar() {
               <Link
                 href="/map"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`px-4 py-2 rounded-lg font-medium ${
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
                   isActive("map")
                     ? "bg-primary text-white"
                     : "text-muted hover:bg-primary/10"
@@ -501,24 +542,76 @@ export function Navbar() {
                 {t.map}
               </Link>
 
-              <Link
-                href="/about"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`px-4 py-2 rounded-lg font-medium ${
-                  isActive("about")
-                    ? "bg-primary text-white"
-                    : "text-muted hover:bg-primary/10"
-                }`}
-              >
-                {t.about}
-              </Link>
+              {/* Others Mobile Dropdown */}
+              <div>
+                <button
+                  onClick={() => setOthersHovered(!othersHovered)}
+                  className={`w-full px-4 py-2 rounded-lg font-medium flex items-center justify-between transition-all ${
+                    isActive("shop") || isActive("hospital")
+                      ? "bg-primary text-white"
+                      : "text-muted hover:bg-primary/10"
+                  }`}
+                >
+                  {t.Others}
+                  <svg
+                    className={`w-4 h-4 transition-transform duration-300 ${
+                      othersHovered ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                    />
+                  </svg>
+                </button>
+
+                {othersHovered && (
+                  <div className="mt-2 ml-4 flex flex-col gap-2 border-l-2 border-primary pl-4">
+                    <Link
+                      href="/shop"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setOthersHovered(false);
+                      }}
+                      className="text-sm text-muted hover:text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-all"
+                    >
+                      🛒 {t.Shop}
+                    </Link>
+                    <Link
+                      href="/hospital"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setOthersHovered(false);
+                      }}
+                      className="text-sm text-muted hover:text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-all"
+                    >
+                      🏥 {t.Hospital}
+                    </Link>
+                    <Link
+                      href="/about"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setOthersHovered(false);
+                      }}
+                      className="text-sm text-muted hover:text-primary hover:bg-primary/10 px-3 py-2 rounded-lg border-t border-card-border pt-2 transition-all"
+                    >
+                      📋 {t.about}
+                    </Link>
+                  </div>
+                )}
+              </div>
 
               <div className="h-px bg-card-border my-2" />
 
               {/* Mobile Auth */}
               <SignedOut>
                 <SignInButton mode="modal">
-                  <button className="w-full px-4 py-2 border border-primary text-primary rounded-lg font-semibold hover:bg-primary hover:text-white transition-all">
+                  <button className="w-full px-4 py-2 border border-primary text-primary rounded-lg font-semibold hover:bg-primary hover:text-white transition-all text-sm">
                     {t.login}
                   </button>
                 </SignInButton>
@@ -546,7 +639,7 @@ export function Navbar() {
                     setMobileMenuOpen(false);
                     handleClick;
                   }}
-                  className="flex-1 px-4 py-2 bg-primary text-white rounded-lg font-semibold text-center hover:bg-primary-dark transition-all"
+                  className="flex-1 px-4 py-2 bg-primary text-white rounded-lg font-semibold text-center hover:bg-primary-dark transition-all text-sm"
                 >
                   {t.report}
                 </Link>
@@ -554,7 +647,7 @@ export function Navbar() {
                   onClick={() => {
                     toggleLanguage();
                   }}
-                  className="flex-1 px-4 py-2 bg-primary/20 text-primary rounded-lg font-semibold hover:bg-primary/30 transition-all"
+                  className="flex-1 px-4 py-2 bg-primary/20 text-primary rounded-lg font-semibold hover:bg-primary/30 transition-all text-sm"
                 >
                   {t.langButton}
                 </button>

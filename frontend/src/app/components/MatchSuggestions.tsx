@@ -140,7 +140,9 @@ export default function MatchSuggestions({
 
       if (allPetsData.length === 0) {
         try {
-          const res = await fetch(`http://localhost:8000/lostFound`);
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound`,
+          );
           const pets = await res.json();
           petsToUse = pets;
           setAllPetsData(pets);
@@ -154,7 +156,7 @@ export default function MatchSuggestions({
       try {
         // ✅ Fetch current pet
         const petRes = await fetch(
-          `http://localhost:8000/lostFound/findid/${petId}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound/findid/${petId}`,
         );
         const currentPet = await petRes.json();
         const pet = Array.isArray(currentPet) ? currentPet[0] : currentPet;

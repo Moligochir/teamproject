@@ -41,7 +41,7 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
   const GetAdopts = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:8000/adopt`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/adopt`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -121,7 +121,7 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
     <div className="space-y-8">
       {/* Filters Section */}
       <div className="bg-card-bg rounded-2xl border border-card-border p-6">
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-2 gap-4">
           {/* Search Input */}
           <div className="md:col-span-1">
             <label className="block text-sm font-semibold mb-2">
@@ -174,23 +174,6 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
           </div>
 
           {/* Status Dropdown */}
-          <div>
-            <label className="block text-sm font-semibold mb-2">
-              {t.status}
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value as "all" | "lost" | "found");
-                handleUpdate();
-              }}
-              className="w-full px-4 py-3 bg-background border border-card-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none cursor-pointer transition-all"
-            >
-              <option value="all">{t.allStatus}</option>
-              <option value="lost">{t.lost}</option>
-              <option value="found">{t.found}</option>
-            </select>
-          </div>
         </div>
       </div>
 
@@ -233,7 +216,7 @@ export function UrclehPage({ onChange }: PetFiltersProps) {
           </p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-sm:grid-cols-2">
           {filteredPets.map((adopt) => (
             <div
               key={adopt._id}

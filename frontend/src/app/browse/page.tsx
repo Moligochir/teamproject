@@ -32,13 +32,16 @@ export default function BrowsePage() {
   const [lostFoundData, setLostFoundData] = useState<lostFound[]>([]);
   const GetLostFound = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/lostFound`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+          },
         },
-      });
+      );
       const data = await res.json();
       console.log("User data:", data);
       setLostFoundData(data);
@@ -133,7 +136,9 @@ export default function BrowsePage() {
   useEffect(() => {
     const GetLostFound = async () => {
       try {
-        const res = await fetch("http://localhost:8000/lostFound");
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound`,
+        );
         const data = await res.json();
         console.log("User data:", data);
         setAnimalData(data);
@@ -321,7 +326,7 @@ export default function BrowsePage() {
 
         {/* Pet Grid */}
         {filteredPets.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-sm:grid-cols-2 gap-6">
             {filteredPets.map((pet) => (
               <PetCard
                 key={pet._id}

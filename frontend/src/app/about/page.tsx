@@ -237,7 +237,7 @@ export default function AboutPage() {
             <h2 className="text-3xl font-bold mb-4">{t.teamTitle}</h2>
             <p className="text-muted text-lg">{t.teamDescription} 🐾</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 max-sm:grid-cols-2">
             {[
               {
                 name: language === "mn" ? "Сундуйбазар" : "Sunduibazrr",

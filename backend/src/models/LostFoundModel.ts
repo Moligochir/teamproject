@@ -1,45 +1,65 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 
-const LostFoundSchema = new mongoose.Schema(
+const lostFoundSchema = new mongoose.Schema(
   {
-    id: mongoose.Schema.Types.ObjectId,
     userId: {
-      type: mongoose.Schema.Types.String,
-      require: true,
-      ref: "User",
+      type: String,
+      required: true,
     },
-    role: { type: String, enum: ["Lost", "Found", "Adopt"] },
-    petType: { type: String, enum: ["Dog", "Cat"] },
-    name: String,
-    gender: { type: String, enum: ["Male", "Female", "Unknown"] },
-    image: String,
-    lat: Number,
-    lng: Number,
-    location: String,
-    description: String,
-    Date: Date,
-    breed: { type: String },
-    phonenumber: Number,
-    imageEmbedding: {
-      type: [Number],
-      default: [],
+    petType: {
+      type: String,
+      enum: ["Dog", "Cat"],
+      required: true,
     },
-    matchScore: Number,
-    matchId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "LostFound",
-      default: null,
+    name: {
+      type: String,
+      required: true,
     },
-    matches: {
-      type: [
-        {
-          postId: { type: mongoose.Schema.Types.ObjectId, ref: "LostFound" },
-          score: Number,
-        },
-      ],
-      default: [],
+    breed: {
+      type: String,
+    },
+    gender: {
+      type: String,
+      enum: ["Male", "Female"],
+    },
+    age: {
+      type: Number,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: ["Lost", "Found"],
+      required: true,
+    },
+    image: {
+      type: String,
+      required: true,
+    },
+    location: {
+      type: String,
+      required: true,
+    },
+    lat: {
+      type: Number,
+    },
+    lng: {
+      type: Number,
+    },
+    phonenumber: {
+      type: Number,
+    },
+    // ✅ NEW FIELD - Hide/Unhide posts
+    isHidden: {
+      type: Boolean,
+      default: false,
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
-export const LostFoundModel = mongoose.model("LostFound", LostFoundSchema);
+
+export const LostFoundModel = mongoose.model("LostFound", lostFoundSchema);

@@ -177,13 +177,16 @@ export default function PetDetailPage() {
 
   const GetPetDetails = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/lostFound/findid/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound/findid/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+          },
         },
-      });
+      );
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
         setPet(data[0]);
@@ -210,7 +213,7 @@ export default function PetDetailPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:8000/users`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -238,7 +241,7 @@ export default function PetDetailPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:8000/users`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -275,13 +278,16 @@ export default function PetDetailPage() {
 
   const GetAllPets = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/lostFound`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+          },
         },
-      });
+      );
       const data = await res.json();
       setAllPets(data);
     } catch (err) {
@@ -709,11 +715,11 @@ export default function PetDetailPage() {
               (pet.userId.email ||
                 pet.userId.phonenumber ||
                 pet.phonenumber) && (
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col  gap-3">
                   {pet.userId?.email && (
                     <a
                       href={`mailto:${pet.userId.email}?subject=${isLost ? t.lost : t.found} ${isDog ? t.dog : t.cat}: ${pet.name}`}
-                      className="flex gap-2 items-center px-6 py-4 bg-primary hover:shadow-lg hover:shadow-orange-500/30 text-white rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95 cursor-pointer"
+                      className="flex justify-center gap-2 items-center px-6 py-4 bg-primary hover:shadow-lg hover:shadow-orange-500/30 text-white rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95 cursor-pointer"
                     >
                       {t.emailContact}
                       <EmailIcon />
@@ -722,7 +728,7 @@ export default function PetDetailPage() {
                   {(pet.userId?.phonenumber || pet.phonenumber) && (
                     <a
                       href={`tel:${pet.userId?.phonenumber || pet.phonenumber}`}
-                      className="flex items-center gap-2 px-6 py-4 bg-card-bg border-2 border-card-border hover:border-primary text-foreground rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95 cursor-pointer"
+                      className="flex items-center justify-center gap-2 px-6 py-4 bg-card-bg border-2 border-card-border hover:border-primary text-foreground rounded-full font-bold text-center transition-all hover:-translate-y-1 active:scale-95 cursor-pointer"
                     >
                       {t.phoneContact}
                       <PhoneIcon />

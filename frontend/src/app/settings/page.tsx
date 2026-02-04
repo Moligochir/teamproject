@@ -36,7 +36,7 @@ export default function SettingsPage() {
     if (!clerkUser?.id) return;
 
     try {
-      const res = await fetch(`http://localhost:8000/users`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -84,17 +84,20 @@ export default function SettingsPage() {
 
     setSaving(true);
     try {
-      const res = await fetch(`http://localhost:8000/users/${userData._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userData._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phonenumber: parseInt(formData.phonenumber) || 0,
+          }),
         },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phonenumber: parseInt(formData.phonenumber) || 0,
-        }),
-      });
+      );
 
       if (res.ok) {
         alert("Мэдээлэл амжилттай шинэчлэгдлээ!");

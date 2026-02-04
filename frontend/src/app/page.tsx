@@ -179,13 +179,16 @@ export default function Home() {
 
   const GetLostFound = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/lostFound`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/lostFound`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+          },
         },
-      });
+      );
       const data = await res.json();
       console.log("User data:", data);
       setAnimalData(data);
@@ -383,7 +386,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-sm:grid-cols-2 gap-6">
             {animalData.slice(0, 8).map((pet) => (
               <PetCard
                 key={pet._id}
