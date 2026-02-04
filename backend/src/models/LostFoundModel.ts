@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 const lostFoundSchema = new mongoose.Schema(
   {
     userId: {
-      type: String,
-      required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     petType: {
       type: String,

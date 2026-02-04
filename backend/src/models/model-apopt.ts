@@ -1,14 +1,11 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 const Schema = mongoose.Schema;
-const ObjectId = Schema.ObjectId;
 
 const AdoptSchema = new Schema(
   {
-    id: ObjectId,
     userId: {
-      type: mongoose.Schema.Types.String,
-      require: true,
+      type: Types.ObjectId,
       ref: "User",
     },
     petType: { type: String, enum: ["Dog", "Cat"] },
@@ -22,6 +19,6 @@ const AdoptSchema = new Schema(
     adoptType: { type: String, enum: ["YES", "NO"], default: "NO" },
     updateAt: { type: Date, default: Date.now },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 export const AdoptSchemaModel = mongoose.model("Adopt", AdoptSchema);
