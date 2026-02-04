@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useLanguage } from "../contexts/Languagecontext";
 import { UrcluulehPage } from "../components/urcluuleh";
 import { UrclehPage } from "../components/urcleh";
-import { Link } from "lucide-react";
+import Link from "next/link";
 
 export default function ReportPage() {
   const [showPeople, setShowPeople] = useState(false);
@@ -24,6 +24,9 @@ export default function ReportPage() {
       posttype2: "Амьтан үрчилж авах",
       dood1: "Амьтанд эзэн хайж байна",
       dood2: "Амьтан үрчилж авмаар байна",
+      successTitle: "Мэдээлэл амжилттай илгээгдлээ",
+      
+      successButton: "Нүүр хуудас руу буцах",
     },
     en: {
       createPost: "Submit Report",
@@ -34,6 +37,9 @@ export default function ReportPage() {
       posttype2: "Adopt a Pet",
       dood1: "Looking for an owner",
       dood2: "Looking to adopt a pet",
+      successTitle: "Data submitted successfully",
+      
+      successButton: "Go to home page",
     },
   };
 
@@ -106,36 +112,36 @@ export default function ReportPage() {
               </div>
             )}
           </div>
-        </div>
-      ) : (
-        <div className="min-h-screen py-12 flex items-center justify-center">
-          <div className="max-w-md mx-auto text-center px-4">
-            <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg
-                className="w-12 h-12 text-green-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-            <h1 className="text-3xl font-bold mb-4">bas neg ym</h1>
-            <p className="text-muted mb-8">neg ym baigaa bha</p>
-
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link
-                href="/browse"
-                className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all"
-              >
-                sdfghj
-              </Link>
-            </div>
+        )}
+      </div>
+    </div> ) : (<div className="min-h-screen py-12 flex items-center justify-center">
+        <div className="max-w-md mx-auto text-center px-4">
+          <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg
+              className="w-12 h-12 text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold mb-4">{t.successTitle}</h1>
+         
+          
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link
+              href="/browse"
+              className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold transition-all"
+            >
+              <p className="text-white">{t.successButton}</p>
+            </Link>
+            
           </div>
         </div>
       )}
