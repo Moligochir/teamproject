@@ -59,7 +59,7 @@ export function Navbar() {
       browse: "Амьтад үзэх",
       browseSubLost: "Амьтан Үрчлэх",
       browseSubFound: "Олдсон амьтан",
-      map: "Газарын зураг",
+      map: "Газрын зураг",
       about: "Бидний тухай",
       login: "Нэвтрэх",
       report: "Мэдээлэх",
