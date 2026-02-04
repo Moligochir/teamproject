@@ -57,7 +57,7 @@ export function Navbar() {
     mn: {
       home: "Нүүр",
       browse: "Амьтад үзэх",
-      browseSubLost: "Төөрсөн амьтан",
+      browseSubLost: "Амьтан Үрчлэх",
       browseSubFound: "Олдсон амьтан",
       map: "Газарын зураг",
       about: "Бидний тухай",
@@ -66,7 +66,7 @@ export function Navbar() {
       loginRequired: "Та нэвтрэх шаардлагатай",
       langButton: "EN",
       aboutUs: "Бидний тухай",
-      toto: "Үрчлэх",
+      toto: "Үрчлэх / Үрчлүүлэх",
       toto2: "Үрчлүүлэх",
       Others: "Бусад",
       Shop: "Дэлгүүр",
@@ -77,7 +77,7 @@ export function Navbar() {
     en: {
       home: "Home",
       browse: "Browse Pets",
-      browseSubLost: "Lost Pets",
+      browseSubLost: "Adoption",
       browseSubFound: "Found Pets",
       map: "Map",
       about: "About Us",
