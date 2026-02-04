@@ -111,6 +111,7 @@ export default function PetDetailPage() {
       fast: "Хурдан",
       goToProfile: "Профайлд очих",
       myPostMessage: "Энэ бол таны зар. Засахыг хүсч байна уу?",
+      unknown: "Нэр мэдэгдэхгүй",
     },
     en: {
       home: "Home",
@@ -170,6 +171,7 @@ export default function PetDetailPage() {
       fast: "Fast",
       goToProfile: "Go to Profile",
       myPostMessage: "This is your post. Want to edit it?",
+      unknown: "Unknown",
     },
   };
 
@@ -491,7 +493,9 @@ export default function PetDetailPage() {
               </Link>
             </li>
             <li>/</li>
-            <li className="text-foreground font-medium">{pet.name}</li>
+            <li className="text-foreground font-medium">
+              {pet.name || t.unknown}
+            </li>
           </ol>
         </nav>
 
@@ -585,9 +589,9 @@ export default function PetDetailPage() {
                   {t.gender}
                 </div>
                 <p className="text-lg font-bold">
-                  {pet.gender === "Male" || pet.gender === "Эрэгтэй"
-                    ? "♂️ " + (language === "mn" ? "Эрэгтэй" : "Male")
-                    : "♀️ " + (language === "mn" ? "Эмэгтэй" : "Female")}
+                  {pet.gender === "Male" || pet.gender === "Эр"
+                    ? "♂️ " + (language === "mn" ? "Эр" : "Male")
+                    : "♀️ " + (language === "mn" ? "Эм" : "Female")}
                 </p>
               </div>
             </div>

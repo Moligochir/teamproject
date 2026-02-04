@@ -2,6 +2,7 @@
 
 // Enhanced AI Pet Matching Service with Pet Type Filtering
 // Dogs match only with Dogs, Cats match only with Cats
+// Fixed: Location calculation now works properly
 
 export interface PetForMatching {
   _id: string;
@@ -62,8 +63,9 @@ const reasonTranslations = {
     // Location matching
     "location.very_close": "Маш ойрын байршил",
     "location.close": "Ойрын байршил",
-    "location.same_area": "Ойрын байж болохуйц байршил",
-    "location.nearby": "Ойр",
+    "location.same_area": "Ойр",
+    "location.nearby": "Ойрын байшаа байршил",
+    "location.no_coords": "Байршлын мэдээлэл байхгүй",
 
     // Time matching
     "time.same_day": "Нэг өдрийн дотор",
@@ -94,6 +96,7 @@ const reasonTranslations = {
     "location.close": "Close location",
     "location.same_area": "Same area",
     "location.nearby": "Nearby",
+    "location.no_coords": "Location data not available",
 
     // Time matching
     "time.same_day": "Same day report",
@@ -140,6 +143,14 @@ const extractKeywords = (description: string): string[] => {
     "tsagaan",
     "saaral",
     "har",
+    "the",
+    "a",
+    "an",
+    "and",
+    "or",
+    "is",
+    "has",
+    "have",
   ];
   return words
     .filter((w) => w.length > 3 && !commonWords.includes(w))
@@ -163,7 +174,8 @@ const calculateDescriptionSimilarity = (
     }
   }
 
-  const score = (matches / Math.max(keywords1.size, keywords2.size)) * 100;
+  const totalKeywords = Math.max(keywords1.size, keywords2.size);
+  const score = totalKeywords > 0 ? (matches / totalKeywords) * 100 : 0;
   return { score, keywords: matchedKeywords };
 };
 
@@ -272,52 +284,100 @@ const getBreedMatchReason = (score: number): MatchReason => {
   };
 };
 
-// Calculate location similarity
+// ✅ FIXED: Calculate location similarity with proper distance calculation
 const calculateLocationSimilarity = (
   lat1: number | undefined,
   lng1: number | undefined,
   lat2: number | undefined,
   lng2: number | undefined,
 ): { similarity: number; distance: number; reason: MatchReason } => {
-  if (!lat1 || !lng1 || !lat2 || !lng2) {
+  // ⚠️ If no coordinates, return low score
+  if (
+    lat1 === undefined ||
+    lng1 === undefined ||
+    lat2 === undefined ||
+    lng2 === undefined
+  ) {
     return {
       similarity: 30,
-      distance: 999,
+      distance: 0,
       reason: {
         type: "location",
-        score: 0,
-        messageKey: "location.nearby",
+        score: 30,
+        messageKey: "location.no_coords",
+        details: "No location data",
       },
     };
   }
 
-  const R = 6371;
+  // Validate coordinates are numbers
+  if (
+    typeof lat1 !== "number" ||
+    typeof lng1 !== "number" ||
+    typeof lat2 !== "number" ||
+    typeof lng2 !== "number"
+  ) {
+    return {
+      similarity: 30,
+      distance: 0,
+      reason: {
+        type: "location",
+        score: 30,
+        messageKey: "location.no_coords",
+        details: "Invalid location data",
+      },
+    };
+  }
+
+  // ✅ FIXED: Proper Haversine formula calculation
+  const R = 6371; // Earth's radius in km
+  const lat1Rad = (lat1 * Math.PI) / 180;
+  const lat2Rad = (lat2 * Math.PI) / 180;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
+
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
+    Math.cos(lat1Rad) *
+      Math.cos(lat2Rad) *
       Math.sin(dLng / 2) *
       Math.sin(dLng / 2);
+
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = R * c;
 
-  const similarity = Math.max(10, 100 - distance * 3);
-
+  // ✅ FIXED: Better similarity scoring
+  let similarity = 0;
   let messageKey = "location.nearby";
-  if (distance < 1) messageKey = "location.very_close";
-  else if (distance < 5) messageKey = "location.close";
-  else if (distance < 10) messageKey = "location.same_area";
+
+  if (distance < 1) {
+    similarity = 100;
+    messageKey = "location.very_close";
+  } else if (distance < 3) {
+    similarity = 90;
+    messageKey = "location.very_close";
+  } else if (distance < 5) {
+    similarity = 80;
+    messageKey = "location.close";
+  } else if (distance < 10) {
+    similarity = 70;
+    messageKey = "location.same_area";
+  } else if (distance < 20) {
+    similarity = 50;
+    messageKey = "location.nearby";
+  } else {
+    similarity = 20;
+    messageKey = "location.nearby";
+  }
 
   return {
     similarity,
-    distance,
+    distance: Math.round(distance * 100) / 100, // Round to 2 decimal places
     reason: {
       type: "location",
       score: Math.round(similarity),
       messageKey,
-      details: `${Math.round(distance * 10) / 10}km away`,
+      details: `${Math.round(distance * 10) / 10} km away`,
     },
   };
 };
@@ -344,6 +404,9 @@ const calculateTimeSimilarity = (
   } else if (days > 3) {
     similarity = 80;
     messageKey = "time.few_days";
+  } else if (days > 0) {
+    similarity = 95;
+    messageKey = "time.same_day";
   }
 
   return {
@@ -406,7 +469,7 @@ export const findPetMatches = async (
       reasons.push(getBreedMatchReason(breedMatch));
     }
 
-    // Location similarity
+    // Location similarity ✅ FIXED
     const locationData = calculateLocationSimilarity(
       queryPet.lat,
       queryPet.lng,
@@ -449,7 +512,8 @@ export const findPetMatches = async (
       });
     }
 
-    // Calculate overall confidence score using weighted average
+    // ✅ FIXED: Improved confidence score calculation
+    // Weights: Image (30%), Breed (20%), Location (30%), Time (20%)
     const confidenceScore =
       imageMatch * 0.3 +
       breedMatch * 0.2 +
@@ -463,7 +527,7 @@ export const findPetMatches = async (
         matchName: candidate.name,
         confidenceScore: Math.round(confidenceScore),
         reasons: reasons.sort((a, b) => b.score - a.score), // Sort by score
-        distance: Math.round(locationData.distance * 10) / 10,
+        distance: locationData.distance,
         timeDiff: timeData.days,
         imageMatch: Math.round(imageMatch),
         breedMatch: Math.round(breedMatch),
