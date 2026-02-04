@@ -537,7 +537,7 @@ export default function ReportPage() {
             lat: formData.lat,
             lng: formData.lng,
             phonenumber: formData.contactPhone,
-            userId: FilterUser?._id,
+            userId: user?.id,
           }),
         },
       );
