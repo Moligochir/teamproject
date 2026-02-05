@@ -20,7 +20,6 @@ import {
 import { useEffect, useState } from "react";
 import { useLanguage } from "./contexts/Languagecontext";
 import PetCard from "./components/petcard";
-import CategoryCard from "./components/categorycard";
 
 type lostFound = {
   role: string;
@@ -159,11 +158,11 @@ function StatsSection({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-sm:grid-cols-2">
           {/* Total Listings */}
           <div className="stat-card group">
-            <div className="h-full rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 p-6 hover:border-primary/60 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 overflow-hidden relative">
+            <div className="h-full rounded-2xl border-2 border-primary/30 bg-linear-to-br from-primary/10 to-primary/5 p-6 hover:border-primary/60 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 overflow-hidden relative">
               <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
               <div className="relative z-10 space-y-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300 stat-icon">
+                <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-primary to-primary-dark flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300 stat-icon">
                   <Stat1 />
                 </div>
 
@@ -183,11 +182,11 @@ function StatsSection({
 
           {/* Lost Pets */}
           <div className="stat-card group">
-            <div className="h-full rounded-2xl border-2 border-red-500/30 bg-gradient-to-br from-red-500/10 to-rose-500/5 p-6 hover:border-red-500/60 hover:shadow-xl hover:shadow-red-500/20 transition-all duration-300 overflow-hidden relative">
+            <div className="h-full rounded-2xl border-2 border-red-500/30 bg-linear-to-br from-red-500/10 to-rose-500/5 p-6 hover:border-red-500/60 hover:shadow-xl hover:shadow-red-500/20 transition-all duration-300 overflow-hidden relative">
               <div className="absolute -top-20 -right-20 w-40 h-40 bg-red-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
               <div className="relative z-10 space-y-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300 stat-icon">
+                <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-red-500 to-rose-500 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300 stat-icon">
                   <Stat2 />
                 </div>
 
@@ -205,11 +204,11 @@ function StatsSection({
 
           {/* Found Pets */}
           <div className="stat-card group">
-            <div className="h-full rounded-2xl border-2 border-green-500/30 bg-gradient-to-br from-green-500/10 to-emerald-500/5 p-6 hover:border-green-500/60 hover:shadow-xl hover:shadow-green-500/20 transition-all duration-300 overflow-hidden relative">
+            <div className="h-full rounded-2xl border-2 border-green-500/30 bg-linear-to-br from-green-500/10 to-emerald-500/5 p-6 hover:border-green-500/60 hover:shadow-xl hover:shadow-green-500/20 transition-all duration-300 overflow-hidden relative">
               <div className="absolute -top-20 -right-20 w-40 h-40 bg-green-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
               <div className="relative z-10 space-y-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300 stat-icon">
+                <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300 stat-icon">
                   <svg
                     className="w-8 h-8"
                     fill="none"
@@ -239,11 +238,11 @@ function StatsSection({
 
           {/* Reunited */}
           <div className="stat-card group">
-            <div className="h-full rounded-2xl border-2 border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 p-6 hover:border-cyan-500/60 hover:shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 overflow-hidden relative">
+            <div className="h-full rounded-2xl border-2 border-cyan-500/30 bg-linear-to-br from-cyan-500/10 to-blue-500/5 p-6 hover:border-cyan-500/60 hover:shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 overflow-hidden relative">
               <div className="absolute -top-20 -right-20 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
               <div className="relative z-10 space-y-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300 stat-icon">
+                <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300 stat-icon">
                   <Stat4 />
                 </div>
 
@@ -488,27 +487,29 @@ export default function Home() {
 
             <div className="relative animate-slide-down stagger-2 hidden lg:block">
               <div className="relative w-full aspect-square max-w-md mx-auto">
-                <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-secondary/20 rounded-full animate-pulse-slow" />
+                <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-secondary/20 rounded-full animate-pulse-slow blob" />
                 <div
-                  className="absolute inset-4 bg-linear-to-br from-primary/30 to-secondary/30 rounded-full animate-rotate-slow"
+                  className="absolute inset-4 bg-linear-to-br from-primary/30 to-secondary/30 rounded-full animate-rotate-slow rotating"
                   style={{ animationDuration: "30s" }}
                 />
 
-                <div className="absolute inset-8 rounded-full overflow-hidden border-4 border-white shadow-2xl animate-glow-pulse">
-                  <img
-                    src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=600&fit=crop"
-                    alt="Dogs and cats"
-                    className="object-cover w-full h-full"
-                  />
+                <div className="absolute inset-8 rounded-full overflow-hidden border-4 border-transparent bg-linear-to-br from-primary via-primary to-pink-500 p-1 shadow-2xl animate-glow-pulse">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-background">
+                    <img
+                      src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=600&fit=crop"
+                      alt="Dogs and cats"
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
                 </div>
 
-                <div className="absolute -top-4 -right-4 bg-white dark:bg-card-bg rounded-2xl shadow-2xl p-4 animate-float animate-glow-pulse">
+                <div className="absolute -top-4 -right-4 bg-white dark:bg-card-bg rounded-2xl shadow-2xl p-4 animate-float animate-glow-pulse card-hover-lift">
                   <span className="text-4xl">
                     <DogIcon />
                   </span>
                 </div>
                 <div
-                  className="absolute -bottom-4 -left-4 bg-white dark:bg-card-bg rounded-2xl shadow-2xl p-4 animate-float animate-glow-pulse"
+                  className="absolute -bottom-4 -left-4 bg-white dark:bg-card-bg rounded-2xl shadow-2xl p-4 animate-float animate-glow-pulse card-hover-lift"
                   style={{ animationDelay: "1s" }}
                 >
                   <span className="text-4xl">
@@ -540,52 +541,189 @@ export default function Home() {
             <p className="text-muted text-lg">{t.categories.description}</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <CategoryCard
-              icon={<DogIcon />}
-              title={t.categories.dog}
-              count={
-                animalData.filter(
-                  (d) =>
-                    d.petType === "Dog" || d.petType.toLowerCase() === "dog",
-                ).length
-              }
-              href="/browse?type=dog"
-              delay="stagger-1"
-            />
-            <CategoryCard
-              icon={<CatIcon />}
-              title={t.categories.cat}
-              count={
-                animalData.filter(
-                  (d) =>
-                    d.petType === "Cat" || d.petType.toLowerCase() === "cat",
-                ).length
-              }
-              href="/browse?type=cat"
-              delay="stagger-2"
-            />
-            <CategoryCard
-              icon={<SearchIconn />}
-              title={t.categories.lost}
-              count={
-                animalData.filter(
-                  (d) => d.role === "Lost" || d.role.toLowerCase() === "lost",
-                ).length
-              }
-              href="/browse?status=lost"
-              delay="stagger-3"
-            />
-            <CategoryCard
-              icon={<FoundIcon />}
-              title={t.categories.found}
-              count={
-                animalData.filter(
-                  (d) => d.role === "Found" || d.role.toLowerCase() === "found",
-                ).length
-              }
-              href="/browse?status=found"
-              delay="stagger-4"
-            />
+            {/* dog */}
+            <Link
+              href={"/browse?type=dog"}
+              className={`group block animate-fade-up opacity-0 stagger-1`}
+            >
+              <div className="h-full rounded-2xl border-2 border-primary/30 bg-linear-to-br from-primary/10 to-primary/5 p-6 hover:border-primary/60 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 overflow-hidden relative">
+                {/* Glow effect */}
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                <div className="relative z-10 space-y-5">
+                  {/* Icon */}
+                  <div className="w-14 h-14 rounded-2xl  flex items-center justify-center  shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <DogIcon />
+                  </div>
+
+                  {/* Text section */}
+                  <div className="space-y-1">
+                    <div className="text-4xl sm:text-5xl font-black text-foreground stat-value">
+                      {
+                        animalData.filter(
+                          (d) =>
+                            d.petType === "Dog" ||
+                            d.petType.toLowerCase() === "dog",
+                        ).length
+                      }
+                    </div>
+
+                    <p className="text-sm font-semibold text-muted uppercase tracking-wider">
+                      {t.categories.dog}
+                    </p>
+
+                    <p className="text-xs text-muted/70">
+                      {
+                        animalData.filter(
+                          (d) =>
+                            d.petType === "Dog" ||
+                            d.petType.toLowerCase() === "dog",
+                        ).length
+                      }{" "}
+                      зарлал
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* cat */}
+            <Link
+              href={"/browse?type=dog"}
+              className={`group block animate-fade-up opacity-0 stagger-2`}
+            >
+              <div className="h-full rounded-2xl border-2 border-primary/30 bg-linear-to-br from-primary/10 to-primary/5 p-6 hover:border-primary/60 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 overflow-hidden relative">
+                {/* Glow effect */}
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                <div className="relative z-10 space-y-5">
+                  {/* Icon */}
+                  <div className="w-14 h-14 rounded-2xl  flex items-center justify-center  shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <CatIcon />
+                  </div>
+
+                  {/* Text section */}
+                  <div className="space-y-1">
+                    <div className="text-4xl sm:text-5xl font-black text-foreground stat-value">
+                      {
+                        animalData.filter(
+                          (d) =>
+                            d.petType === "Cat" ||
+                            d.petType.toLowerCase() === "cat",
+                        ).length
+                      }
+                    </div>
+
+                    <p className="text-sm font-semibold text-muted uppercase tracking-wider">
+                      {t.categories.cat}
+                    </p>
+
+                    <p className="text-xs text-muted/70">
+                      {
+                        animalData.filter(
+                          (d) =>
+                            d.petType === "Cat" ||
+                            d.petType.toLowerCase() === "cat",
+                        ).length
+                      }{" "}
+                      зарлал
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* lost */}
+            <Link
+              href={"/browse?type=dog"}
+              className={`group block animate-fade-up opacity-0 stagger-2`}
+            >
+              <div className="h-full rounded-2xl border-2 border-primary/30 bg-linear-to-br from-primary/10 to-primary/5 p-6 hover:border-primary/60 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 overflow-hidden relative">
+                {/* Glow effect */}
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                <div className="relative z-10 space-y-5">
+                  {/* Icon */}
+                  <div className="w-14 h-14 rounded-2xl  flex items-center justify-center  shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <SearchIconn />
+                  </div>
+
+                  {/* Text section */}
+                  <div className="space-y-1">
+                    <div className="text-4xl sm:text-5xl font-black text-foreground stat-value">
+                      {
+                        animalData.filter(
+                          (d) =>
+                            d.role === "Lost" ||
+                            d.role.toLowerCase() === "lost",
+                        ).length
+                      }
+                    </div>
+
+                    <p className="text-sm font-semibold text-muted uppercase tracking-wider">
+                      {t.categories.lost}
+                    </p>
+
+                    <p className="text-xs text-muted/70">
+                      {
+                        animalData.filter(
+                          (d) =>
+                            d.role === "Lost" ||
+                            d.role.toLowerCase() === "lost",
+                        ).length
+                      }{" "}
+                      зарлал
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* found */}
+            <Link
+              href={"/browse?type=dog"}
+              className={`group block animate-fade-up opacity-0 stagger-2`}
+            >
+              <div className="h-full rounded-2xl border-2 border-primary/30 bg-linear-to-br from-primary/10 to-primary/5 p-6 hover:border-primary/60 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 overflow-hidden relative">
+                {/* Glow effect */}
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                <div className="relative z-10 ">
+                  {/* Icon */}
+                  <div className="w-14 h-14 rounded-2xl  flex items-center justify-center  shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <FoundIcon />
+                  </div>
+
+                  {/* Text section */}
+                  <div className="space-y-1">
+                    <div className="text-4xl sm:text-5xl font-black text-foreground stat-value">
+                      {
+                        animalData.filter(
+                          (d) =>
+                            d.role === "Found" ||
+                            d.role.toLowerCase() === "found",
+                        ).length
+                      }
+                    </div>
+
+                    <p className="text-sm font-semibold text-muted uppercase tracking-wider">
+                      {t.categories.found}
+                    </p>
+
+                    <p className="text-xs text-muted/70">
+                      {
+                        animalData.filter(
+                          (d) =>
+                            d.role === "Found" ||
+                            d.role.toLowerCase() === "found",
+                        ).length
+                      }{" "}
+                      зарлал
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Link>
           </div>
         </div>
       </section>
@@ -696,7 +834,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="hidden md:block absolute top-1/3 left-1/4 right-1/4 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent -z-0"></div>
+          <div className="hidden md:block absolute top-1/3 left-1/4 right-1/4 h-1 bg-linear-to-r from-transparent via-primary/30 to-transparent -z-0"></div>
         </div>
       </section>
 
