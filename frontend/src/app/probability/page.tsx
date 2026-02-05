@@ -403,7 +403,6 @@ export default function ProbabilityPage() {
                 {queryPet.description && (
                   <div className="bg-linear-to-r from-orange-500/10 to-rose-500/10 rounded-xl p-6 border border-orange-500/30 hover:border-orange-500/60 transition-all">
                     <p className="text-muted text-sm font-bold mb-3 uppercase tracking-widest flex items-center gap-2">
-                      <span className="text-lg">📝</span>
                       {t.descriptionn}
                     </p>
                     <p className="text-sm leading-relaxed text-white/90 line-clamp-3 hover:line-clamp-none transition-all">
