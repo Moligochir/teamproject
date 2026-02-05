@@ -21,9 +21,8 @@ const nunitoSans = Nunito_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "PawFinder - Төөрсөн & Олдсон Тэжээвэр Амьтад",
-  description:
-    "Төөрсөн тэжээвэр амьтдыг гэр бүлтэй нь холбоход туслана. Олдсон амьтдын мэдээлэл оруулах эсвэл төөрсөн найзаа хайх.",
+  title: "PawFinder 2026",
+  description: ".",
 };
 
 export default function RootLayout({

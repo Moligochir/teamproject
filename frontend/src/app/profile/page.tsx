@@ -147,7 +147,7 @@ export default function ProfilePage() {
       matches: "Тохиролууд",
       settings: "Тохиргоо",
       edit: "Засах",
-      delete: "Устгах",
+      delete: "Архив",
       contact: "Холбогдох",
       viewDetails: "Дэлгэрэнгүй",
       noPosts: "Танд зар байхгүй байна",
@@ -217,7 +217,7 @@ export default function ProfilePage() {
       viewMatch: "Тохирлыг үзэх",
       hideSuccess: "✓ Зар амжилттай нүүгдлээ",
       unhideSuccess: "✓ Зар амжилттай нээгдлээ",
-      hideConfirm: "Энэ зарыг нуух уу?",
+      hideConfirm: "Энэ зарыг архивлах уу?",
       hideWarning: "Зар та нууцаас хасагдах болно. Дахин нээж болно.",
     },
     en: {
@@ -302,7 +302,7 @@ export default function ProfilePage() {
       viewMatch: "View Match",
       hideSuccess: "✓ Post hidden successfully",
       unhideSuccess: "✓ Post restored successfully",
-      hideConfirm: "Hide this post?",
+      hideConfirm: "Archive this post?",
       hideWarning:
         "The post will be hidden from your profile and browse. You can restore it later.",
     },
@@ -1619,7 +1619,7 @@ export default function ProfilePage() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-card-bg rounded-2xl max-w-md w-full p-6 text-center">
             <h3 className="text-xl font-bold mb-4">
-              {language === "mn" ? "Энэ зарыг нуух уу?" : "Hide this post?"}
+              {language === "mn" ? "Энэ зарыг архивлах уу?" : "Hide this post?"}
             </h3>
             <p className="text-muted mb-6 text-sm">
               {language === "mn"
@@ -1674,11 +1674,11 @@ export default function ProfilePage() {
               >
                 {isDeleting
                   ? language === "mn"
-                    ? "Нууцаж байна..."
-                    : "Hiding..."
+                    ? "Архивлаж байна..."
+                    : "Moving..."
                   : language === "mn"
-                    ? "Нуу"
-                    : "Hide"}
+                    ? "Архивлах"
+                    : "Archive"}
               </button>
             </div>
           </div>

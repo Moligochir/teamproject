@@ -130,7 +130,7 @@ export default function ReportPage() {
       // Contact info
       contactTitle: "Таны холбоо барих мэдээлэл",
       yourName: "Таны нэр",
-      namePlaceholder: "Sunduibazrr",
+      namePlaceholder: "Your Name",
       email: "Имэйл",
       emailPlaceholder: "example@email.com",
       phone: "Утасны дугаар",
@@ -798,7 +798,7 @@ export default function ReportPage() {
             <h2 className="text-lg sm:text-xl font-bold mb-4">
               {t.petTypeTitle}
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-sm:grid-cols-2">
               <button
                 type="button"
                 onClick={() =>
@@ -928,13 +928,16 @@ export default function ReportPage() {
                     name="date"
                     value={formData.date}
                     onChange={handleChange}
-                    className={`w-full px-3 sm:px-4 py-2 sm:py-3 pr-10 bg-background border ${
+                    className={`w-full px-3 sm:px-4 py-2 sm:py-4 pr-10 bg-background border ${
                       errors.date ? "border-red-500" : "border-card-border"
                     } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden [&::-webkit-outer-spin-button]:hidden`}
                   />
                   <button
                     type="button"
-                    onClick={() => dateInputRef.current?.showPicker?.() || dateInputRef.current?.click()}
+                    onClick={() =>
+                      dateInputRef.current?.showPicker?.() ||
+                      dateInputRef.current?.click()
+                    }
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                     aria-label="Open date picker"
                   >
@@ -1169,7 +1172,6 @@ export default function ReportPage() {
                 <>
                   <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   <span className="hidden sm:inline">{t.submitting}</span>
-                  <span className="sm:hidden">⏳</span>
                 </>
               ) : (
                 t.submit
@@ -1181,7 +1183,7 @@ export default function ReportPage() {
               disabled={isSubmitting}
               className={`px-6 sm:px-8 py-3 sm:py-4 border border-card-border text-foreground rounded-full font-bold text-sm sm:text-lg transition-all text-center ${
                 isSubmitting
-                  ? "bg-gray-200 cursor-not-allowed opacity-60"
+                  ? "bg-gray-700 cursor-not-allowed opacity-60"
                   : "bg-card-bg cursor-pointer hover:border-primary"
               }`}
             >

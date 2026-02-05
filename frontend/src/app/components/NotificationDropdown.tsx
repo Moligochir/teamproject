@@ -94,7 +94,7 @@ export function NotificationDropdown() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className=" top-0 bg-card-bg border-b border-card-border p-4 flex flex-col gap-5 items-center justify-between">
+      <div className=" top-0 bg-card-bg border-b border-card-border p-4 max-sm:p-2 flex flex-col gap-5 items-center justify-between">
         <h3 className="font-bold">{t.notifications}</h3>
         <div>
           {notifications.length > 0 && (
