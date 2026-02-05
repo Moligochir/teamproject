@@ -39,7 +39,13 @@ type lostFound = {
 };
 
 // Animated Counter Component
-function AnimatedCounter({ target, delay = 0 }: { target: number; delay?: number }) {
+function AnimatedCounter({
+  target,
+  delay = 0,
+}: {
+  target: number;
+  delay?: number;
+}) {
   const [count, setCount] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -87,12 +93,12 @@ function StatsSection({
 }) {
   const totalCount = animalData.length;
   const lostCount = animalData.filter(
-    (d) => d.role === "Lost" || d.role.toLowerCase() === "lost"
+    (d) => d.role === "Lost" || d.role.toLowerCase() === "lost",
   ).length;
   const foundCount = animalData.filter(
-    (d) => d.role === "Found" || d.role.toLowerCase() === "found"
+    (d) => d.role === "Found" || d.role.toLowerCase() === "found",
   ).length;
-  const reunitedCount = 89;
+  const reunitedCount = 8;
 
   return (
     <section className="py-16 -mt-16 relative z-20">
@@ -158,7 +164,7 @@ function StatsSection({
 
               <div className="relative z-10 space-y-4">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300 stat-icon">
-                <Stat1/>
+                  <Stat1 />
                 </div>
 
                 <div className="space-y-1">
@@ -170,9 +176,7 @@ function StatsSection({
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                 
-                </div>
+                <div className="flex items-center gap-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
             </div>
           </div>
@@ -184,7 +188,7 @@ function StatsSection({
 
               <div className="relative z-10 space-y-4">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300 stat-icon">
-                <Stat2/>
+                  <Stat2 />
                 </div>
 
                 <div className="space-y-1">
@@ -195,8 +199,6 @@ function StatsSection({
                     {t.stats.lost}
                   </p>
                 </div>
-
-                
               </div>
             </div>
           </div>
@@ -231,8 +233,6 @@ function StatsSection({
                     {t.stats.found}
                   </p>
                 </div>
-
-               
               </div>
             </div>
           </div>
@@ -244,7 +244,7 @@ function StatsSection({
 
               <div className="relative z-10 space-y-4">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300 stat-icon">
-                <Stat4/>
+                  <Stat4 />
                 </div>
 
                 <div className="space-y-1">
@@ -255,14 +255,10 @@ function StatsSection({
                     {t.stats.reunited}
                   </p>
                 </div>
-
-               
               </div>
             </div>
           </div>
         </div>
-
-       
       </div>
     </section>
   );
@@ -289,7 +285,7 @@ export default function Home() {
         total: "Нийт зарлал",
         lost: "Төөрсөн",
         found: "Олдсон",
-        reunited: "Эзэдтэй холбогдсон",
+        reunited: "Үрчлүүлэх Зар",
       },
       categories: {
         title: "Ангилалаар хайх",
@@ -347,7 +343,7 @@ export default function Home() {
         total: "Total Listings",
         lost: "Lost",
         found: "Found",
-        reunited: "Reunited",
+        reunited: "Adoption",
       },
       categories: {
         title: "Browse by Category",
@@ -413,7 +409,7 @@ export default function Home() {
             "Content-Type": "application/json",
             accept: "application/json",
           },
-        }
+        },
       );
       const data = await res.json();
       console.log("User data:", data);
@@ -432,10 +428,19 @@ export default function Home() {
       {/* Hero Section */}
       <section className="gradient-hero paw-pattern min-h-[85vh] flex items-center relative overflow-hidden">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
-        <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-accent/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2s" }} />
+        <div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        />
+        <div
+          className="absolute top-1/2 left-1/3 w-64 h-64 bg-accent/15 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "2s" }}
+        />
         <div className="absolute top-10 right-1/4 w-48 h-48 bg-primary/10 rounded-full blur-2xl animate-float" />
-        <div className="absolute bottom-1/3 left-20 w-32 h-32 bg-secondary/15 rounded-full blur-2xl animate-float" style={{ animationDelay: "0.5s" }} />
+        <div
+          className="absolute bottom-1/3 left-20 w-32 h-32 bg-secondary/15 rounded-full blur-2xl animate-float"
+          style={{ animationDelay: "0.5s" }}
+        />
         <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-background/70" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10 w-full">
@@ -484,8 +489,11 @@ export default function Home() {
             <div className="relative animate-slide-down stagger-2 hidden lg:block">
               <div className="relative w-full aspect-square max-w-md mx-auto">
                 <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-secondary/20 rounded-full animate-pulse-slow" />
-                <div className="absolute inset-4 bg-linear-to-br from-primary/30 to-secondary/30 rounded-full animate-rotate-slow" style={{ animationDuration: "30s" }} />
-                
+                <div
+                  className="absolute inset-4 bg-linear-to-br from-primary/30 to-secondary/30 rounded-full animate-rotate-slow"
+                  style={{ animationDuration: "30s" }}
+                />
+
                 <div className="absolute inset-8 rounded-full overflow-hidden border-4 border-white shadow-2xl animate-glow-pulse">
                   <img
                     src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=600&fit=crop"
@@ -509,7 +517,10 @@ export default function Home() {
                 </div>
 
                 <div className="absolute top-1/4 -right-8 w-4 h-4 bg-primary rounded-full animate-pulse" />
-                <div className="absolute bottom-1/4 -left-8 w-3 h-3 bg-secondary rounded-full animate-pulse" style={{ animationDelay: "0.5s" }} />
+                <div
+                  className="absolute bottom-1/4 -left-8 w-3 h-3 bg-secondary rounded-full animate-pulse"
+                  style={{ animationDelay: "0.5s" }}
+                />
               </div>
             </div>
           </div>
@@ -528,7 +539,7 @@ export default function Home() {
             </h2>
             <p className="text-muted text-lg">{t.categories.description}</p>
           </div>
-       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <CategoryCard
               icon={<DogIcon />}
               title={t.categories.dog}
@@ -583,7 +594,7 @@ export default function Home() {
       <section className="py-16 bg-card-bg/50 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex items-center justify-between mb-12">
             <div className="animate-slide-up">
@@ -596,13 +607,20 @@ export default function Home() {
               href="/browse"
               className="hidden md:flex items-center gap-2 text-primary hover:text-primary-dark font-semibold transition-all hover:gap-4 group"
             >
-              {t.recent.viewAll} <span className="group-hover:translate-x-2 transition-transform">→</span>
+              {t.recent.viewAll}{" "}
+              <span className="group-hover:translate-x-2 transition-transform">
+                →
+              </span>
             </Link>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-sm:grid-cols-2 gap-6">
             {animalData.slice(0, 8).map((pet, index) => (
-              <div key={pet._id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
+              <div
+                key={pet._id}
+                className="animate-slide-up"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
                 <PetCard
                   role={pet.role}
                   name={pet.name || t.nerguiii}
@@ -689,7 +707,9 @@ export default function Home() {
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <div className="animate-slide-up">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">{t.cta.title}</h2>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+              {t.cta.title}
+            </h2>
             <p className="text-xl opacity-90 mb-10 max-w-2xl mx-auto leading-relaxed">
               {t.cta.description}
             </p>
