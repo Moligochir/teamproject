@@ -3,6 +3,7 @@ import { LostFoundModel } from "../../models/LostFoundModel";
 import { sendPostNotification } from "../../server";
 import { getImageEmbedding } from "../../ai/vertexEmbbeding";
 import { cosineSimilarity } from "../../ai/similarity";
+import { jobQueue } from "../../queue";
 
 export const createLostFound = async (req: Request, res: Response) => {
   const newLostFound = req.body;
@@ -29,35 +30,36 @@ export const createLostFound = async (req: Request, res: Response) => {
       .lean();
 
     // 3) Threshold тавина (жишээ нь 0.75 = 75%)
-    const threshold = 0.5;
+    // const threshold = 0.5;
 
     // 5️⃣ MAP + PROMISE.ALL
     // ===============================
-    const results = await Promise.all(
-      candidates.map(async (c: any) => {
-        if (!c.image) return null;
 
-        const candEmbedding = await getImageEmbedding(c.image);
+    // const results = await Promise.all(
+    //   candidates.map(async (c: any) => {
+    //     if (!c.image) return null;
 
-        const similarity = cosineSimilarity(newEmbedding, candEmbedding); // 0 → 1
+    //     const candEmbedding = await getImageEmbedding(c.image);
 
-        if (similarity < threshold) return null;
-        return {
-          matchId: String(c._id),
-          matchScore: Math.round(similarity * 100),
-          image: c.image,
-          name: c.name,
-          description: c.description,
-        };
-      }),
-    );
+    //     const similarity = cosineSimilarity(newEmbedding, candEmbedding); // 0 → 1
+
+    //     if (similarity < threshold) return null;
+    //     return {
+    //       matchId: String(c._id),
+    //       matchScore: Math.round(similarity * 100),
+    //       image: c.image,
+    //       name: c.name,
+    //       description: c.description,
+    //     };
+    //   }),
+    // );
 
     // null-уудыг цэвэрлэнэ
-    const matches = results
-      .filter(Boolean)
-      .sort((a: any, b: any) => b.matchScore - a.matchScore);
+    // const matches = results
+    //   .filter(Boolean)
+    //   .sort((a: any, b: any) => b.matchScore - a.matchScore);
 
-    await LostFoundModel.create({
+    const response = await LostFoundModel.create({
       role: newLostFound.role,
       petType: newLostFound.petType,
       name: newLostFound.name,
@@ -71,26 +73,39 @@ export const createLostFound = async (req: Request, res: Response) => {
       gender: newLostFound.gender,
       Date: newLostFound.Date,
       phonenumber: newLostFound.phonenumber,
-      matches: matches.map((m: any) => ({
-        postId: m.matchId,
-        score: m.matchScore,
-      })),
+      matches: [],
+      // matches: matches.map((m: any) => ({
+      //   postId: m.matchId,
+      //   score: m.matchScore,
+      // })),
     });
+
+    await Promise.all(
+      candidates.map(async (c) => {
+        await jobQueue.add("process-create-post", {
+          uploadingImage: newEmbedding,
+          candidate: c,
+          response,
+        });
+      }),
+    );
 
     res.status(200).json({
       success: true,
-      data: matches.map((m: any) => ({
-        ...m,
-        confidence:
-          m.matchScore >= 85
-            ? "HIGH"
-            : m.matchScore >= 70
-              ? "MEDIUM"
-              : m.matchScore <= 50
-                ? "LOW"
-                : "NULL",
-      })),
-      dataLength: matches.length,
+      data: [],
+      dataLength: 0,
+      // data: matches.map((m: any) => ({
+      //   ...m,
+      //   confidence:
+      //     m.matchScore >= 85
+      //       ? "HIGH"
+      //       : m.matchScore >= 70
+      //         ? "MEDIUM"
+      //         : m.matchScore <= 50
+      //           ? "LOW"
+      //           : "NULL",
+      // })),
+      // dataLength: matches.length,
     });
   } catch (e: unknown) {
     res.status(500).json({ message: (e as Error).message });
