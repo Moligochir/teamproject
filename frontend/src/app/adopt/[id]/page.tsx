@@ -145,7 +145,6 @@ export default function AdoptDetailPage() {
 
   console.log("adopt data:", adopt);
 
-  // Helper functions
   const getPetTypeDisplay = (type?: string) => {
     if (!type) return "🐾 Pet";
     if (type.toLowerCase() === "dog") return "🐕 Dog";
@@ -165,7 +164,6 @@ export default function AdoptDetailPage() {
   return (
     <div className="min-h-screen bg-background pt-20 pb-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back Button */}
         <button
           onClick={() => router.back()}
           className="mb-8 flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all"
